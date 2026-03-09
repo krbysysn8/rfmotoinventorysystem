@@ -1,50 +1,35 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\SalesController;
-use App\Http\Controllers\ReturnController;
-use App\Http\Controllers\VerifyController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\BarcodeController;
 
+// ── Auth ──────────────────────────────────────────────────────
+Route::post('/login',  [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-Route::post('/login', [AuthController::class, 'login']);
+// ── Protected API routes ──────────────────────────────────────
+Route::middleware(['auth:sanctum'])->group(function () {
 
-Route::middleware('auth:sanctum')->group(function () {
+    // ── Products ──────────────────────────────────────────────
+    Route::get('/categories',          [ProductController::class, 'categories']);
+    Route::get('/products',            [ProductController::class, 'index']);
+    Route::get('/products/{id}',       [ProductController::class, 'show']);
 
-    // Auth
-    Route::post('/logout',  [AuthController::class, 'logout']);
-    Route::get('/me',       [AuthController::class, 'me']);
-
-    // Dashboard stats
-    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
-
-    // Products
-    Route::get('/products',                    [ProductController::class, 'index']);
-    Route::post('/products/{id}/stock-in',     [ProductController::class, 'stockIn']);
-    Route::post('/products/{id}/stock-out',    [ProductController::class, 'stockOut']);
-
-    // Admin-only product actions
+    // Admin-only product mutations
     Route::middleware('role:admin')->group(function () {
-        Route::post('/products',               [ProductController::class, 'store']);
-        Route::put('/products/{id}',           [ProductController::class, 'update']);
+        Route::post  ('/products',                  [ProductController::class, 'store']);
+        Route::put   ('/products/{id}',             [ProductController::class, 'update']);
+        Route::delete('/products/{id}',             [ProductController::class, 'destroy']);
+        Route::put   ('/products/{id}/variations',  [ProductController::class, 'updateVariations']);
     });
 
-    // Sales
-    Route::get('/sales',    [SalesController::class, 'index']);
-    Route::post('/sales',   [SalesController::class, 'store']);
+    // ── Barcode ───────────────────────────────────────────────
+    Route::get ('/barcode/lookup',       [BarcodeController::class, 'lookup']);
+    Route::get ('/barcode/products',     [BarcodeController::class, 'products']);
+    Route::get ('/barcode/scan-logs',    [BarcodeController::class, 'scanLogs']);
+    Route::post('/barcode/generate',     [BarcodeController::class, 'generate']);
+    Route::post('/barcode/stock-update', [BarcodeController::class, 'stockUpdate']);
 
-    // Returns
-    Route::get('/returns',               [ReturnController::class, 'index']);
-    Route::post('/returns',              [ReturnController::class, 'store']);
-    Route::post('/returns/{id}/approve', [ReturnController::class, 'approve'])->middleware('role:admin');
-    Route::post('/returns/{id}/reject',  [ReturnController::class, 'reject'])->middleware('role:admin');
-
-    // Verify actions — admin only
-    Route::middleware('role:admin')->group(function () {
-        Route::get('/verify',                [VerifyController::class, 'index']);
-        Route::post('/verify/{id}/approve',  [VerifyController::class, 'approve']);
-        Route::post('/verify/{id}/reject',   [VerifyController::class, 'reject']);
-    });
 });

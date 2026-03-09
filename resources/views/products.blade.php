@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RF Moto – Dashboard</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<title>RF Moto – Product Overview</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-
+/* ══════════════════════════════════════════
+   DESIGN TOKENS — matching rfmoto-login.html
+══════════════════════════════════════════ */
 :root {
   --cyan:        #17b8dc;
   --cyan2:       #0ea5c9;
@@ -16,6 +19,7 @@
   --cyan-border: rgba(23,184,220,0.22);
   --cyan-glow:   rgba(23,184,220,0.15);
 
+  /* Light mode surfaces */
   --bg:          #eef3f7;
   --surface:     #ffffff;
   --surface2:    #f5f8fa;
@@ -25,6 +29,7 @@
   --border:      #dde5ea;
   --border2:     #c8d8e2;
 
+  /* Sidebar stays dark always */
   --sidebar-bg:  #0d1b26;
   --sidebar-bg2: #111f2e;
   --sidebar-sep: rgba(255,255,255,0.07);
@@ -33,17 +38,20 @@
   --sidebar-hover: rgba(255,255,255,0.06);
   --sidebar-active: rgba(23,184,220,0.13);
 
+  /* Status */
   --success:     #16a34a;
   --danger:      #dc2626;
   --warn:        #d97706;
   --blue:        #2563eb;
   --blue2:       #1d4ed8;
 
+  /* Shadows */
   --shadow-sm:   0 1px 3px rgba(0,0,0,.05), 0 4px 12px rgba(0,0,0,.06);
   --shadow-md:   0 2px 4px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.08);
   --shadow-lg:   0 4px 6px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.10);
 }
 
+/* ── DARK MODE ── */
 [data-theme="dark"] {
   --bg:          #0f1923;
   --surface:     #172333;
@@ -58,6 +66,9 @@
   --shadow-lg:   0 4px 6px rgba(0,0,0,.2), 0 12px 40px rgba(0,0,0,.35);
 }
 
+/* ══════════════════════════════════════════
+   BASE
+══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -69,8 +80,15 @@ html, body {
   transition: background .3s, color .3s;
 }
 
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
 #app { display: flex; height: 100vh; }
 
+/* ══════════════════════════════════════════
+   SIDEBAR — dark always, matching login's
+   dark pill / #0d1b26 treatment
+══════════════════════════════════════════ */
 .sidebar {
   width: 236px; min-width: 236px;
   background: var(--sidebar-bg);
@@ -78,11 +96,13 @@ html, body {
   position: relative; z-index: 10;
   transition: width .28s cubic-bezier(.4,0,.2,1), min-width .28s;
   overflow: hidden;
+  /* subtle top cyan line matching login card-stripe */
   border-right: 1px solid rgba(23,184,220,0.10);
   box-shadow: 2px 0 24px rgba(0,0,0,.22);
 }
 .sidebar.collapsed { width: 64px; min-width: 64px; }
 
+/* ── Sidebar top stripe (matches login card-stripe) ── */
 .sidebar::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -93,11 +113,12 @@ html, body {
 }
 @keyframes stripeShift { 0% { background-position: 0% } 100% { background-position: 300% } }
 
+/* ── Header ── */
 .sidebar-header {
   padding: 20px 16px 14px;
   border-bottom: 1px solid var(--sidebar-sep);
   display: flex; align-items: center; gap: 11px;
-  margin-top: 3px; 
+  margin-top: 3px; /* clear the top stripe */
 }
 .sidebar-logo-pill {
   width: 38px; height: 38px;
@@ -128,6 +149,7 @@ html, body {
   white-space: nowrap; margin-top: 2px;
 }
 
+/* ── User strip ── */
 .sidebar-user {
   padding: 12px 14px;
   border-bottom: 1px solid var(--sidebar-sep);
@@ -157,6 +179,7 @@ html, body {
 .sidebar-role-badge.admin { background: rgba(37,99,235,.28); color: #93c5fd; }
 .sidebar-role-badge.staff { background: rgba(23,184,220,.18); color: var(--cyan); }
 
+/* ── Nav ── */
 .sidebar-nav {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding: 8px 0;
@@ -185,6 +208,7 @@ html, body {
   background: var(--sidebar-active);
   border-left-color: var(--cyan);
 }
+/* active glow */
 .nav-item.active::after {
   content: '';
   position: absolute; right: 0; top: 20%; bottom: 20%;
@@ -214,6 +238,7 @@ html, body {
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
 
+/* ── Footer ── */
 .sidebar-footer {
   padding: 10px 14px 14px;
   border-top: 1px solid var(--sidebar-sep);
@@ -234,6 +259,9 @@ html, body {
   width: 18px; text-align: center; font-size: 13px; flex-shrink: 0;
 }
 
+/* ══════════════════════════════════════════
+   TOPBAR — matches login card surface style
+══════════════════════════════════════════ */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .topbar {
@@ -254,6 +282,7 @@ html, body {
   transition: color .3s;
 }
 
+/* Search bar — identical feel to login inputs */
 .topbar-search { position: relative; flex: 1; max-width: 340px; }
 .topbar-search input {
   width: 100%;
@@ -290,6 +319,7 @@ html, body {
 }
 .topbar-btn:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(23,184,220,.05); }
 
+/* Dark mode toggle */
 .dark-toggle {
   width: 52px; height: 28px; border-radius: 99px;
   background: var(--border2); border: 1px solid var(--border);
@@ -333,6 +363,9 @@ html, body {
 .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text); transition: color .3s; }
 .topbar-user-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 
+/* ══════════════════════════════════════════
+   NOTIFICATION DRAWER
+══════════════════════════════════════════ */
 .notif-drawer {
   position: fixed; top: 56px; right: 0;
   width: 316px; max-height: 72vh;
@@ -374,6 +407,9 @@ html, body {
 .notif-text { font-size: 12px; color: var(--text); line-height: 1.45; }
 .notif-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
+/* ══════════════════════════════════════════
+   CONTENT AREA
+══════════════════════════════════════════ */
 .content-area {
   flex: 1; overflow-y: auto;
   padding: 20px 22px;
@@ -384,9 +420,13 @@ html, body {
 .content-area::-webkit-scrollbar-track { background: transparent; }
 .content-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* pages */
 .page { display: none; }
 .page.active { display: block; }
 
+/* ══════════════════════════════════════════
+   STAT CARDS — same card feel as login card
+══════════════════════════════════════════ */
 .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
 
 .stat-card {
@@ -398,6 +438,7 @@ html, body {
   position: relative; overflow: hidden;
   transition: background .3s, border-color .3s, box-shadow .3s;
 }
+/* subtle top stripe on each card */
 .stat-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
   border-radius: 16px 16px 0 0;
@@ -438,6 +479,9 @@ html, body {
 .stat-change.up { color: var(--success); }
 .stat-change.down { color: var(--danger); }
 
+/* ══════════════════════════════════════════
+   SECTION HEADERS
+══════════════════════════════════════════ */
 .section-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 14px;
@@ -450,6 +494,9 @@ html, body {
 }
 .section-actions { display: flex; gap: 8px; }
 
+/* ══════════════════════════════════════════
+   TABLE CARDS — login card aesthetic
+══════════════════════════════════════════ */
 .table-card {
   background: var(--surface);
   border-radius: 16px;
@@ -505,6 +552,9 @@ html, body {
 .tbl tr:hover td { background: rgba(23,184,220,.04); }
 .tbl-scroll { overflow-x: auto; }
 
+/* ══════════════════════════════════════════
+   BADGES
+══════════════════════════════════════════ */
 .badge {
   display: inline-flex; padding: 3px 9px;
   border-radius: 99px; font-size: 10px; font-weight: 700;
@@ -517,6 +567,9 @@ html, body {
 .badge-blue   { background: rgba(37,99,235,.08);  color: var(--blue); border: 1px solid rgba(37,99,235,.18); }
 .badge-gray   { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 
+/* ══════════════════════════════════════════
+   BUTTONS — matching login btn-login style
+══════════════════════════════════════════ */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 14px; border-radius: 9px;
@@ -541,6 +594,9 @@ html, body {
 .btn-sm { padding: 5px 10px; font-size: 11px; }
 .btn-icon { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 7px; }
 
+/* ══════════════════════════════════════════
+   MODALS — matching login card style exactly
+══════════════════════════════════════════ */
 .modal-backdrop {
   position: fixed; inset: 0;
   background: rgba(13,27,38,.65); backdrop-filter: blur(3px);
@@ -561,6 +617,7 @@ html, body {
 .modal-sm { max-width: 380px; }
 @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(12px) } to { opacity:1; transform:none } }
 
+/* modal stripe — same as login card-stripe */
 .modal::before {
   content: ''; display: block; height: 4px; flex-shrink: 0;
   background: linear-gradient(90deg, var(--cyan2), var(--cyan), #7ee8fa, var(--cyan2));
@@ -592,6 +649,9 @@ html, body {
   background: var(--surface2); transition: background .3s;
 }
 
+/* ══════════════════════════════════════════
+   FORM CONTROLS inside modals
+══════════════════════════════════════════ */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row.full { grid-template-columns: 1fr; }
 .form-ctrl { display: flex; flex-direction: column; gap: 5px; }
@@ -615,6 +675,9 @@ html, body {
 .form-ctrl textarea { resize: vertical; min-height: 72px; }
 .form-ctrl select { cursor: pointer; }
 
+/* ══════════════════════════════════════════
+   LOW STOCK ALERTS
+══════════════════════════════════════════ */
 .low-stock-bar {
   background: var(--surface);
   border: 1px solid rgba(217,119,6,.22);
@@ -631,12 +694,16 @@ html, body {
 .progress-bar-fill { height: 100%; border-radius: 99px; background: var(--warn); }
 .progress-bar-fill.critical { background: var(--danger); }
 
+/* ══════════════════════════════════════════
+   FORECAST CARD
+══════════════════════════════════════════ */
 .forecast-card {
   background: var(--surface); border-radius: 16px;
   border: 1px solid var(--border); box-shadow: var(--shadow-sm);
   padding: 18px 20px; margin-bottom: 20px;
   transition: background .3s, border-color .3s;
 }
+/* chart bars */
 .chart-bar {
   border-radius: 5px 5px 0 0;
   background: linear-gradient(180deg, var(--cyan), var(--cyan2));
@@ -647,6 +714,9 @@ html, body {
 .chart-bar.critical { background: linear-gradient(180deg, var(--danger), #ef4444); }
 .chart-bar:hover { filter: brightness(1.12); }
 
+/* ══════════════════════════════════════════
+   PRODUCT CARDS
+══════════════════════════════════════════ */
 .product-card {
   background: var(--surface);
   border-radius: 14px; padding: 18px;
@@ -655,6 +725,239 @@ html, body {
 }
 .product-card:hover { box-shadow: var(--shadow-md); border-color: var(--cyan-border); }
 
+/* ══════════════════════════════════════════
+   PRODUCT OVERVIEW CARDS (clickable)
+══════════════════════════════════════════ */
+.pov-card {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .18s cubic-bezier(.2,0,.2,1), box-shadow .18s, border-color .18s;
+  position: relative;
+}
+.pov-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg), 0 0 0 1.5px var(--cyan-border);
+  border-color: var(--cyan-border);
+}
+.pov-card:hover::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(23,184,220,.03) 0%, transparent 60%);
+  pointer-events: none; border-radius: 16px;
+}
+.pov-card-img {
+  height: 110px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.pov-card-img::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
+  background: linear-gradient(to top, rgba(0,0,0,.25), transparent);
+}
+.pov-card-body { padding: 14px 16px 16px; }
+.pov-card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: .01em;
+  color: var(--text); line-height: 1.3; margin-bottom: 4px;
+}
+.pov-card-meta { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+.pov-card-bottom { display: flex; justify-content: space-between; align-items: center; }
+.pov-card-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px; font-weight: 800; color: var(--cyan);
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT OVERVIEW MODAL (POV)
+══════════════════════════════════════════ */
+#modalPOV {
+  position: fixed; inset: 0;
+  background: rgba(13,27,38,.75); backdrop-filter: blur(6px);
+  z-index: 990; display: none;
+  align-items: center; justify-content: center; padding: 20px;
+}
+#modalPOV.open { display: flex; animation: povFadeIn .22s ease both; }
+@keyframes povFadeIn { from { opacity:0 } to { opacity:1 } }
+
+.pov-modal {
+  background: var(--surface);
+  border-radius: 24px;
+  width: 100%; max-width: 820px; max-height: 90vh;
+  display: flex; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.30), 0 0 0 1px var(--border);
+  animation: povSlideIn .26s cubic-bezier(.2,0,.2,1) both;
+  transition: background .3s;
+  position: relative;
+}
+@keyframes povSlideIn { from { opacity:0; transform:scale(.95) translateY(16px) } to { opacity:1; transform:none } }
+
+.pov-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,.3); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; transition: background .18s;
+  line-height: 1;
+}
+.pov-close:hover { background: rgba(220,38,38,.6); }
+
+.pov-img-panel {
+  width: 300px; min-width: 300px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.pov-img-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(23,184,220,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.pov-img-overlay {
+  position: absolute; bottom: 16px; left: 16px; right: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pov-sku-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 800; letter-spacing: .12em;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
+  color: var(--cyan); padding: 3px 10px; border-radius: 6px;
+  border: 1px solid rgba(23,184,220,.3);
+}
+
+.pov-info-panel {
+  flex: 1; overflow-y: auto; padding: 28px 28px 24px;
+  display: flex; flex-direction: column; gap: 0;
+  transition: background .3s;
+}
+.pov-info-panel::-webkit-scrollbar { width: 3px; }
+.pov-info-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.pov-brand-line {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.pov-cat-chip {
+  display: inline-flex; padding: 2px 9px; border-radius: 99px;
+  background: rgba(23,184,220,.1); color: var(--cyan);
+  border: 1px solid var(--cyan-border);
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.pov-product-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px; font-weight: 800; letter-spacing: .01em;
+  color: var(--text); line-height: 1.2; margin-bottom: 10px;
+}
+.pov-desc {
+  font-size: 12.5px; color: var(--text2); line-height: 1.7;
+  margin-bottom: 20px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+
+.pov-price-row {
+  display: flex; gap: 0; margin-bottom: 20px;
+  background: var(--surface2); border-radius: 14px;
+  border: 1px solid var(--border); overflow: hidden;
+  transition: background .3s;
+}
+.pov-price-row > div {
+  flex: 1; padding: 12px 16px;
+  border-right: 1px solid var(--border);
+}
+.pov-price-row > div:last-child { border-right: none; }
+.pov-price-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px; font-weight: 700; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+}
+.pov-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800; color: var(--cyan);
+}
+.pov-cost {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800; color: var(--text);
+}
+
+
+.pov-section-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+}
+
+.pov-vars-wrap {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+}
+.pov-var-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  cursor: pointer; font-family: 'Barlow', sans-serif;
+  font-size: 12px; color: var(--text2);
+  transition: all .18s; white-space: nowrap;
+}
+.pov-var-btn:hover { border-color: var(--cyan); color: var(--text); background: rgba(23,184,220,.05); }
+.pov-var-btn.active { border-color: var(--cyan); background: rgba(23,184,220,.09); color: var(--text); box-shadow: 0 0 0 3px var(--cyan-glow); }
+.pov-var-swatch {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.3);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  flex-shrink: 0;
+}
+.pov-var-label { font-weight: 600; }
+.pov-var-stock {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 800;
+  background: var(--surface2); padding: 1px 6px; border-radius: 99px;
+  color: var(--muted); margin-left: 2px;
+}
+.pov-var-stock.low { color: var(--warn); background: rgba(217,119,6,.12); }
+.pov-var-stock.out { color: var(--danger); background: rgba(220,38,38,.12); }
+
+.pov-var-detail {
+  background: var(--surface2); border-radius: 13px;
+  border: 1px solid var(--border); padding: 14px 16px;
+  margin-bottom: 16px; transition: background .3s;
+}
+.pov-var-detail-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 800; letter-spacing: .04em;
+  color: var(--text); margin-bottom: 10px;
+}
+.pov-var-stock-row { display: flex; align-items: center; gap: 10px; }
+.pov-var-stock-bar-bg {
+  flex: 1; height: 6px; background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.pov-var-stock-bar {
+  height: 100%; border-radius: 99px;
+  transition: width .5s cubic-bezier(.2,0,.2,1);
+}
+
+.pov-footer-meta {
+  display: flex; gap: 16px; margin-top: 4px;
+  font-size: 11px; color: var(--muted); flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .pov-modal { flex-direction: column; }
+  .pov-img-panel { width: 100%; min-width: unset; height: 160px; }
+}
+
+/* ══════════════════════════════════════════
+   SCAN / BARCODE
+══════════════════════════════════════════ */
 .scan-area { text-align: center; padding: 8px 0 14px; }
 .scan-icon { font-size: 44px; color: var(--cyan); margin-bottom: 12px; }
 .scan-input {
@@ -685,6 +988,9 @@ html, body {
 .barcode-display { background: #0b0e13; border-radius: 11px; padding: 18px; text-align: center; margin: 12px 0; }
 .barcode-num { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .28em; color: #fff; }
 
+/* ══════════════════════════════════════════
+   VERIFY BANNER
+══════════════════════════════════════════ */
 .verify-banner {
   background: rgba(37,99,235,.07); border: 1px solid rgba(37,99,235,.2);
   border-radius: 10px; padding: 13px 16px;
@@ -694,6 +1000,9 @@ html, body {
 .verify-banner-text { font-size: 13px; color: var(--text); line-height: 1.5; }
 .verify-banner-text strong { color: var(--blue); }
 
+/* ══════════════════════════════════════════
+   CHIPS / FILTERS
+══════════════════════════════════════════ */
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -706,11 +1015,17 @@ html, body {
 }
 .chip.active, .chip:hover { border-color: var(--cyan); background: rgba(23,184,220,.07); color: var(--cyan); }
 
+/* ══════════════════════════════════════════
+   MISC
+══════════════════════════════════════════ */
 .divider { height: 1px; background: var(--border); margin: 14px 0; }
 .empty-state { text-align: center; padding: 42px 20px; color: var(--muted); }
 .empty-state i { font-size: 34px; margin-bottom: 11px; opacity: .3; display: block; }
 .empty-state p { font-size: 13px; }
 
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
 @media (max-width: 1024px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 900px) {
   .sidebar { width: 64px; min-width: 64px; }
@@ -725,6 +1040,11 @@ html, body {
 }
 </style>
 <body>
+
+<!-- ═══════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════ -->
+<!-- APP SHELL -->
 <div id="app">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -745,14 +1065,14 @@ html, body {
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <div class="nav-item active" onclick="showPage('dashboard')">
+      <div class="nav-item" onclick="showPage('dashboard')">
         <i class="fa-solid fa-gauge"></i><span class="nav-item-label">Dashboard</span>
       </div>
       <div class="nav-section">Inventory</div>
       <div class="nav-item" onclick="showPage('inventory')">
         <i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-label">Inventory</span>
       </div>
-      <div class="nav-item" onclick="showPage('products')">
+      <div class="nav-item active" onclick="showPage('products')">
         <i class="fa-solid fa-tag"></i><span class="nav-item-label">Product Overview</span>
       </div>
       <div class="nav-item" onclick="showPage('barcode')">
@@ -789,7 +1109,7 @@ html, body {
   </div>
   <div class="main">
     <div class="topbar">
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-title" id="topbarTitle">Product Overview</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
         <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchFn(this.value)">
@@ -819,25 +1139,13 @@ html, body {
     <div class="content-area" id="contentArea">
 
       
-      <div class="page active" id="page-dashboard">
-        <div class="stat-grid">
-          <div class="stat-card cyan"><div class="stat-icon cyan"><i class="fa-solid fa-boxes-stacked"></i></div><div class="stat-value" id="statTotalProducts">0</div><div class="stat-label">Total Products</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 4 added this week</div></div>
-          <div class="stat-card blue"><div class="stat-icon blue"><i class="fa-solid fa-layer-group"></i></div><div class="stat-value" id="statTotalStock">0</div><div class="stat-label">Total Stock Units</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 12 restocked today</div></div>
-          <div class="stat-card warn"><div class="stat-icon warn"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-value" id="statLowStock">0</div><div class="stat-label">Low Stock Items</div><div class="stat-change down"><i class="fa-solid fa-arrow-down"></i> Needs attention</div></div>
-          <div class="stat-card green"><div class="stat-icon green"><i class="fa-solid fa-receipt"></i></div><div class="stat-value" id="statSalesToday">0</div><div class="stat-label">Sales Today</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> <span id="salesTodayAmt">₱0</span></div></div>
+<!-- PRODUCT OVERVIEW -->
+      <div class="page active" id="page-products">
+        <div class="section-header">
+          <div class="section-title"><i class="fa-solid fa-tag" style="color:var(--cyan);margin-right:7px;"></i>Product Overview</div>
+          <div class="section-actions"><button class="btn btn-primary btn-sm" onclick="openAddProduct()"><i class="fa-solid fa-plus"></i> Add Product</button></div>
         </div>
-        <div class="forecast-card">
-          <div class="section-header"><div class="section-title"><i class="fa-solid fa-chart-bar" style="color:var(--cyan);margin-right:7px;"></i>Stock Forecast – Top Products</div></div>
-          <div style="position:relative;margin-top:14px;">
-            <div id="forecastGrid" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;"></div>
-            <div style="display:flex;align-items:flex-end;gap:6px;position:relative;z-index:1;" id="forecastChart"></div>
-          </div>
-          <div style="display:flex;gap:6px;margin-top:6px;" id="forecastLabels"></div>
-        </div>
-        <div class="section-header"><div class="section-title"><i class="fa-solid fa-bell" style="color:var(--warn);margin-right:7px;"></i>Low Stock Alerts</div></div>
-        <div id="lowStockAlerts"></div>
-        <div class="section-header" style="margin-top:20px;"><div class="section-title"><i class="fa-solid fa-receipt" style="color:var(--cyan);margin-right:7px;"></i>Recent Sales</div></div>
-        <div class="table-card"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Staff</th><th>Date</th><th>Status</th></tr></thead><tbody id="recentSalesTbl"></tbody></table></div></div>
+        <div id="productCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;"></div>
       </div>
 
       
@@ -845,6 +1153,7 @@ html, body {
   </div>
 </div>
 
+<!-- MODALS -->
 <div class="modal-backdrop" id="modalProduct">
   <div class="modal modal-lg">
     <div class="modal-header"><div class="modal-title" id="modalProductTitle">Add <span>Product</span></div><button class="modal-close" onclick="closeModal('modalProduct')">&#x2715;</button></div>
@@ -939,158 +1248,179 @@ html, body {
   </div>
 </div>
 <script>
+// ════════════════════════════════════════════
+//  CONFIG — Laravel API
+// ════════════════════════════════════════════
+const API_URL  = '/api';
+const TOKEN    = sessionStorage.getItem('rfmoto_token') || '';
+const ACTIVE_PAGE = 'products';
 
-const ACTIVE_PAGE = 'dashboard';
-const USERS = [
-  {username:'admin',   password:'admin123', role:'admin',  fullname:'Administrator'},
-  {username:'manager', password:'manager1', role:'admin',  fullname:'Jose Reyes'},
-  {username:'staff1',  password:'staff123', role:'staff',  fullname:'Juan dela Cruz'},
-  {username:'staff2',  password:'staff456', role:'staff',  fullname:'Maria Santos'},
-];
+// Auth headers for every fetch request
+function authHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    'Authorization': `Bearer ${TOKEN}`,
+  };
+}
 
-let PRODUCTS = [
-  {id:1,sku:'ENG-001',name:'Piston Kit 54mm Honda Wave',category:'Engine Parts',brand:'Daytona',price:450,cost:280,stock:30,reorder:5,barcode:'ENG-001-A'},
-  {id:2,sku:'ENG-002',name:'Valve Clearance Shim Set',category:'Engine Parts',brand:'Parts Pro',price:180,cost:110,stock:20,reorder:5,barcode:'ENG-002-B'},
-  {id:3,sku:'ENG-003',name:'Full Gasket Set Honda XRM',category:'Engine Parts',brand:'Daytona',price:650,cost:400,stock:4,reorder:5,barcode:'ENG-003-C'},
-  {id:4,sku:'ELC-001',name:'Yuasa Battery 12V 5Ah',category:'Electrical',brand:'Yuasa',price:850,cost:600,stock:25,reorder:8,barcode:'ELC-001-D'},
-  {id:5,sku:'ELC-002',name:'NGK Spark Plug CR6HSA',category:'Electrical',brand:'NGK',price:95,cost:55,stock:80,reorder:20,barcode:'ELC-002-E'},
-  {id:6,sku:'ELC-003',name:'CDI Unit Honda TMX 155',category:'Electrical',brand:'Daytona',price:750,cost:480,stock:3,reorder:3,barcode:'ELC-003-F'},
-  {id:7,sku:'BRK-001',name:'Front Brake Pad Set Honda Click',category:'Brake System',brand:'Bendix',price:320,cost:200,stock:40,reorder:10,barcode:'BRK-001-G'},
-  {id:8,sku:'BRK-002',name:'Rear Brake Shoe Honda Wave 110',category:'Brake System',brand:'Bendix',price:180,cost:110,stock:35,reorder:10,barcode:'BRK-002-H'},
-  {id:9,sku:'SUS-001',name:'Rear Shock Absorber Honda XRM',category:'Suspension',brand:'Kayaba',price:1800,cost:1200,stock:2,reorder:2,barcode:'SUS-001-I'},
-  {id:10,sku:'TRN-001',name:'Drive Chain 420H x 106L',category:'Transmission',brand:'DID',price:580,cost:380,stock:20,reorder:5,barcode:'TRN-001-J'},
-  {id:11,sku:'FLT-001',name:'Air Filter Honda Wave',category:'Filters',brand:'K&N',price:280,cost:175,stock:50,reorder:15,barcode:'FLT-001-K'},
-  {id:12,sku:'OIL-001',name:'Motul 7100 10W-40 1L',category:'Oils & Fluids',brand:'Motul',price:520,cost:350,stock:45,reorder:12,barcode:'OIL-001-L'},
-  {id:13,sku:'EXH-001',name:'Exhaust Muffler Honda TMX 155',category:'Exhaust',brand:'Daytona',price:2200,cost:1500,stock:5,reorder:2,barcode:'EXH-001-M'},
-  {id:14,sku:'BDY-001',name:'Side Cover Honda Wave 125',category:'Body & Frame',brand:'Honda OEM',price:1400,cost:950,stock:8,reorder:3,barcode:'BDY-001-N'},
-  {id:15,sku:'ELC-004',name:'Headlight Honda Click 125',category:'Electrical',brand:'Honda OEM',price:1800,cost:1250,stock:6,reorder:2,barcode:'ELC-004-O'},
-];
-
-let SALES = [
-  {id:1,orderNo:'SO-0001',customer:'Juan Cruz',items:[{productId:5,qty:2,price:95}],subtotal:190,discount:0,total:190,payment:'cash',servedBy:'staff1',date:'2026-03-01',status:'completed'},
-  {id:2,orderNo:'SO-0002',customer:'Walk-in',items:[{productId:7,qty:1,price:320},{productId:12,qty:1,price:520}],subtotal:840,discount:50,total:790,payment:'gcash',servedBy:'staff2',date:'2026-03-01',status:'completed'},
-  {id:3,orderNo:'SO-0003',customer:'Pedro Santos',items:[{productId:1,qty:1,price:450}],subtotal:450,discount:0,total:450,payment:'cash',servedBy:'staff1',date:'2026-03-02',status:'completed'},
-];
-
-let HISTORY = [
-  {id:1,productId:1,sku:'ENG-001',product:'Piston Kit 54mm Honda Wave',type:'in',qty:10,before:20,after:30,ref:'PO-001',by:'admin',date:'2026-02-28'},
-  {id:2,productId:5,sku:'ELC-002',product:'NGK Spark Plug CR6HSA',type:'out',qty:2,before:82,after:80,ref:'SO-0001',by:'staff1',date:'2026-03-01'},
-  {id:3,productId:7,sku:'BRK-001',product:'Front Brake Pad Set',type:'out',qty:1,before:41,after:40,ref:'SO-0002',by:'staff2',date:'2026-03-01'},
-];
-
-let RETURNS = [
-  {id:1,returnNo:'RT-001',orderNo:'SO-0001',productId:5,product:'NGK Spark Plug CR6HSA',qty:1,reason:'Defective on arrival',condition:'defective',date:'2026-03-01',status:'pending'},
-  {id:2,returnNo:'RT-002',orderNo:'SO-0002',productId:7,product:'Front Brake Pad Set',qty:1,reason:'Wrong size delivered',condition:'wrong_item',date:'2026-03-01',status:'approved'},
-];
-
-let RETURNED_ITEMS = [
-  {id:1,itemNo:'RI-001',productId:5,product:'NGK Spark Plug CR6HSA',sku:'ELC-002',qty:1,condition:'defective',notes:'Burned electrode',dateReceived:'2026-03-01',disposition:'Discard'},
-  {id:2,itemNo:'RI-002',productId:7,product:'Front Brake Pad Set',sku:'BRK-001',qty:1,condition:'damaged',notes:'Cracked housing',dateReceived:'2026-03-01',disposition:'Pending Review'},
-  {id:3,itemNo:'RI-003',productId:1,product:'Piston Kit 54mm',sku:'ENG-001',qty:1,condition:'incomplete',notes:'Missing ring set',dateReceived:'2026-02-28',disposition:'Return to Supplier'},
-];
-
-let VERIFY_ACTIONS = [
-  {id:1,reqNo:'VA-001',actionType:'Large Stock Out',productId:13,product:'Exhaust Muffler Honda TMX 155',details:'Remove 4 units — stockout for bulk order',requestedBy:'staff1',date:'2026-03-02',status:'pending'},
-  {id:2,reqNo:'VA-002',actionType:'Price Adjustment',productId:1,product:'Piston Kit 54mm Honda Wave',details:'Unit price change: ₱450 → ₱390',requestedBy:'staff2',date:'2026-03-02',status:'pending'},
-];
-
-let NOTIFICATIONS = [
-  {id:1,type:'warn',icon:'triangle-exclamation',text:'Low stock: ENG-003 Full Gasket Set (4 units)',time:'5 min ago',read:false},
-  {id:2,type:'danger',icon:'circle-xmark',text:'Critical: SUS-001 Rear Shock Absorber (2 units)',time:'12 min ago',read:false},
-  {id:3,type:'cyan',icon:'barcode',text:'New barcode assigned: OIL-001',time:'1 hr ago',read:true},
-  {id:4,type:'warn',icon:'triangle-exclamation',text:'Low stock: ELC-003 CDI Unit (3 units)',time:'2 hr ago',read:false},
-  {id:5,type:'green',icon:'check-circle',text:'Sale SO-0003 completed — ₱450',time:'3 hr ago',read:true},
-];
-
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let PRODUCTS    = [];
+let CATEGORIES  = [];
+let VARIATIONS  = {};       // { productId: [{label,color,stock}, ...] }
 let currentUser = null;
-let currentRole = 'staff';
-let currentPage = 'dashboard';
 let editingProductId = null;
-let scanAction = 'add-new';
-let qsAction = 'add-new';
-let currentVerifyId = null;
-let saleItems = [];
-let saleTotal = 0;
-let historyFilter = '';
-let historyTypeFilter = '';
-let returnedFilter = 'all';
+let _povActiveVar = 0;
 
-function initFromSession() {
+// ════════════════════════════════════════════
+//  INIT — read session then load data
+// ════════════════════════════════════════════
+async function initFromSession() {
   const stored = sessionStorage.getItem('rfmoto_user');
   if (stored) {
     try { currentUser = JSON.parse(stored); } catch(e) {}
   }
+  // Fallback for direct dev access
   if (!currentUser) {
-    currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
+    currentUser = { username: 'admin', fullname: 'Administrator', role: 'admin' };
   }
+
   launchApp();
+  await loadData();
 }
 
+async function loadData() {
+  try {
+    // Load categories and products in parallel
+    const [catRes, prodRes] = await Promise.all([
+      fetch(`${API_URL}/categories`, { headers: authHeaders() }),
+      fetch(`${API_URL}/products`,   { headers: authHeaders() }),
+    ]);
+
+    if (!catRes.ok || !prodRes.ok) throw new Error('API error');
+
+    const catData  = await catRes.json();
+    const prodData = await prodRes.json();
+
+    CATEGORIES = catData.categories || [];
+
+    // Normalize products — map API fields to UI fields
+    PRODUCTS = (prodData.products || []).map(p => ({
+      id:       p.id,
+      sku:      p.sku,
+      barcode:  p.barcode,
+      name:     p.name,
+      category: p.category,
+      brand:    p.brand,
+      price:    parseFloat(p.price),
+      cost:     parseFloat(p.cost),
+      stock:    p.stock,
+      reorder:  p.reorder,
+    }));
+
+    // Build VARIATIONS lookup from embedded variations
+    VARIATIONS = {};
+    (prodData.products || []).forEach(p => {
+      VARIATIONS[p.id] = {
+        desc: p.description || 'No description available.',
+        variations: (p.variations || []).map(v => ({
+          label: v.label,
+          color: v.color,
+          stock: v.stock,
+        })),
+      };
+      // Fallback if no variations
+      if (!VARIATIONS[p.id].variations.length) {
+        VARIATIONS[p.id].variations = [{ label: 'Standard', color: '#17b8dc', stock: p.stock }];
+      }
+    });
+
+    // Rebuild category select in Add/Edit modal
+    buildProductSelects();
+    renderNotifications();
+    renderProductCards();
+
+  } catch (err) {
+    console.error('loadData error:', err);
+    showToast('Failed to load products. Check your connection.', 'danger');
+  }
+}
+
+// ════════════════════════════════════════════
+//  APP LAUNCH (UI only, data loaded async)
+// ════════════════════════════════════════════
 function launchApp() {
   const initials = currentUser.fullname.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-  document.getElementById('sidebarAvatar').textContent = initials;
-  document.getElementById('sidebarName').textContent = currentUser.fullname;
-  document.getElementById('topbarAvatar').textContent = initials;
-  document.getElementById('topbarName').textContent = currentUser.fullname;
-  document.getElementById('topbarRole').textContent = currentUser.role==='admin'?'Administrator':'Staff';
+  document.getElementById('sidebarAvatar').textContent  = initials;
+  document.getElementById('sidebarName').textContent    = currentUser.fullname;
+  document.getElementById('topbarAvatar').textContent   = initials;
+  document.getElementById('topbarName').textContent     = currentUser.fullname;
+  document.getElementById('topbarRole').textContent     = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
   const badge = document.getElementById('sidebarRoleBadge');
-  badge.textContent = currentUser.role==='admin'?'Admin':'Staff';
-  badge.className = 'sidebar-role-badge ' + currentUser.role;
+  badge.textContent  = currentUser.role === 'admin' ? 'Admin' : 'Staff';
+  badge.className    = 'sidebar-role-badge ' + currentUser.role;
 
-  // hide admin-only nav for staff
   document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = currentUser.role==='admin'?'':'none';
+    el.style.display = currentUser.role === 'admin' ? '' : 'none';
   });
 
-  buildProductSelects();
-  renderNotifications();
-  renderDashboard();
-
+  // Restore dark mode
   const savedTheme = localStorage.getItem('rfmoto_theme');
   const toggle = document.getElementById('darkToggle');
-  const knob = document.getElementById('darkKnob');
+  const knob   = document.getElementById('darkKnob');
   if (savedTheme === 'dark' && toggle) {
+    document.documentElement.setAttribute('data-theme','dark');
     toggle.classList.add('on');
     knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
   }
 }
 
-
-const pageTitles = {
-  'dashboard':'Dashboard','inventory':'Inventory','products':'Product Overview',
-  'barcode':'Barcode Scanner','stock-history':'Stock History','sales':'Sales Record',
-  'returns':'Return Processing','returned-items':'Returned Items','verify':'Verify Actions'
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+const PAGE_MAP = {
+  'dashboard':     '/dashboard',
+  'inventory':     '/inventory',
+  'products':      '/products',
+  'barcode':       '/barcode',
+  'stock-history': '/stock-history',
+  'sales':         '/sales',
+  'returns':       '/returns',
+  'returned-items':'/returned-items',
+  'verify':        '/verify',
 };
 
 function showPage(page) {
-  if (page==='verify' && currentUser && currentUser.role!=='admin') return;
-  const fileMap = {
-    'dashboard':     '/dashboard',
-    'inventory':     '/inventory',
-    'products':      '/products',
-    'barcode':       '/barcode',
-    'stock-history': '/stock-history',
-    'sales':         '/sales',
-    'returns':       '/returns',
-    'returned-items':'/returned-items',
-    'verify':        '/verify',
-  };
-  if (fileMap[page] && !window.location.pathname.endsWith(fileMap[page])) {
-    window.location.href = fileMap[page];
-  }
+  if (page === 'verify' && currentUser && currentUser.role !== 'admin') return;
+  if (PAGE_MAP[page]) window.location.href = PAGE_MAP[page];
 }
 
 function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
+  const sb   = document.getElementById('sidebar');
   const icon = document.getElementById('collapseIcon');
   sb.classList.toggle('collapsed');
   icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
+// ════════════════════════════════════════════
+//  NOTIFICATIONS (kept as client-side demo;
+//  wire to /api/notifications when ready)
+// ════════════════════════════════════════════
+const NOTIFICATIONS = [
+  {id:1,type:'warn',  icon:'triangle-exclamation',text:'Low stock: ENG-003 Full Gasket Set (4 units)',time:'5 min ago',read:false},
+  {id:2,type:'danger',icon:'circle-xmark',         text:'Critical: SUS-001 Rear Shock Absorber (2 units)',time:'12 min ago',read:false},
+  {id:3,type:'cyan',  icon:'barcode',              text:'New barcode assigned: OIL-001',time:'1 hr ago',read:true},
+  {id:4,type:'warn',  icon:'triangle-exclamation', text:'Low stock: ELC-003 CDI Unit (3 units)',time:'2 hr ago',read:false},
+  {id:5,type:'green', icon:'check-circle',         text:'Sale SO-0003 completed — ₱450',time:'3 hr ago',read:true},
+];
+
 function renderNotifications() {
-  const list = document.getElementById('notifList');
+  const list  = document.getElementById('notifList');
   const unread = NOTIFICATIONS.filter(n=>!n.read).length;
-  document.getElementById('notifDot').style.display = unread>0?'block':'none';
+  document.getElementById('notifDot').style.display = unread > 0 ? 'block' : 'none';
   list.innerHTML = NOTIFICATIONS.map(n => `
     <div class="notif-item ${n.read?'':'unread'}" onclick="markRead(${n.id})">
       <div class="notif-icon-wrap ${n.type}"><i class="fa-solid fa-${n.icon}"></i></div>
@@ -1098,702 +1428,405 @@ function renderNotifications() {
     </div>
   `).join('');
 }
-function markRead(id) { const n=NOTIFICATIONS.find(x=>x.id===id); if(n) n.read=true; renderNotifications(); }
-function markAllRead() { NOTIFICATIONS.forEach(n=>n.read=true); renderNotifications(); }
-function toggleNotif() { document.getElementById('notifDrawer').classList.toggle('open'); }
-
-
-function renderDashboard() {
-  const low = PRODUCTS.filter(p=>p.stock<=p.reorder);
-  const totalStock = PRODUCTS.reduce((s,p)=>s+p.stock,0);
-  const todaySales = SALES.filter(s=>s.date===new Date().toISOString().split('T')[0]);
-  const todayAmt = todaySales.reduce((s,x)=>s+x.total,0);
-
-  document.getElementById('statTotalProducts').textContent = PRODUCTS.length;
-  document.getElementById('statTotalStock').textContent = totalStock.toLocaleString();
-  document.getElementById('statLowStock').textContent = low.length;
-  document.getElementById('statSalesToday').textContent = todaySales.length;
-  document.getElementById('salesTodayAmt').textContent = '₱'+todayAmt.toLocaleString();
-
-  const top = [...PRODUCTS].sort((a,b)=>b.stock-a.stock).slice(0,8);
-  const maxStock = Math.max(...top.map(p=>p.stock));
-  const chart = document.getElementById('forecastChart');
-  const labels = document.getElementById('forecastLabels');
-  const CHART_H = 120; 
-  const grid = document.getElementById('forecastGrid');
-  const gridLines = 4;
-  if (grid) {
-    grid.style.height = (CHART_H + 20) + 'px';
-    grid.innerHTML = Array.from({length: gridLines}, (_,i) => {
-      const val = Math.round(maxStock * (gridLines - i) / gridLines);
-      return `<div style="display:flex;align-items:center;gap:6px;width:100%;">
-        <span style="font-size:9px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;width:20px;text-align:right;flex-shrink:0;">${val}</span>
-        <div style="flex:1;height:1px;background:var(--border);opacity:.6;"></div>
-      </div>`;
-    }).join('');
-  }
-  chart.innerHTML = top.map(p => {
-    const px = Math.max(6, Math.round((p.stock / maxStock) * CHART_H));
-    const cls = p.stock<=p.reorder ? 'critical' : p.stock<=p.reorder*2 ? 'low' : '';
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:${CHART_H+20}px;">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;line-height:1;">${p.stock}</div>
-      <div class="chart-bar ${cls}" style="height:${px}px;width:100%;min-height:6px;border-radius:4px 4px 0 0;"></div>
-    </div>`;
-  }).join('');
-  labels.innerHTML = top.map(p=>`<div style="flex:1;font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;padding-top:4px;margin-left:26px;">${p.sku}</div>`).join('');
-
-  const alerts = document.getElementById('lowStockAlerts');
-  if (low.length===0) { alerts.innerHTML='<div style="font-size:13px;color:var(--muted);padding:10px 0;">No low stock items. All products are well-stocked.</div>'; }
-  else {
-    alerts.innerHTML = low.map(p=>{
-      const pct = Math.round((p.stock/Math.max(p.reorder*3,1))*100);
-      const cls = p.stock===0?'critical':'';
-      return `<div class="low-stock-bar">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <div class="low-stock-bar-text"><strong>${p.name}</strong> (${p.sku}) — ${p.category}
-          <div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div></div>
-        </div>
-        <div class="low-stock-bar-qty">${p.stock} left</div>
-        <button class="btn btn-primary btn-sm" style="margin-left:8px;" onclick="quickRestock(${p.id})"><i class="fa-solid fa-plus"></i> Restock</button>
-      </div>`;
-    }).join('');
-  }
-
-  const tbody = document.getElementById('recentSalesTbl');
-  const recent = [...SALES].reverse().slice(0,5);
-  tbody.innerHTML = recent.map(s=>`
-    <tr>
-      <td><strong>${s.orderNo}</strong></td>
-      <td>${s.customer}</td>
-      <td>${s.items.length} item(s)</td>
-      <td><strong>₱${s.total.toLocaleString()}</strong></td>
-      <td>${s.servedBy}</td>
-      <td>${s.date}</td>
-      <td><span class="badge ${s.status==='completed'?'badge-green':'badge-warn'}">${s.status}</span></td>
-    </tr>`).join('');
-}
-
-const CATEGORIES = ['All','Engine Parts','Electrical','Brake System','Suspension','Body & Frame','Transmission','Cooling System','Exhaust','Filters','Oils & Fluids'];
-let invCatFilter = 'All';
-
-function buildCategoryChips() {
-  const wrap = document.getElementById('categoryChips');
-  wrap.innerHTML = CATEGORIES.map(c=>`<div class="chip ${c==='All'?'active':''}" onclick="setInvCat('${c}',this)">${c}</div>`).join('');
-}
-
-function setInvCat(cat, el) {
-  invCatFilter = cat;
-  document.querySelectorAll('#categoryChips .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderInventory();
-}
-
-function renderInventory(filter='') {
-  const search = filter || document.getElementById('invSearch')?.value||'';
-  let prods = PRODUCTS;
-  if (invCatFilter!=='All') prods = prods.filter(p=>p.category===invCatFilter);
-  if (search) prods = prods.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.sku.toLowerCase().includes(search.toLowerCase()));
-  const tbody = document.getElementById('inventoryTbl');
-  if (!tbody) return;
-  tbody.innerHTML = prods.map(p=>{
-    const lowCls = p.stock<=p.reorder?(p.stock===0?'badge-red':'badge-warn'):'badge-green';
-    const canEdit = currentUser.role==='admin';
-    return `<tr>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${p.sku}</code></td>
-      <td><strong>${p.name}</strong></td>
-      <td><span class="badge badge-cyan">${p.category}</span></td>
-      <td>${p.brand}</td>
-      <td><span class="badge ${lowCls}">${p.stock}</span></td>
-      <td style="color:var(--muted)">${p.reorder}</td>
-      <td><strong>₱${p.price.toLocaleString()}</strong></td>
-      <td><span class="badge ${p.stock>0?'badge-green':'badge-red'}">${p.stock>0?'In Stock':'Out of Stock'}</span></td>
-      <td>
-        <button class="btn btn-outline btn-sm btn-icon" title="Barcode" onclick="openGenerateBarcodeFor(${p.id})"><i class="fa-solid fa-barcode"></i></button>
-        ${canEdit?`<button class="btn btn-outline btn-sm btn-icon" title="Edit" onclick="openEditProduct(${p.id})" style="margin-left:4px;"><i class="fa-solid fa-pen"></i></button>`:''}
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-box-open"></i><p>No products found</p></div></td></tr>';
-}
-
-function filterInventory(v) { renderInventory(v); }
-
-function renderProductCards() {
-  const wrap = document.getElementById('productCards');
-  wrap.innerHTML = PRODUCTS.map(p=>{
-    const stockPct = Math.min(100, Math.round((p.stock/Math.max(p.reorder*3,1))*100));
-    const statusCls = p.stock===0?'badge-red':p.stock<=p.reorder?'badge-warn':'badge-green';
-    const statusTxt = p.stock===0?'Out of Stock':p.stock<=p.reorder?'Low Stock':'In Stock';
-    return `<div style="background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);border:1px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <code style="font-size:11px;background:var(--bg);padding:2px 8px;border-radius:4px;color:var(--cyan);font-weight:700;">${p.sku}</code>
-        <span class="badge ${statusCls}">${statusTxt}</span>
-      </div>
-      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;">${p.name}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">${p.brand} · ${p.category}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);">₱${p.price.toLocaleString()}</span>
-        <span style="font-size:13px;font-weight:600;color:${p.stock<=p.reorder?'var(--danger)':'var(--text)'};">${p.stock} units</span>
-      </div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill ${p.stock<=p.reorder?'critical':''}" style="width:${stockPct}%"></div></div>
-    </div>`;
-  }).join('');
-}
-
-let scanActionCurrent = 'add-new';
-let qsActionCurrent = 'add-new';
-
-function setScanAction(a) {
-  scanActionCurrent = a;
-  ['scanActionAdd','scanActionExisting','scanActionRemove'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  if (a==='add-new') document.getElementById('scanActionAdd').classList.add('selected');
-  if (a==='add-existing') document.getElementById('scanActionExisting').classList.add('selected');
-  if (a==='stock-out') document.getElementById('scanActionRemove').classList.add('selected');
-}
-
-function setQSAction(a) {
-  qsActionCurrent = a;
-  ['qsActionNew','qsActionExisting','qsActionRemove'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  if (a==='add-new') document.getElementById('qsActionNew').classList.add('selected');
-  if (a==='add-existing') document.getElementById('qsActionExisting').classList.add('selected');
-  if (a==='stock-out') document.getElementById('qsActionRemove').classList.add('selected');
-}
-
-function processBarcodeInput() { doScan(document.getElementById('barcodeInput').value.trim(), scanActionCurrent); }
-function quickScanProcess() { doScan(document.getElementById('quickScanInput').value.trim(), qsActionCurrent); closeModal('modalScan'); }
-
-function doScan(code, action) {
-  if (!code) { alert('Please enter or scan a barcode.'); return; }
-  const prod = PRODUCTS.find(p=>p.barcode===code||p.sku===code);
-  const title = document.getElementById('stockActionTitle');
-  const body = document.getElementById('stockActionBody');
-  window._scanAction = action;
-  window._scanProduct = prod;
-  window._scanCode = code;
-
-  if (action==='add-new') {
-    title.innerHTML = 'Add <span>New Product</span>';
-    body.innerHTML = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Scanned barcode: <strong>${code}</strong></p>
-      <div class="form-row"><div class="form-ctrl"><label>SKU</label><input type="text" id="saNewSku" value="${code}"></div><div class="form-ctrl"><label>Product Name</label><input type="text" id="saNewName" placeholder="Name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="saNewCat"><option>Engine Parts</option><option>Electrical</option><option>Brake System</option><option>Suspension</option><option>Body & Frame</option><option>Transmission</option><option>Exhaust</option><option>Filters</option><option>Oils & Fluids</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="saNewBrand" placeholder="Brand"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Price (₱)</label><input type="number" id="saNewPrice" placeholder="0"></div><div class="form-ctrl"><label>Initial Stock</label><input type="number" id="saNewStock" placeholder="0"></div></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-primary';
-  } else if (action==='add-existing') {
-    if (!prod) { alert('Product not found for barcode: '+code); return; }
-    title.innerHTML = 'Add <span>Existing Stock</span>';
-    body.innerHTML = `<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;"><strong>${prod.name}</strong><br><span style="font-size:12px;color:var(--muted);">${prod.sku} · Current stock: ${prod.stock}</span></div>
-      <div class="form-ctrl"><label>Quantity to Add</label><input type="number" id="saAddQty" value="1" min="1"></div>
-      <div class="form-ctrl" style="margin-top:10px;"><label>Reference (PO #)</label><input type="text" id="saRef" placeholder="PO-000"></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-success';
-  } else {
-    if (!prod) { alert('Product not found for barcode: '+code); return; }
-    title.innerHTML = 'Stock <span>Out</span>';
-    body.innerHTML = `<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;"><strong>${prod.name}</strong><br><span style="font-size:12px;color:var(--muted);">${prod.sku} · Current stock: ${prod.stock}</span></div>
-      <div class="form-ctrl"><label>Quantity to Remove</label><input type="number" id="saRemoveQty" value="1" min="1" max="${prod.stock}"></div>
-      <div class="form-ctrl" style="margin-top:10px;"><label>Reference (SO #)</label><input type="text" id="saRemRef" placeholder="SO-0000"></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-danger';
-  }
-  openModal('modalStockAction');
-
-  addRecentScan(code, prod, action);
-}
-
-function addRecentScan(code, prod, action) {
-  const wrap = document.getElementById('recentScans');
-  const actionLabels = {'add-new':'Add New','add-existing':'Add Stock','stock-out':'Stock Out'};
-  const badgeCls = {'add-new':'badge-cyan','add-existing':'badge-green','stock-out':'badge-red'};
-  const item = `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f4f7;">
-    <div><div style="font-size:13px;font-weight:600;">${code}</div><div style="font-size:11px;color:var(--muted);">${prod?prod.name:'Unknown Product'}</div></div>
-    <span class="badge ${badgeCls[action]}">${actionLabels[action]}</span>
-  </div>`;
-  if (wrap.querySelector('.empty-state')) wrap.innerHTML = '';
-  wrap.insertAdjacentHTML('afterbegin', item);
-}
-
-function confirmStockAction() {
-  const action = window._scanAction;
-  const prod = window._scanProduct;
-  if (action==='add-new') {
-    const sku = document.getElementById('saNewSku').value;
-    const name = document.getElementById('saNewName').value;
-    const cat = document.getElementById('saNewCat').value;
-    const brand = document.getElementById('saNewBrand').value;
-    const price = parseFloat(document.getElementById('saNewPrice').value)||0;
-    const stock = parseInt(document.getElementById('saNewStock').value)||0;
-    if (!sku||!name) { alert('SKU and Name are required.'); return; }
-    const newId = Math.max(...PRODUCTS.map(p=>p.id))+1;
-    PRODUCTS.push({id:newId,sku,name,category:cat,brand,price,cost:price*.6,stock,reorder:5,barcode:sku});
-    logHistory(newId,sku,name,'in',stock,0,stock,'NEW-PRODUCT','admin');
-  } else if (action==='add-existing') {
-    const qty = parseInt(document.getElementById('saAddQty').value)||0;
-    const ref = document.getElementById('saRef').value||'MANUAL';
-    logHistory(prod.id,prod.sku,prod.name,'in',qty,prod.stock,prod.stock+qty,ref,currentUser.username);
-    prod.stock += qty;
-  } else {
-    const qty = parseInt(document.getElementById('saRemoveQty').value)||0;
-    const ref = document.getElementById('saRemRef').value||'MANUAL';
-    if (qty>prod.stock) { alert('Not enough stock!'); return; }
-    if (qty>=4 && currentUser.role==='staff') {
-      VERIFY_ACTIONS.push({id:VERIFY_ACTIONS.length+1,reqNo:'VA-00'+(VERIFY_ACTIONS.length+1),actionType:'Large Stock Out',productId:prod.id,product:prod.name,details:`Remove ${qty} units (Ref: ${ref})`,requestedBy:currentUser.username,date:new Date().toISOString().split('T')[0],status:'pending'});
-      document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(v=>v.status==='pending').length;
-      closeModal('modalStockAction'); alert('Large stock-out flagged for Admin verification.'); return;
-    }
-    logHistory(prod.id,prod.sku,prod.name,'out',qty,prod.stock,prod.stock-qty,ref,currentUser.username);
-    prod.stock -= qty;
-  }
-  closeModal('modalStockAction');
-  buildProductSelects();
-  renderDashboard();
-  if (currentPage==='inventory') renderInventory();
-}
-
-function logHistory(pid,sku,pname,type,qty,before,after,ref,by) {
-  const newId = HISTORY.length ? Math.max(...HISTORY.map(h=>h.id))+1 : 1;
-  HISTORY.unshift({id:newId,productId:pid,sku,product:pname,type,qty,before,after,ref,by,date:new Date().toISOString().split('T')[0]});
-}
-function buildProductSelects() {
-  const selects = ['barcodeProduct','saleProductSel','retProduct'];
-  selects.forEach(id=>{
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = PRODUCTS.map(p=>`<option value="${p.id}">${p.sku} – ${p.name}</option>`).join('');
-  });
-}
-
-function openGenerateBarcode() {
-  buildProductSelects();
-  document.getElementById('barcodePreview').style.display='none';
-  openModal('modalBarcode');
-}
-
-function openGenerateBarcodeFor(id) {
-  buildProductSelects();
-  document.getElementById('barcodeProduct').value = id;
-  previewBarcode();
-  openModal('modalBarcode');
-}
-
-function previewBarcode() {
-  const id = parseInt(document.getElementById('barcodeProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  const preview = document.getElementById('barcodePreview');
-  preview.style.display='block';
-  const code = prod.barcode || prod.sku;
-  document.getElementById('barcodeNum').textContent = code;
-  const lines = document.getElementById('barcodeLines');
-  let html='';
-  for (let i=0;i<code.length;i++) {
-    const h = 30+((code.charCodeAt(i)*7)%40);
-    const w = i%3===0?3:i%3===1?2:1;
-    const color = i%4===0?'#fff':'#fff';
-    html+=`<div style="width:${w}px;height:${h}px;background:${i%2===0?'#fff':'#aaa'};border-radius:1px;"></div>`;
-  }
-  lines.innerHTML = html;
-}
-
-function assignBarcode() {
-  const id = parseInt(document.getElementById('barcodeProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (prod) {
-    NOTIFICATIONS.unshift({id:Date.now(),type:'cyan',icon:'barcode',text:`Barcode assigned: ${prod.barcode||prod.sku} → ${prod.name}`,time:'just now',read:false});
-    renderNotifications();
-  }
-  closeModal('modalBarcode');
-  alert('Barcode assigned successfully!');
-}
-
-function openScan() { openModal('modalScan'); setTimeout(()=>document.getElementById('quickScanInput').focus(),100); }
-
-function renderHistory(filter='',typeFilter='') {
-  const search = filter || historyFilter;
-  const type = typeFilter !== undefined ? typeFilter : historyTypeFilter;
-  let h = [...HISTORY];
-  if (search) h = h.filter(x=>x.product.toLowerCase().includes(search.toLowerCase())||x.sku.toLowerCase().includes(search.toLowerCase())||x.ref.toLowerCase().includes(search.toLowerCase()));
-  if (type) h = h.filter(x=>x.type===type);
-  const tbody = document.getElementById('historyTbl');
-  if (!tbody) return;
-  tbody.innerHTML = h.map(x=>{
-    const typeCls = x.type==='in'?'badge-green':x.type==='out'?'badge-red':'badge-blue';
-    return `<tr>
-      <td>${x.date}</td>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${x.sku}</code></td>
-      <td>${x.product}</td>
-      <td><span class="badge ${typeCls}">${x.type}</span></td>
-      <td><strong>${x.qty}</strong></td>
-      <td style="color:var(--muted)">${x.before}</td>
-      <td><strong>${x.after}</strong></td>
-      <td style="color:var(--muted)">${x.ref}</td>
-      <td>${x.by}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No records found</p></div></td></tr>';
-}
-
-function filterHistory(v) { historyFilter=v; renderHistory(); }
-function filterHistoryType(v) { historyTypeFilter=v; renderHistory(); }
-function quickRestock(id) {
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  doScan(prod.barcode||prod.sku, 'add-existing');
-}
-
-// ════════════════════════════════════════════
-//  SALES
-// ════════════════════════════════════════════
-function renderSales(filter='') {
-  let s = [...SALES].reverse();
-  if (filter) s = s.filter(x=>x.orderNo.toLowerCase().includes(filter)||x.customer.toLowerCase().includes(filter));
-  const tbody = document.getElementById('salesTbl');
-  if (!tbody) return;
-  tbody.innerHTML = s.map(x=>`
-    <tr>
-      <td><strong>${x.orderNo}</strong></td>
-      <td>${x.customer}</td>
-      <td>${x.items.length}</td>
-      <td>₱${x.subtotal.toLocaleString()}</td>
-      <td>${x.discount>0?'₱'+x.discount:'-'}</td>
-      <td><strong>₱${x.total.toLocaleString()}</strong></td>
-      <td><span class="badge badge-cyan">${x.payment}</span></td>
-      <td>${x.servedBy}</td>
-      <td>${x.date}</td>
-      <td><span class="badge ${x.status==='completed'?'badge-green':'badge-warn'}">${x.status}</span></td>
-    </tr>`).join('');
-}
-
-function filterSales(v) { renderSales(v); }
-
-function openNewSale() {
-  saleItems = []; saleTotal = 0;
-  document.getElementById('saleCustomer').value = '';
-  document.getElementById('saleItems').innerHTML = '';
-  document.getElementById('saleTotalDisplay').textContent = '0.00';
-  buildProductSelects();
-  openModal('modalSale');
-}
-
-function addSaleItem() {
-  const id = parseInt(document.getElementById('saleProductSel').value);
-  const qty = parseInt(document.getElementById('saleQty').value)||1;
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  if (prod.stock < qty) { alert('Not enough stock! Available: '+prod.stock); return; }
-  const existing = saleItems.find(i=>i.productId===id);
-  if (existing) { existing.qty += qty; existing.subtotal = existing.qty * existing.price; }
-  else saleItems.push({productId:id,name:prod.name,qty,price:prod.price,subtotal:qty*prod.price});
-  renderSaleItems();
-}
-
-function renderSaleItems() {
-  const wrap = document.getElementById('saleItems');
-  wrap.innerHTML = saleItems.map((item,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;">
-      <div style="flex:1;font-size:13px;"><strong>${item.name}</strong><br><span style="font-size:11px;color:var(--muted);">₱${item.price} × ${item.qty}</span></div>
-      <strong>₱${item.subtotal.toLocaleString()}</strong>
-      <button class="btn btn-sm btn-icon" style="border-color:var(--danger);color:var(--danger);" onclick="removeSaleItem(${i})"><i class="fa-solid fa-trash"></i></button>
-    </div>`).join('');
-  saleTotal = saleItems.reduce((s,i)=>s+i.subtotal,0);
-  document.getElementById('saleTotalDisplay').textContent = saleTotal.toLocaleString('en-PH',{minimumFractionDigits:2});
-}
-
-function removeSaleItem(i) { saleItems.splice(i,1); renderSaleItems(); }
-
-function completeSale() {
-  if (saleItems.length===0) { alert('Add at least one item.'); return; }
-  const customer = document.getElementById('saleCustomer').value || 'Walk-in';
-  const payment = document.getElementById('salePayment').value;
-  const newId = SALES.length ? Math.max(...SALES.map(s=>s.id))+1 : 1;
-  const orderNo = 'SO-'+String(newId).padStart(4,'0');
-  // deduct stock
-  saleItems.forEach(item=>{ const p=PRODUCTS.find(x=>x.id===item.productId); if(p) { logHistory(p.id,p.sku,p.name,'out',item.qty,p.stock,p.stock-item.qty,orderNo,currentUser.username); p.stock-=item.qty; }});
-  SALES.push({id:newId,orderNo,customer,items:[...saleItems],subtotal:saleTotal,discount:0,total:saleTotal,payment,servedBy:currentUser.username,date:new Date().toISOString().split('T')[0],status:'completed'});
-  closeModal('modalSale');
-  renderSales(); renderDashboard();
-  NOTIFICATIONS.unshift({id:Date.now(),type:'green',icon:'receipt',text:`Sale ${orderNo} completed — ₱${saleTotal.toLocaleString()}`,time:'just now',read:false});
-  renderNotifications();
-}
-
-// ════════════════════════════════════════════
-//  RETURNS
-// ════════════════════════════════════════════
-function renderReturns() {
-  const tbody = document.getElementById('returnsTbl');
-  if (!tbody) return;
-  tbody.innerHTML = RETURNS.map(r=>{
-    const condCls = r.condition==='damaged'||r.condition==='defective'?'badge-red':'badge-warn';
-    const canApprove = currentUser.role==='admin' && r.status==='pending';
-    return `<tr>
-      <td><strong>${r.returnNo}</strong></td>
-      <td>${r.orderNo||'—'}</td>
-      <td>${r.product}</td>
-      <td>${r.qty}</td>
-      <td style="font-size:12px;max-width:160px;">${r.reason}</td>
-      <td><span class="badge ${condCls}">${r.condition}</span></td>
-      <td>${r.date}</td>
-      <td><span class="badge ${r.status==='approved'?'badge-green':r.status==='rejected'?'badge-red':'badge-warn'}">${r.status}</span></td>
-      <td>
-        ${canApprove?`<button class="btn btn-success btn-sm" onclick="approveReturn(${r.id})"><i class="fa-solid fa-check"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="rejectReturn(${r.id})" style="margin-left:4px;"><i class="fa-solid fa-xmark"></i></button>`:''}
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-rotate-left"></i><p>No returns found</p></div></td></tr>';
-}
-
-function approveReturn(id) {
-  const r = RETURNS.find(x=>x.id===id);
-  if (!r) return;
-  r.status='approved';
-  RETURNED_ITEMS.push({id:RETURNED_ITEMS.length+1,itemNo:'RI-'+String(RETURNED_ITEMS.length+1).padStart(3,'0'),productId:r.productId,product:r.product,sku:PRODUCTS.find(p=>p.id===r.productId)?.sku||'',qty:r.qty,condition:r.condition,notes:r.reason,dateReceived:new Date().toISOString().split('T')[0],disposition:'Pending Review'});
-  document.getElementById('returnedBadge').textContent = RETURNED_ITEMS.length;
-  renderReturns();
-}
-
-function rejectReturn(id) { const r=RETURNS.find(x=>x.id===id); if(r){r.status='rejected';renderReturns();} }
-
-function openProcessReturn() {
-  buildProductSelects();
-  document.getElementById('retOrderNo').value='';
-  document.getElementById('retQty').value='1';
-  document.getElementById('retReason').value='';
-  openModal('modalReturn');
-}
-
-function submitReturn() {
-  const prodId = parseInt(document.getElementById('retProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===prodId);
-  const qty = parseInt(document.getElementById('retQty').value)||1;
-  const condition = document.getElementById('retCondition').value;
-  const reason = document.getElementById('retReason').value||'No reason provided';
-  const orderNo = document.getElementById('retOrderNo').value;
-  const newId = RETURNS.length?Math.max(...RETURNS.map(r=>r.id))+1:1;
-  RETURNS.push({id:newId,returnNo:'RT-'+String(newId).padStart(3,'0'),orderNo,productId:prodId,product:prod?.name||'Unknown',qty,reason,condition,date:new Date().toISOString().split('T')[0],status:'pending'});
-  closeModal('modalReturn');
-  renderReturns();
-}
-
-// ════════════════════════════════════════════
-//  RETURNED ITEMS
-// ════════════════════════════════════════════
-function renderReturnedItems(filter='all') {
-  let items = RETURNED_ITEMS;
-  if (filter!=='all') items = items.filter(i=>i.condition===filter);
-  const tbody = document.getElementById('returnedItemsTbl');
-  if (!tbody) return;
-  tbody.innerHTML = items.map(i=>{
-    const condCls = i.condition==='damaged'?'badge-red':i.condition==='incomplete'?'badge-warn':'badge-red';
-    return `<tr>
-      <td><strong>${i.itemNo}</strong></td>
-      <td>${i.product}</td>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${i.sku}</code></td>
-      <td>${i.qty}</td>
-      <td><span class="badge ${condCls}">${i.condition}</span></td>
-      <td style="font-size:12px;color:var(--muted);">${i.notes}</td>
-      <td>${i.dateReceived}</td>
-      <td><span class="badge badge-gray">${i.disposition}</span></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>No returned items</p></div></td></tr>';
-}
-
-function filterReturned(type, el) {
-  returnedFilter = type;
-  document.querySelectorAll('.chips-wrap .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderReturnedItems(type);
-}
-
-// ════════════════════════════════════════════
-//  VERIFY ACTIONS (ADMIN)
-// ════════════════════════════════════════════
-function renderVerify() {
-  if (currentUser.role!=='admin') return;
-  const tbody = document.getElementById('verifyTbl');
-  if (!tbody) return;
-  tbody.innerHTML = VERIFY_ACTIONS.map(v=>`
-    <tr>
-      <td><strong>${v.reqNo}</strong></td>
-      <td><span class="badge badge-blue">${v.actionType}</span></td>
-      <td>${v.product}</td>
-      <td style="font-size:12px;max-width:180px;">${v.details}</td>
-      <td>${v.requestedBy}</td>
-      <td>${v.date}</td>
-      <td><span class="badge ${v.status==='pending'?'badge-warn':v.status==='approved'?'badge-green':'badge-red'}">${v.status}</span></td>
-      <td>
-        ${v.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="openVerifyModal(${v.id})"><i class="fa-solid fa-shield-check"></i> Review</button>`:'—'}
-      </td>
-    </tr>`).join('');
-}
-
-function openVerifyModal(id) {
-  currentVerifyId = id;
-  const v = VERIFY_ACTIONS.find(x=>x.id===id);
-  if (!v) return;
-  document.getElementById('verifyModalBody').innerHTML = `
-    <div class="verify-banner"><i class="fa-solid fa-circle-info"></i><div class="verify-banner-text">Review this action request carefully before approving.</div></div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Request #</span><br><strong>${v.reqNo}</strong></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Action Type</span><br><span class="badge badge-blue">${v.actionType}</span></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Product</span><br><strong>${v.product}</strong></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Requested By</span><br>${v.requestedBy}</div>
-      </div>
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:13px;"><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Details</span><br>${v.details}</div>
-    </div>`;
-  openModal('modalVerify');
-}
-
-function approveAction() {
-  const v = VERIFY_ACTIONS.find(x=>x.id===currentVerifyId);
-  if (v) {
-    v.status='approved';
-    // apply stock-out if it was a large stock-out request
-    if (v.actionType==='Large Stock Out') {
-      const prod = PRODUCTS.find(p=>p.id===v.productId);
-      const match = v.details.match(/Remove (\d+) units/);
-      if (prod && match) {
-        const qty = parseInt(match[1]);
-        logHistory(prod.id,prod.sku,prod.name,'out',qty,prod.stock,prod.stock-qty,v.reqNo,'admin[verified]');
-        prod.stock -= qty;
-      }
-    }
-  }
-  document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(x=>x.status==='pending').length;
-  closeModal('modalVerify');
-  renderVerify();
-}
-
-function rejectAction() {
-  const v = VERIFY_ACTIONS.find(x=>x.id===currentVerifyId);
-  if (v) v.status='rejected';
-  document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(x=>x.status==='pending').length;
-  closeModal('modalVerify');
-  renderVerify();
-}
-
-// ════════════════════════════════════════════
-//  PRODUCT ADD/EDIT
-// ════════════════════════════════════════════
-function openAddProduct() {
-  editingProductId = null;
-  document.getElementById('modalProductTitle').innerHTML = 'Add <span>Product</span>';
-  ['pSku','pName','pBrand','pDesc'].forEach(id=>document.getElementById(id).value='');
-  ['pPrice','pCost','pStock','pReorder'].forEach(id=>document.getElementById(id).value='');
-  openModal('modalProduct');
-}
-
-function openEditProduct(id) {
-  if (currentUser.role!=='admin') return;
-  const p = PRODUCTS.find(x=>x.id===id);
-  if (!p) return;
-  editingProductId = id;
-  document.getElementById('modalProductTitle').innerHTML = 'Edit <span>Product</span>';
-  document.getElementById('pSku').value = p.sku;
-  document.getElementById('pName').value = p.name;
-  document.getElementById('pBrand').value = p.brand;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pCost').value = p.cost;
-  document.getElementById('pStock').value = p.stock;
-  document.getElementById('pReorder').value = p.reorder;
-  document.getElementById('pDesc').value = '';
-  const catSel = document.getElementById('pCategory');
-  for (let i=0;i<catSel.options.length;i++) if (catSel.options[i].text===p.category) { catSel.selectedIndex=i; break; }
-  openModal('modalProduct');
-}
-
-function saveProduct() {
-  const sku = document.getElementById('pSku').value.trim();
-  const name = document.getElementById('pName').value.trim();
-  if (!sku||!name) { alert('SKU and Product Name are required.'); return; }
-  const data = {
-    sku, name,
-    category: document.getElementById('pCategory').value,
-    brand: document.getElementById('pBrand').value,
-    price: parseFloat(document.getElementById('pPrice').value)||0,
-    cost: parseFloat(document.getElementById('pCost').value)||0,
-    stock: parseInt(document.getElementById('pStock').value)||0,
-    reorder: parseInt(document.getElementById('pReorder').value)||5,
-    barcode: sku,
-  };
-  if (editingProductId) {
-    const p = PRODUCTS.find(x=>x.id===editingProductId);
-    if (p) Object.assign(p, data);
-  } else {
-    const newId = PRODUCTS.length ? Math.max(...PRODUCTS.map(p=>p.id))+1 : 1;
-    PRODUCTS.push({id:newId,...data});
-    logHistory(newId,sku,name,'in',data.stock,0,data.stock,'NEW-PRODUCT',currentUser.username);
-  }
-  closeModal('modalProduct');
-  buildProductSelects(); renderInventory(); renderDashboard();
-}
-
-// ════════════════════════════════════════════
-//  GLOBAL SEARCH
-// ════════════════════════════════════════════
-function globalSearchFn(v) {
-  if (!v) return;
-  showPage('inventory');
-  document.getElementById('invSearch').value = v;
-  filterInventory(v);
-}
-
-// ════════════════════════════════════════════
-//  MODAL HELPERS
-// ════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-backdrop').forEach(bd=>{
-  bd.addEventListener('click', e => { if (e.target===bd) bd.classList.remove('open'); });
-});
-
-// ════════════════════════════════════════════
-//  LOGOUT
-// ════════════════════════════════════════════
-function confirmLogout() { openModal('modalLogout'); }
-function doLogout() {
-  sessionStorage.removeItem('rfmoto_user');
-  closeModal('modalLogout');
-  // Redirect back to login page
-  window.location.href = '/login';
-}
-
-// Init on load
-window.addEventListener('load', initFromSession);
+function markRead(id)   { const n=NOTIFICATIONS.find(x=>x.id===id); if(n) n.read=true; renderNotifications(); }
+function markAllRead()  { NOTIFICATIONS.forEach(n=>n.read=true); renderNotifications(); }
+function toggleNotif()  { document.getElementById('notifDrawer').classList.toggle('open'); }
 
 // ════════════════════════════════════════════
 //  DARK MODE
 // ════════════════════════════════════════════
 function toggleDarkMode() {
-  const html = document.documentElement;
+  const html   = document.documentElement;
   const toggle = document.getElementById('darkToggle');
-  const knob = document.getElementById('darkKnob');
+  const knob   = document.getElementById('darkKnob');
   const isDark = html.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    html.setAttribute('data-theme', 'light');
-    toggle.classList.remove('on');
-    knob.innerHTML = '<i class="fa-solid fa-moon"></i>';
-    localStorage.setItem('rfmoto_theme', 'light');
-  } else {
-    html.setAttribute('data-theme', 'dark');
-    toggle.classList.add('on');
-    knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
-    localStorage.setItem('rfmoto_theme', 'dark');
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  toggle.classList.toggle('on', !isDark);
+  knob.innerHTML = isDark ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+  localStorage.setItem('rfmoto_theme', isDark ? 'light' : 'dark');
+}
+
+// ════════════════════════════════════════════
+//  CATEGORY GRADIENTS & ICONS
+// ════════════════════════════════════════════
+const CATEGORY_GRADIENTS = {
+  'Engine Parts':    'linear-gradient(135deg,#0d1b26 0%,#17b8dc22 100%)',
+  'Electrical':      'linear-gradient(135deg,#1e1b4b 0%,#6366f133 100%)',
+  'Brake System':    'linear-gradient(135deg,#450a0a 0%,#dc262633 100%)',
+  'Suspension':      'linear-gradient(135deg,#052e16 0%,#16a34a33 100%)',
+  'Body & Frame':    'linear-gradient(135deg,#1c1917 0%,#78716c33 100%)',
+  'Transmission':    'linear-gradient(135deg,#0c0a09 0%,#d9770633 100%)',
+  'Cooling System':  'linear-gradient(135deg,#083344 0%,#0ea5c933 100%)',
+  'Exhaust':         'linear-gradient(135deg,#1c0000 0%,#f9731633 100%)',
+  'Filters':         'linear-gradient(135deg,#052e16 0%,#4ade8033 100%)',
+  'Oils & Fluids':   'linear-gradient(135deg,#422006 0%,#d9770633 100%)',
+  'default':         'linear-gradient(135deg,#0d1b26 0%,#17b8dc22 100%)',
+};
+const CATEGORY_ICONS = {
+  'Engine Parts':'fa-gears','Electrical':'fa-bolt','Brake System':'fa-hand-back-fist',
+  'Suspension':'fa-car-side','Body & Frame':'fa-shield','Transmission':'fa-link',
+  'Cooling System':'fa-temperature-low','Exhaust':'fa-wind','Filters':'fa-filter',
+  'Oils & Fluids':'fa-droplet','default':'fa-box',
+};
+
+// ════════════════════════════════════════════
+//  PRODUCT OVERVIEW CARDS
+// ════════════════════════════════════════════
+function renderProductCards() {
+  const wrap = document.getElementById('productCards');
+  if (!PRODUCTS.length) {
+    wrap.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);"><i class="fa-solid fa-box-open" style="font-size:36px;margin-bottom:12px;display:block;"></i>No products found</div>';
+    return;
+  }
+  wrap.innerHTML = PRODUCTS.map(p => {
+    const stockPct  = Math.min(100, Math.round((p.stock / Math.max(p.reorder*3,1)) * 100));
+    const statusCls = p.stock === 0 ? 'badge-red' : p.stock <= p.reorder ? 'badge-warn' : 'badge-green';
+    const statusTxt = p.stock === 0 ? 'Out of Stock' : p.stock <= p.reorder ? 'Low Stock' : 'In Stock';
+    const grad = CATEGORY_GRADIENTS[p.category] || CATEGORY_GRADIENTS['default'];
+    const icon = CATEGORY_ICONS[p.category]     || CATEGORY_ICONS['default'];
+    const vars = VARIATIONS[p.id];
+    const varDots = vars?.variations.slice(0,4).map(v =>
+      `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${v.color};border:1.5px solid rgba(255,255,255,.2);margin-right:3px;" title="${v.label}"></span>`
+    ).join('') || '';
+    return `<div class="pov-card" onclick="openProductOverview(${p.id})" title="View ${p.name}">
+      <div class="pov-card-img" style="background:${grad};">
+        <i class="fa-solid ${icon}" style="font-size:38px;color:rgba(255,255,255,.18);"></i>
+        <div style="position:absolute;top:10px;right:10px;"><span class="badge ${statusCls}" style="font-size:9px;">${statusTxt}</span></div>
+        <div style="position:absolute;bottom:10px;left:12px;"><code style="font-size:10px;background:rgba(0,0,0,.45);padding:2px 7px;border-radius:4px;color:var(--cyan);font-weight:700;letter-spacing:.06em;">${p.sku}</code></div>
+      </div>
+      <div class="pov-card-body">
+        <div class="pov-card-name">${p.name}</div>
+        <div class="pov-card-meta">${p.brand} · ${p.category}</div>
+        <div class="pov-card-bottom">
+          <span class="pov-card-price">₱${p.price.toLocaleString()}</span>
+          <div style="display:flex;align-items:center;gap:4px;">${varDots}<span style="font-size:10px;color:var(--muted);">${vars?.variations.length||1} var.</span></div>
+        </div>
+        <div class="progress-bar-bg" style="margin-top:8px;"><div class="progress-bar-fill ${p.stock<=p.reorder?'critical':''}" style="width:${stockPct}%;transition:width .5s;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+          <span style="font-size:10px;color:var(--muted);">Stock level</span>
+          <span style="font-size:10px;font-weight:700;color:${p.stock<=p.reorder?'var(--danger)':'var(--muted)'};">${p.stock} units</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+//  PRODUCT OVERVIEW MODAL
+// ════════════════════════════════════════════
+function openProductOverview(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const meta      = VARIATIONS[id] || { desc: 'No description available.', variations:[{label:'Standard',color:'#17b8dc',stock:p.stock}] };
+  _povActiveVar   = 0;
+  const grad      = CATEGORY_GRADIENTS[p.category] || CATEGORY_GRADIENTS['default'];
+  const icon      = CATEGORY_ICONS[p.category]     || CATEGORY_ICONS['default'];
+  const statusCls = p.stock === 0 ? 'badge-red' : p.stock <= p.reorder ? 'badge-warn' : 'badge-green';
+  const statusTxt = p.stock === 0 ? 'Out of Stock' : p.stock <= p.reorder ? 'Low Stock' : 'In Stock';
+  document.getElementById('povModalContent').innerHTML = buildPovModal(p, meta, grad, icon, statusCls, statusTxt, 0);
+  document.getElementById('modalPOV').classList.add('open');
+}
+
+function buildPovModal(p, meta, grad, icon, statusCls, statusTxt, activeIdx) {
+  const v        = meta.variations[activeIdx];
+  const vStock   = v.stock;
+  const vStatusCls = vStock === 0 ? 'badge-red' : vStock <= p.reorder ? 'badge-warn' : 'badge-green';
+  const vStatusTxt = vStock === 0 ? 'Out of Stock' : vStock <= p.reorder ? 'Low Stock' : 'In Stock';
+  const vPct     = Math.min(100, Math.round((vStock / Math.max(p.reorder*3,1)) * 100));
+  const varButtons = meta.variations.map((vr,i) => `
+    <button class="pov-var-btn ${i===activeIdx?'active':''}" onclick="selectPovVar(${p.id},${i})" title="${vr.label}">
+      <span class="pov-var-swatch" style="background:${vr.color};"></span>
+      <span class="pov-var-label">${vr.label}</span>
+      <span class="pov-var-stock ${vr.stock===0?'out':vr.stock<=p.reorder?'low':''}">${vr.stock}</span>
+    </button>`).join('');
+  return `
+    <div class="pov-img-panel" style="background:${grad};" id="povImgPanel">
+      <i class="fa-solid ${icon}" id="povIcon" style="font-size:72px;color:rgba(255,255,255,.22);transition:transform .3s;"></i>
+      <div class="pov-img-overlay">
+        <span class="pov-sku-badge">${p.sku}</span>
+        <span class="badge ${statusCls}">${statusTxt}</span>
+      </div>
+    </div>
+    <div class="pov-info-panel">
+      <div class="pov-brand-line">${p.brand} <span class="pov-cat-chip">${p.category}</span></div>
+      <div class="pov-product-name">${p.name}</div>
+      <div class="pov-desc">${meta.desc}</div>
+      <div class="pov-price-row">
+        <div>
+          <div class="pov-price-label">Unit Price</div>
+          <div class="pov-price">₱${p.price.toLocaleString()}</div>
+        </div>
+        <div>
+          <div class="pov-price-label">Cost Price</div>
+          <div class="pov-cost">₱${p.cost.toLocaleString()}</div>
+        </div>
+      </div>
+      <div class="pov-section-label">Variations</div>
+      <div class="pov-vars-wrap">${varButtons}</div>
+      <div class="pov-var-detail" id="povVarDetail">
+        <div class="pov-var-detail-name">${v.label}</div>
+        <div class="pov-var-stock-row">
+          <div class="pov-var-stock-bar-bg"><div class="pov-var-stock-bar" style="width:${vPct}%;background:${v.color};"></div></div>
+          <span class="badge ${vStatusCls}" style="flex-shrink:0;">${vStatusTxt}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <span style="font-size:11px;color:var(--muted);">Available stock</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${vStock<=p.reorder?'var(--danger)':'var(--text)'};">${vStock} <span style="font-size:11px;font-weight:400;color:var(--muted);">units</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+          <span style="font-size:11px;color:var(--muted);">Reorder point</span>
+          <span style="font-size:11px;font-weight:600;color:var(--text);">${p.reorder} units</span>
+        </div>
+      </div>
+      <div class="pov-footer-meta">
+        <span><i class="fa-solid fa-barcode" style="margin-right:4px;color:var(--cyan);"></i>${p.barcode||p.sku}</span>
+        <span><i class="fa-solid fa-tag" style="margin-right:4px;color:var(--cyan);"></i>ID #${p.id}</span>
+      </div>
+    </div>`;
+}
+
+function selectPovVar(productId, idx) {
+  const p    = PRODUCTS.find(x => x.id === productId);
+  const meta = VARIATIONS[productId] || {variations:[{label:'Standard',color:'#17b8dc',stock:p.stock}]};
+  _povActiveVar = idx;
+  const v    = meta.variations[idx];
+  document.querySelectorAll('.pov-var-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const icon = document.getElementById('povIcon');
+  if (icon) { icon.style.transform='scale(1.15)'; setTimeout(()=>icon.style.transform='scale(1)',280); }
+  const vStock     = v.stock;
+  const vStatusCls = vStock===0?'badge-red':vStock<=p.reorder?'badge-warn':'badge-green';
+  const vStatusTxt = vStock===0?'Out of Stock':vStock<=p.reorder?'Low Stock':'In Stock';
+  const vPct       = Math.min(100, Math.round((vStock/Math.max(p.reorder*3,1))*100));
+  const det = document.getElementById('povVarDetail');
+  if (det) det.innerHTML = `
+    <div class="pov-var-detail-name">${v.label}</div>
+    <div class="pov-var-stock-row">
+      <div class="pov-var-stock-bar-bg"><div class="pov-var-stock-bar" style="width:${vPct}%;background:${v.color};transition:width .5s;"></div></div>
+      <span class="badge ${vStatusCls}" style="flex-shrink:0;">${vStatusTxt}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+      <span style="font-size:11px;color:var(--muted);">Available stock</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${vStock<=p.reorder?'var(--danger)':'var(--text)'};">${vStock} <span style="font-size:11px;font-weight:400;color:var(--muted);">units</span></span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+      <span style="font-size:11px;color:var(--muted);">Reorder point</span>
+      <span style="font-size:11px;font-weight:600;color:var(--text);">${p.reorder} units</span>
+    </div>`;
+}
+
+function closePOV() { document.getElementById('modalPOV').classList.remove('open'); }
+
+// ════════════════════════════════════════════
+//  ADD / EDIT PRODUCT (Admin only)
+// ════════════════════════════════════════════
+function buildProductSelects() {
+  // Category select in Add/Edit modal
+  const catSel = document.getElementById('pCategory');
+  if (catSel && CATEGORIES.length) {
+    catSel.innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
   }
 }
 
-// Restore saved theme
-(function() {
-  const saved = localStorage.getItem('rfmoto_theme');
-  if (saved === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    // toggle UI will be set after DOM loads
-  }
-})();
+function openAddProduct() {
+  if (currentUser.role !== 'admin') return;
+  editingProductId = null;
+  document.getElementById('modalProductTitle').innerHTML = 'Add <span>Product</span>';
+  ['pSku','pName','pBrand','pPrice','pCost','pStock','pReorder','pDesc'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('pStock').value   = 0;
+  document.getElementById('pReorder').value = 5;
+  document.getElementById('modalProduct').classList.add('open');
+}
 
-// close notif drawer on outside click
-document.addEventListener('click', e => {
+function openEditProduct(id) {
+  if (currentUser.role !== 'admin') return;
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  editingProductId = id;
+  document.getElementById('modalProductTitle').innerHTML = 'Edit <span>Product</span>';
+  document.getElementById('pSku').value     = p.sku;
+  document.getElementById('pName').value    = p.name;
+  document.getElementById('pBrand').value   = p.brand;
+  document.getElementById('pPrice').value   = p.price;
+  document.getElementById('pCost').value    = p.cost;
+  document.getElementById('pStock').value   = p.stock;
+  document.getElementById('pReorder').value = p.reorder;
+  document.getElementById('pDesc').value    = VARIATIONS[p.id]?.desc || '';
+  // Set category select
+  const catSel = document.getElementById('pCategory');
+  const cat    = CATEGORIES.find(c => c.name === p.category);
+  if (cat && catSel) catSel.value = cat.id;
+  document.getElementById('modalProduct').classList.add('open');
+}
+
+async function saveProduct() {
+  const payload = {
+    sku:           document.getElementById('pSku').value.trim(),
+    name:          document.getElementById('pName').value.trim(),
+    brand:         document.getElementById('pBrand').value.trim(),
+    category_id:   parseInt(document.getElementById('pCategory').value),
+    price:         parseFloat(document.getElementById('pPrice').value)||0,
+    cost:          parseFloat(document.getElementById('pCost').value)||0,
+    stock_qty:     parseInt(document.getElementById('pStock').value)||0,
+    reorder_level: parseInt(document.getElementById('pReorder').value)||5,
+    description:   document.getElementById('pDesc').value.trim(),
+    barcode:       document.getElementById('pSku').value.trim(), // auto-same as SKU
+  };
+
+  if (!payload.sku || !payload.name || !payload.brand) {
+    return showToast('SKU, Name and Brand are required.', 'danger');
+  }
+
+  try {
+    const url    = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
+    const method = editingProductId ? 'PUT' : 'POST';
+    const res    = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+    const data   = await res.json();
+
+    if (data.status === 'success') {
+      closeModal('modalProduct');
+      showToast(editingProductId ? 'Product updated!' : 'Product created!', 'success');
+      await loadData();
+    } else {
+      const msg = data.errors ? Object.values(data.errors).flat().join(', ') : data.message;
+      showToast(msg, 'danger');
+    }
+  } catch(e) {
+    showToast('Save failed. Please try again.', 'danger');
+  }
+}
+
+// ════════════════════════════════════════════
+//  GLOBAL SEARCH
+// ════════════════════════════════════════════
+function globalSearchFn(val) {
+  const search = val.toLowerCase();
+  const wrap   = document.getElementById('productCards');
+  wrap.querySelectorAll('.pov-card').forEach((card, i) => {
+    const p   = PRODUCTS[i];
+    const hit = !search ||
+      p.name.toLowerCase().includes(search) ||
+      p.sku.toLowerCase().includes(search)  ||
+      p.brand.toLowerCase().includes(search)||
+      p.category.toLowerCase().includes(search);
+    card.style.display = hit ? '' : 'none';
+  });
+}
+
+function openScan() { document.getElementById('modalScan').classList.add('open'); }
+
+// ════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function confirmLogout() { document.getElementById('modalLogout').classList.add('open'); }
+
+async function doLogout() {
+  try {
+    await fetch(`${API_URL.replace('/api','')}/logout`, { method:'POST', headers: authHeaders() });
+  } catch(e) {}
+  sessionStorage.clear();
+  window.location.href = '/login';
+}
+
+// ════════════════════════════════════════════
+//  TOAST NOTIFICATIONS
+// ════════════════════════════════════════════
+function showToast(msg, type='success') {
+  const old = document.getElementById('rfmoto-toast');
+  if (old) old.remove();
+  const colors = { success:'#16a34a', danger:'#dc2626', warn:'#d97706', cyan:'#17b8dc' };
+  const toast  = document.createElement('div');
+  toast.id     = 'rfmoto-toast';
+  toast.style.cssText = `
+    position:fixed;bottom:28px;right:28px;z-index:99999;
+    background:${colors[type]||colors.cyan};color:#fff;
+    padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;
+    box-shadow:0 4px 24px rgba(0,0,0,.25);
+    animation:fadeInUp .3s ease;
+  `;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ════════════════════════════════════════════
+//  QUICK SCAN STUB (wire to /api/barcode)
+// ════════════════════════════════════════════
+function quickScanProcess() {
+  const val = document.getElementById('quickScanInput').value.trim();
+  if (!val) return;
+  const p = PRODUCTS.find(x => x.sku === val || x.barcode === val);
+  if (p) {
+    closeModal('modalScan');
+    openProductOverview(p.id);
+  } else {
+    showToast('Product not found: ' + val, 'danger');
+  }
+}
+
+function setQSAction(action) {
+  ['qsActionNew','qsActionExisting','qsActionRemove'].forEach(id =>
+    document.getElementById(id).classList.remove('selected')
+  );
+  const map = { 'add-new':'qsActionNew','add-existing':'qsActionExisting','stock-out':'qsActionRemove' };
+  document.getElementById(map[action])?.classList.add('selected');
+}
+
+// ════════════════════════════════════════════
+//  BARCODE MODAL STUB
+// ════════════════════════════════════════════
+function openGenerateBarcodeFor(id) {
+  const sel = document.getElementById('barcodeProduct');
+  sel.innerHTML = PRODUCTS.map(p => `<option value="${p.id}" ${p.id===id?'selected':''}>${p.sku} — ${p.name}</option>`).join('');
+  previewBarcode();
+  document.getElementById('modalBarcode').classList.add('open');
+}
+
+function previewBarcode() {
+  const id    = parseInt(document.getElementById('barcodeProduct').value);
+  const p     = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const prev  = document.getElementById('barcodePreview');
+  const lines = document.getElementById('barcodeLines');
+  const num   = document.getElementById('barcodeNum');
+  prev.style.display = 'block';
+  // Simple visual barcode from SKU chars
+  const code  = p.barcode || p.sku;
+  lines.innerHTML = code.split('').map(ch => {
+    const h = 20 + (ch.charCodeAt(0) % 40);
+    return `<div style="width:3px;background:var(--text);height:${h}px;border-radius:1px;"></div>`;
+  }).join('');
+  num.textContent = code;
+}
+
+function assignBarcode() {
+  showToast('Barcode assigned!', 'cyan');
+  closeModal('modalBarcode');
+}
+
+// ════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', initFromSession);
+window.addEventListener('click', e => {
   const drawer = document.getElementById('notifDrawer');
-  const btn = document.getElementById('notifBtn');
+  const btn    = document.getElementById('notifBtn');
   if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
     drawer.classList.remove('open');
   }
 });
 </script>
+
+{{-- Product Overview Modal (appended after body) --}}
+<div class="modal-backdrop" id="modalPOV" onclick="if(event.target===this)closePOV()">
+  <div class="pov-modal">
+    <button class="pov-close" onclick="closePOV()">&#x2715;</button>
+    <div id="povModalContent" style="display:flex;width:100%;height:100%;"></div>
+  </div>
+</div>
+
 </body>
 </html>

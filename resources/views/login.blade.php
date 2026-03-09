@@ -663,7 +663,7 @@
 <script>
   let currentRole = 'staff';
 
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'https://rfmoto-laravel-production.up.railway.app';
 const API_URL  = API_BASE + '/api';
 
   function selectRole(role) {
