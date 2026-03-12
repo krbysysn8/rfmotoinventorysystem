@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto – Sales Record</title>
+<title>RF Moto - Sales Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -249,19 +249,19 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-icon cyan"><i class="fa-solid fa-receipt"></i></div>
-        <div><div class="stat-val" id="statOrders">—</div><div class="stat-lbl">Total Orders</div></div>
+        <div><div class="stat-val" id="statOrders">-</div><div class="stat-lbl">Total Orders</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon green"><i class="fa-solid fa-peso-sign"></i></div>
-        <div><div class="stat-val" id="statRevenue">—</div><div class="stat-lbl">Total Revenue</div></div>
+        <div><div class="stat-val" id="statRevenue">-</div><div class="stat-lbl">Total Revenue</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon blue"><i class="fa-solid fa-calendar-day"></i></div>
-        <div><div class="stat-val" id="statToday">—</div><div class="stat-lbl" id="statTodayLbl">Today's Sales</div></div>
+        <div><div class="stat-val" id="statToday">-</div><div class="stat-lbl" id="statTodayLbl">Today's Sales</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon warn"><i class="fa-solid fa-boxes-stacked"></i></div>
-        <div><div class="stat-val" id="statAvg">—</div><div class="stat-lbl">Total Units Out</div></div>
+        <div><div class="stat-val" id="statAvg">-</div><div class="stat-lbl">Total Units Out</div></div>
       </div>
     </div>
 
@@ -278,7 +278,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     <!-- FORECAST STRIP -->
     <div class="forecast-row" id="forecastRow" style="display:none;">
       <i class="fa-solid fa-wand-magic-sparkles"></i>
-      <span>Tomorrow's forecast: <strong id="forecastVal">—</strong> &nbsp;·&nbsp; Based on 7-day moving average of daily sales</span>
+      <span>Tomorrow's forecast: <strong id="forecastVal">-</strong> &nbsp;·&nbsp; Based on 7-day moving average of daily sales</span>
     </div>
 
     <!-- FILTER BAR -->
@@ -288,7 +288,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
       <div class="date-wrap">
         <i class="fa-solid fa-calendar" style="color:var(--muted);font-size:12px;"></i>
         <input type="date" id="dateFrom" onchange="applyFilters()">
-        <span>–</span>
+        <span>-</span>
         <input type="date" id="dateTo" onchange="applyFilters()">
       </div>
       <div class="filter-sep"></div>
@@ -330,7 +330,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="modal-backdrop" id="modalDetail">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Order <span id="modalOrderNum">—</span></div>
+      <div class="modal-title">Order <span id="modalOrderNum">-</span></div>
       <button class="modal-close" onclick="closeModal('modalDetail')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -358,14 +358,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<script>
-const API_BASE='{{ config("app.url") }}/api';
+<script charset="utf-8">
+const API_BASE = '/api';
 const TOKEN_KEY='rfmoto_token';
 const USER_KEY='rfmoto_user';
-function getToken(){return localStorage.getItem(TOKEN_KEY);}
-function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
-function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);}
+function getToken(){return sessionStorage.getItem(TOKEN_KEY);}
+function getUser(){try{return JSON.parse(sessionStorage.getItem(USER_KEY));}catch(e){return null;}}
+function setUser(u){sessionStorage.setItem(USER_KEY,JSON.stringify(u));}
+function clearAuth(){sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);}
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -406,7 +406,7 @@ function bootUI(u){
   document.querySelectorAll('.admin-only').forEach(e=>e.style.display=u.role==='admin'?'':'none');
 }
 
-// ── Local date helper (avoids UTC "yesterday" bug before 8AM PH) ──
+// -- Local date helper (avoids UTC "yesterday" bug before 8AM PH) --
 function localDate(d = new Date()) {
   const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
@@ -473,7 +473,7 @@ function renderCharts(){
   if(CHART_SALES){CHART_SALES.destroy();CHART_SALES=null;}
   const c=getCC();
 
-  // ── Daily sales last 14 days + 7-day SMA forecast ──
+  // -- Daily sales last 14 days + 7-day SMA forecast --
   const days14=[];
   for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days14.push(localDate(d));}
   const actual=days14.map(d=>ALL_SALES.filter(o=>(o.order_date||'').startsWith(d)).reduce((s,o)=>s+parseFloat(o.total_amount||0),0));
@@ -509,7 +509,7 @@ function fmtDay(d){
   return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
 }
 
-// ── FILTER + SORT ──
+// -- FILTER + SORT --
 function applyFilters(){
   const q=(el('globalSearch').value||el('tableSearch').value||'').toLowerCase().trim();
   const from=el('dateFrom').value, to=el('dateTo').value;
@@ -564,15 +564,15 @@ function renderTable(){
     const saleAmt=(parseFloat(m.unit_price||0)*parseInt(m.quantity||0));
     return`<tr>
       <td style="white-space:nowrap;font-size:12px;color:var(--text2);">${fmtDate(m.movement_date)}</td>
-      <td><span class="order-chip">${esc(m.sku||'—')}</span></td>
-      <td style="font-weight:500;">${esc(m.product_name||'—')}</td>
-      <td><span class="badge badge-gray">${esc(m.category_name||'—')}</span></td>
+      <td><span class="order-chip">${esc(m.sku||'-')}</span></td>
+      <td style="font-weight:500;">${esc(m.product_name||'-')}</td>
+      <td><span class="badge badge-gray">${esc(m.category_name||'-')}</span></td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--danger);">−${m.quantity??0}</td>
-      <td style="font-size:13px;color:var(--text2);">${m.qty_before??'—'}</td>
+      <td style="font-size:13px;color:var(--text2);">${m.qty_before??'-'}</td>
       <td>${stockBadge}</td>
-      <td style="font-size:12px;color:var(--muted);">${esc(m.reference_no||'—')}</td>
+      <td style="font-size:12px;color:var(--muted);">${esc(m.reference_no||'-')}</td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--success);">${fmtPeso(saleAmt)}</td>
-      <td style="font-size:12px;color:var(--text2);">${esc(m.performed_by_name||m.username||'—')}</td>
+      <td style="font-size:12px;color:var(--text2);">${esc(m.performed_by_name||m.username||'-')}</td>
     </tr>`;
   }).join('');
   renderPag();
@@ -581,7 +581,7 @@ function renderTable(){
 function payBadge(p){
   const map={cash:'badge-green',gcash:'badge-cyan',card:'badge-blue',bank_transfer:'badge-warn',credit:'badge-purple'};
   const cls=map[p]||'badge-gray';
-  const label=p?p.charAt(0).toUpperCase()+p.slice(1).replace('_',' '):'—';
+  const label=p?p.charAt(0).toUpperCase()+p.slice(1).replace('_',' '):'-';
   return`<span class="badge ${cls}">${label}</span>`;
 }
 
@@ -596,7 +596,7 @@ function viewOrder(orderNum){
       <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Customer</div><div style="font-size:14px;font-weight:600;margin-top:2px;">${esc(o.customer_name||'Walk-in')}</div></div>
       <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Date</div><div style="font-size:14px;font-weight:600;margin-top:2px;">${fmtDate(o.order_date)}</div></div>
       <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Payment</div><div style="margin-top:4px;">${payBadge(o.payment_method)}</div></div>
-      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Served By</div><div style="font-size:13px;font-weight:500;margin-top:2px;">${esc(o.served_by||'—')}</div></div>
+      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Served By</div><div style="font-size:13px;font-weight:500;margin-top:2px;">${esc(o.served_by||'-')}</div></div>
     </div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Items Ordered</div>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
@@ -608,7 +608,7 @@ function viewOrder(orderNum){
       </tr></thead>
       <tbody>
         ${items.map(i=>`<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:9px 12px;font-weight:500;">${esc(i.product_name||'—')}</td>
+          <td style="padding:9px 12px;font-weight:500;">${esc(i.product_name||'-')}</td>
           <td style="padding:9px 12px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;">${i.quantity}</td>
           <td style="padding:9px 12px;text-align:right;">${fmtPeso(i.unit_price||0)}</td>
           <td style="padding:9px 12px;text-align:right;font-weight:600;">${fmtPeso(i.subtotal||i.unit_price*i.quantity||0)}</td>
@@ -629,11 +629,11 @@ function renderPag(){
   const s=(PAGE-1)*PAGE_SIZE+1, e=Math.min(PAGE*PAGE_SIZE,total);
   const range=pagR(PAGE,pages);
   const btns=range.map(p=>p==='…'?`<span class="pg-info" style="padding:0 4px;">…</span>`:`<button class="pg-btn ${p===PAGE?'active':''}" onclick="goPage(${p})">${p}</button>`).join('');
-  wrap.innerHTML=`<span class="pg-info">Showing ${s}–${e} of ${total.toLocaleString()}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
+  wrap.innerHTML=`<span class="pg-info">Showing ${s}-${e} of ${total.toLocaleString()}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
 }
 function pagR(cur,total){if(total<=7)return Array.from({length:total},(_,i)=>i+1);if(cur<=4)return[1,2,3,4,5,'…',total];if(cur>=total-3)return[1,'…',total-4,total-3,total-2,total-1,total];return[1,'…',cur-1,cur,cur+1,'…',total];}
 function goPage(p){const pages=Math.ceil(FILTERED.length/PAGE_SIZE);if(p<1||p>pages)return;PAGE=p;renderTable();document.querySelector('.content-area').scrollTop=0;}
-function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDate(d){if(!d)return'-';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function showPage(page) {
