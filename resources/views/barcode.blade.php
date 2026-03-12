@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto – Barcode Scanner</title>
+<title>RF Moto - Barcode Scanner</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -736,12 +736,12 @@ html, body {
 
 .content{padding:24px 28px 48px;}
 
-/* ── CARDS ── */
+/* -- CARDS -- */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);}
 .card-pad{padding:22px;}
 .section-grid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:16px;align-items:start;margin-bottom:16px;}
 
-/* ── SCAN AREA ── */
+/* -- SCAN AREA -- */
 .scan-area{text-align:center;padding:4px 0 16px;}
 .scan-icon{font-size:40px;color:var(--border2);margin-bottom:10px;}
 .scan-input-wrap{position:relative;}
@@ -758,7 +758,7 @@ html, body {
 .scan-action-btn span{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
 .scan-action-btn.selected span{color:var(--cyan);}
 
-/* ── RESULT PANEL ── */
+/* -- RESULT PANEL -- */
 .result-idle{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px;gap:10px;}
 .result-idle i{font-size:44px;color:var(--border2);}
 .result-idle p{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;}
@@ -774,7 +774,7 @@ html, body {
 /* cat icon */
 .cat-icon-wrap{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;}
 
-/* ── BADGES ── */
+/* -- BADGES -- */
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.04em;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;}
 .badge-green{background:rgba(22,163,74,.12);color:#16a34a;}
 .badge-warn{background:rgba(217,119,6,.12);color:#d97706;}
@@ -782,7 +782,7 @@ html, body {
 .badge-cyan{background:rgba(23,184,220,.12);color:#17b8dc;}
 .badge-blue{background:rgba(37,99,235,.12);color:#2563eb;}
 
-/* ── BUTTONS ── */
+/* -- BUTTONS -- */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border:none;transition:all .18s;}
 .btn-primary{background:var(--cyan);color:#000;}
 .btn-primary:hover{background:var(--cyan2);}
@@ -794,7 +794,7 @@ html, body {
 .btn-sm{padding:7px 14px;font-size:12px;}
 .btn-block{width:100%;justify-content:center;}
 
-/* ── MODAL ── */
+/* -- MODAL -- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
@@ -811,7 +811,7 @@ html, body {
 .form-ctrl input:focus,.form-ctrl select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow);}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
-/* ── QUICK REF TABLE ── */
+/* -- QUICK REF TABLE -- */
 .qref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
 .qref-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border-radius:10px;border:1px solid var(--border);transition:border .18s;}
 .qref-item:hover{border-color:var(--border2);}
@@ -824,11 +824,11 @@ html, body {
 .qref-ean{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:.08em;margin-top:2px;}
 .qref-meta{display:flex;align-items:center;gap:6px;margin-top:3px;}
 
-/* ── RECENT SCANS ── */
+/* -- RECENT SCANS -- */
 .scan-log-item{padding:9px 0;border-bottom:1px solid var(--border);}
 .scan-log-item:last-child{border-bottom:none;}
 
-/* ── LABEL CARD (print preview) ── */
+/* -- LABEL CARD (print preview) -- */
 .ean-label-card{background:#fff;border-radius:10px;padding:16px 18px 12px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.15);margin:0 auto;width:fit-content;min-width:220px;}
 .ean-label-brand{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#7f99ab;margin-bottom:3px;}
 .ean-label-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#0d1b26;text-align:center;margin-bottom:2px;max-width:220px;line-height:1.2;}
@@ -837,14 +837,14 @@ html, body {
 .ean-label-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:#3a5068;letter-spacing:.16em;margin-top:2px;}
 .ean-label-footer{font-size:8px;color:#9bb5c7;margin-top:6px;letter-spacing:.06em;text-transform:uppercase;}
 
-/* ── SPINNER ── */
+/* -- SPINNER -- */
 .spin{animation:spin .7s linear infinite;display:inline-block;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TOAST ── */
+/* -- TOAST -- */
 #rfToast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;}
 
-/* ── PRINT ── */
+/* -- PRINT -- */
 @media print {
   body>*:not(#printFrame){display:none!important}
   #printFrame{display:block!important;position:fixed;inset:0;background:#fff;z-index:99999;padding:16px}
@@ -1120,19 +1120,19 @@ html, body {
             <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Label Preview</div>
             <div class="ean-label-card" id="labelCard">
               <div class="ean-label-brand" id="lbBrand">RF MOTO PARTS</div>
-              <div class="ean-label-name"  id="lbName">—</div>
-              <div class="ean-label-sku"   id="lbSku">SKU: —</div>
+              <div class="ean-label-name"  id="lbName">-</div>
+              <div class="ean-label-sku"   id="lbSku">SKU: -</div>
               <svg id="lbBarcode" viewBox="0 0 300 50" xmlns="http://www.w3.org/2000/svg" style="width:300px;height:50px;"></svg>
               <div class="ean-label-price" id="lbPrice" style="display:none;"></div>
-              <div class="ean-label-num"   id="lbNum">—</div>
+              <div class="ean-label-num"   id="lbNum">-</div>
               <div class="ean-label-footer">R.F. MOTO PARTS INVENTORY</div>
             </div>
           </div>
           <div style="flex:1;min-width:180px;">
             <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Barcode Details</div>
             <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;">
-              <div id="lbEanBig" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:.12em;margin-bottom:8px;">—</div>
-              <div id="lbBreakdown" style="font-size:11px;color:var(--muted);line-height:1.9;">—</div>
+              <div id="lbEanBig" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:.12em;margin-bottom:8px;">-</div>
+              <div id="lbBreakdown" style="font-size:11px;color:var(--muted);line-height:1.9;">-</div>
             </div>
             <div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.7;">
               <i class="fa-solid fa-circle-info" style="color:var(--cyan);margin-right:5px;"></i>
@@ -1211,9 +1211,9 @@ html, body {
 
 <div id="rfToast" style="position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;"></div>
 
-<script>
+<script charset="utf-8">
 const API_URL = '/api';
-const TOKEN   = localStorage.getItem('rfmoto_token') || '';
+const TOKEN   = sessionStorage.getItem('rfmoto_token') || '';
 const CSRF    = document.querySelector('meta[name="csrf-token"]').content;
 
 function authHeaders(json = true) {
@@ -1226,7 +1226,7 @@ function authHeaders(json = true) {
     return h;
 }
 
-// ── BARCODE ENGINE (CODE 128 — scannable by all 1D physical scanners) ──
+// -- BARCODE ENGINE (CODE 128 - scannable by all 1D physical scanners) --
 const _CAT = {'Engine Parts':'01','Electrical':'02','Brake System':'03','Suspension':'04',
   'Body & Frame':'05','Transmission':'06','Cooling System':'07','Exhaust':'08',
   'Filters':'09','Oils & Fluids':'10'};
@@ -1287,7 +1287,7 @@ function _renderSVG(el, code, bc='#000000', W=260, H=70) {
     x += bw;
   }
 }
-function _fmtEAN(e) { return String(e); } // CODE128 — display as-is
+function _fmtEAN(e) { return String(e); } // CODE128 - display as-is
 
 let scanActionCurrent = 'lookup';
 let allProducts       = [];   // cache from /api/barcode/products
@@ -1297,7 +1297,7 @@ let scanLogsPage      = 1;
 const SCAN_PAGE_SIZE  = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('rfmoto_user') || '{}');
+    const user = JSON.parse(sessionStorage.getItem('rfmoto_user') || '{}');
     if (!TOKEN) { window.location.href = '/login'; return; }
     if (user.fullname) document.getElementById('topbarName').textContent = user.fullname;
 
@@ -1454,7 +1454,7 @@ async function doScan(code, action) {
         if (action === 'add-existing' || action === 'stock-out') {
             openUpdateStockWith(prod, action);
         } else {
-            // Lookup only — log it
+            // Lookup only - log it
             logScanToServer(code, prod.product_id, 'lookup', 0);
         }
 
@@ -1762,7 +1762,7 @@ function populateBarcodeSelect(products) {
             data-brand="${p.brand||''}"
             data-price="${p.unit_price}"
             data-cat="${p.category_name}">
-            ${p.sku} – ${p.product_name}
+            ${p.sku} - ${p.product_name}
         </option>`
     ).join('');
 }
@@ -1846,7 +1846,7 @@ function previewBarcode() {
     const varBarcode = varOpt ? (varOpt.dataset.barcode || '') : '';
     const varSku     = (varOpt && varOpt.dataset.sku) ? varOpt.dataset.sku : prodOpt.dataset.sku;
     const baseName   = prodOpt.dataset.name;
-    const labelName  = varName ? `${baseName} — ${varName}` : baseName;
+    const labelName  = varName ? `${baseName} - ${varName}` : baseName;
 
     // Use variant barcode if set, else fall back to product EAN13
     const displayCode = varBarcode || ean;
@@ -1858,10 +1858,10 @@ function previewBarcode() {
     document.getElementById('lbNum').textContent    = displayCode;
     document.getElementById('lbEanBig').textContent = displayCode;
     document.getElementById('lbBreakdown').innerHTML = varBarcode
-        ? `<strong style="color:var(--cyan)">${varBarcode}</strong> — Variant barcode<br>
-           <strong style="color:var(--muted)">${varName || 'Standard'}</strong> — Variation`
-        : `<strong style="color:var(--cyan)">${ean}</strong> — Product EAN13<br>
-           <strong style="color:var(--muted)">${cat}</strong> — Category`;
+        ? `<strong style="color:var(--cyan)">${varBarcode}</strong> - Variant barcode<br>
+           <strong style="color:var(--muted)">${varName || 'Standard'}</strong> - Variation`
+        : `<strong style="color:var(--cyan)">${ean}</strong> - Product EAN13<br>
+           <strong style="color:var(--muted)">${cat}</strong> - Category`;
 
     if (price) {
         document.getElementById('lbPrice').textContent  = `₱${parseFloat(price).toLocaleString('en-PH',{minimumFractionDigits:2})}`;
@@ -1897,7 +1897,7 @@ function printBarcode() {
     const varName    = (varOpt && varVisible) ? varOpt.dataset.variation : '';
     const varBarcode = varOpt ? (varOpt.dataset.barcode || '') : '';
     const varSku     = (varOpt && varOpt.dataset.sku) ? varOpt.dataset.sku : prodOpt.dataset.sku;
-    const labelName  = varName ? `${prodOpt.dataset.name} — ${varName}` : prodOpt.dataset.name;
+    const labelName  = varName ? `${prodOpt.dataset.name} - ${varName}` : prodOpt.dataset.name;
     const displayCode = varBarcode || ean;
 
     _doPrint([{ ean: displayCode, name: labelName, sku: varSku, brand, price }], copies);
@@ -1934,11 +1934,11 @@ function renderQuickRef(products) {
     products.forEach(p => {
         const vars = p.variations || [];
         if (vars.length <= 1) {
-            // Single/no variant — one row using product barcode
+            // Single/no variant - one row using product barcode
             const code = (vars[0]?.barcode) || p.ean13;
             rows.push({ p, v: vars[0] || null, varIdx: 0, code, isSingle: true });
         } else {
-            // Multiple variants — one row per variant
+            // Multiple variants - one row per variant
             vars.forEach((v, i) => {
                 const code = v.barcode || p.ean13;
                 rows.push({ p, v, varIdx: i, code, isSingle: false });
@@ -1993,7 +1993,7 @@ function filterQRef(query) {
     renderQuickRef(filtered);
 }
 
-// ── PRINT SELECTION ──────────────────────────────────────────
+// -- PRINT SELECTION ------------------------------------------
 let _selection = []; // { key, ean, name, sku, brand, price, copies }
 
 function _getModalItem() {
@@ -2007,7 +2007,7 @@ function _getModalItem() {
     const varCode   = (varOpt && varOpt.dataset.barcode) ? varOpt.dataset.barcode : '';
     const varSku    = (varOpt && varOpt.dataset.sku) ? varOpt.dataset.sku : prodOpt.dataset.sku;
     const code      = varCode || prodOpt.dataset.ean;
-    const name      = varName ? (prodOpt.dataset.name + ' — ' + varName) : prodOpt.dataset.name;
+    const name      = varName ? (prodOpt.dataset.name + ' - ' + varName) : prodOpt.dataset.name;
     const copies    = Math.max(1, parseInt(document.getElementById('barcodeCopies').value) || 1);
     const brand     = (prodOpt.dataset.brand || 'RF MOTO').toUpperCase();
     const price     = prodOpt.dataset.price;
@@ -2104,7 +2104,7 @@ function _doPrint(items, defaultCopies) {
             </div>`;
     }).join('');
 
-    // Open a dedicated print window — 100% reliable vs printFrame hacks
+    // Open a dedicated print window - 100% reliable vs printFrame hacks
     const pw = window.open('', '_blank', 'width=900,height=700');
     if (!pw) {
         showToast('Pop-up blocked! Please allow pop-ups for this site.', 'danger');
@@ -2115,7 +2115,7 @@ function _doPrint(items, defaultCopies) {
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>RF Moto — Barcode Labels</title>
+  <title>RF Moto - Barcode Labels</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #fff; padding: 16px; font-family: sans-serif; }
@@ -2195,17 +2195,17 @@ async function doLogout() {
     try {
         await fetch('/logout', { method:'POST', headers: authHeaders() });
     } catch(e) {}
-    localStorage.removeItem('rfmoto_token');
-    localStorage.removeItem('rfmoto_user');
+    sessionStorage.removeItem('rfmoto_token');
+    sessionStorage.removeItem('rfmoto_user');
     window.location.href = '/login';
 }
 
 
-// ── SHARED UI FUNCTIONS ──
+// -- SHARED UI FUNCTIONS --
 let currentUser = null;
 
 function initFromSession() {
-  const stored = localStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user');
   if (stored) {
     try { currentUser = JSON.parse(stored); } catch(e) {}
   }
@@ -2252,7 +2252,7 @@ const pageTitles = {
 };
 
 
-// ── Live notifications from /api/dashboard/stats ─────────────────
+// -- Live notifications from /api/dashboard/stats -----------------
 let _NOTIFS = [];
 async function loadNotifications() {
     try {
