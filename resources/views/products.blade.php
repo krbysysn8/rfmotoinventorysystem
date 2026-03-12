@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto – Product Overview</title>
+<title>RF Moto - Product Overview</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* ══════════════════════════════════════════
-   DESIGN TOKENS — matching rfmoto-login.html
-══════════════════════════════════════════ */
+/* ==========================================
+   DESIGN TOKENS - matching rfmoto-login.html
+========================================== */
 :root {
   --cyan:        #17b8dc;
   --cyan2:       #0ea5c9;
@@ -51,7 +51,7 @@
   --shadow-lg:   0 4px 6px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.10);
 }
 
-/* ── DARK MODE ── */
+/* -- DARK MODE -- */
 [data-theme="dark"] {
   --bg:          #0f1923;
   --surface:     #172333;
@@ -66,9 +66,9 @@
   --shadow-lg:   0 4px 6px rgba(0,0,0,.2), 0 12px 40px rgba(0,0,0,.35);
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    BASE
-══════════════════════════════════════════ */
+========================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -80,15 +80,15 @@ html, body {
   transition: background .3s, color .3s;
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    APP SHELL
-══════════════════════════════════════════ */
+========================================== */
 #app { display: flex; height: 100vh; }
 
-/* ══════════════════════════════════════════
-   SIDEBAR — dark always, matching login's
+/* ==========================================
+   SIDEBAR - dark always, matching login's
    dark pill / #0d1b26 treatment
-══════════════════════════════════════════ */
+========================================== */
 .sidebar {
   width: 236px; min-width: 236px;
   background: var(--sidebar-bg);
@@ -102,7 +102,7 @@ html, body {
 }
 .sidebar.collapsed { width: 64px; min-width: 64px; }
 
-/* ── Sidebar top stripe (matches login card-stripe) ── */
+/* -- Sidebar top stripe (matches login card-stripe) -- */
 .sidebar::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -113,7 +113,7 @@ html, body {
 }
 @keyframes stripeShift { 0% { background-position: 0% } 100% { background-position: 300% } }
 
-/* ── Header ── */
+/* -- Header -- */
 .sidebar-header {
   padding: 20px 16px 14px;
   border-bottom: 1px solid var(--sidebar-sep);
@@ -149,7 +149,7 @@ html, body {
   white-space: nowrap; margin-top: 2px;
 }
 
-/* ── User strip ── */
+/* -- User strip -- */
 .sidebar-user {
   padding: 12px 14px;
   border-bottom: 1px solid var(--sidebar-sep);
@@ -179,7 +179,7 @@ html, body {
 .sidebar-role-badge.admin { background: rgba(37,99,235,.28); color: #93c5fd; }
 .sidebar-role-badge.staff { background: rgba(23,184,220,.18); color: var(--cyan); }
 
-/* ── Nav ── */
+/* -- Nav -- */
 .sidebar-nav {
   flex: 1; overflow-y: auto; overflow-x: hidden;
   padding: 8px 0;
@@ -238,7 +238,7 @@ html, body {
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
 
-/* ── Footer ── */
+/* -- Footer -- */
 .sidebar-footer {
   padding: 10px 14px 14px;
   border-top: 1px solid var(--sidebar-sep);
@@ -259,9 +259,9 @@ html, body {
   width: 18px; text-align: center; font-size: 13px; flex-shrink: 0;
 }
 
-/* ══════════════════════════════════════════
-   TOPBAR — matches login card surface style
-══════════════════════════════════════════ */
+/* ==========================================
+   TOPBAR - matches login card surface style
+========================================== */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .topbar {
@@ -282,7 +282,7 @@ html, body {
   transition: color .3s;
 }
 
-/* Search bar — identical feel to login inputs */
+/* Search bar - identical feel to login inputs */
 .topbar-search { position: relative; flex: 1; max-width: 340px; }
 .topbar-search input {
   width: 100%;
@@ -357,9 +357,9 @@ html, body {
 .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text); transition: color .3s; }
 .topbar-user-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    CONTENT AREA
-══════════════════════════════════════════ */
+========================================== */
 .content-area {
   flex: 1; overflow-y: auto;
   padding: 20px 22px;
@@ -374,9 +374,9 @@ html, body {
 .page { display: none; }
 .page.active { display: block; }
 
-/* ══════════════════════════════════════════
-   STAT CARDS — same card feel as login card
-══════════════════════════════════════════ */
+/* ==========================================
+   STAT CARDS - same card feel as login card
+========================================== */
 .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
 
 .stat-card {
@@ -429,9 +429,9 @@ html, body {
 .stat-change.up { color: var(--success); }
 .stat-change.down { color: var(--danger); }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    SECTION HEADERS
-══════════════════════════════════════════ */
+========================================== */
 .section-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 14px;
@@ -444,9 +444,9 @@ html, body {
 }
 .section-actions { display: flex; gap: 8px; }
 
-/* ══════════════════════════════════════════
-   TABLE CARDS — login card aesthetic
-══════════════════════════════════════════ */
+/* ==========================================
+   TABLE CARDS - login card aesthetic
+========================================== */
 .table-card {
   background: var(--surface);
   border-radius: 16px;
@@ -502,9 +502,9 @@ html, body {
 .tbl tr:hover td { background: rgba(23,184,220,.04); }
 .tbl-scroll { overflow-x: auto; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    BADGES
-══════════════════════════════════════════ */
+========================================== */
 .badge {
   display: inline-flex; padding: 3px 9px;
   border-radius: 99px; font-size: 10px; font-weight: 700;
@@ -517,9 +517,9 @@ html, body {
 .badge-blue   { background: rgba(37,99,235,.08);  color: var(--blue); border: 1px solid rgba(37,99,235,.18); }
 .badge-gray   { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 
-/* ══════════════════════════════════════════
-   BUTTONS — matching login btn-login style
-══════════════════════════════════════════ */
+/* ==========================================
+   BUTTONS - matching login btn-login style
+========================================== */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 14px; border-radius: 9px;
@@ -544,9 +544,9 @@ html, body {
 .btn-sm { padding: 5px 10px; font-size: 11px; }
 .btn-icon { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 7px; }
 
-/* ══════════════════════════════════════════
-   MODALS — matching login card style exactly
-══════════════════════════════════════════ */
+/* ==========================================
+   MODALS - matching login card style exactly
+========================================== */
 .modal-backdrop {
   position: fixed; inset: 0;
   background: rgba(13,27,38,.65); backdrop-filter: blur(3px);
@@ -567,7 +567,7 @@ html, body {
 .modal-sm { max-width: 380px; }
 @keyframes modalIn { from { opacity:0; transform:scale(.96) translateY(12px) } to { opacity:1; transform:none } }
 
-/* modal stripe — same as login card-stripe */
+/* modal stripe - same as login card-stripe */
 .modal::before {
   content: ''; display: block; height: 4px; flex-shrink: 0;
   background: linear-gradient(90deg, var(--cyan2), var(--cyan), #7ee8fa, var(--cyan2));
@@ -599,9 +599,9 @@ html, body {
   background: var(--surface2); transition: background .3s;
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    FORM CONTROLS inside modals
-══════════════════════════════════════════ */
+========================================== */
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 .form-row.full { grid-template-columns: 1fr; }
 .form-ctrl { display: flex; flex-direction: column; gap: 5px; }
@@ -625,9 +625,9 @@ html, body {
 .form-ctrl textarea { resize: vertical; min-height: 72px; }
 .form-ctrl select { cursor: pointer; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    LOW STOCK ALERTS
-══════════════════════════════════════════ */
+========================================== */
 .low-stock-bar {
   background: var(--surface);
   border: 1px solid rgba(217,119,6,.22);
@@ -649,9 +649,9 @@ html, body {
 .pg-btn:disabled { opacity:.35;cursor:not-allowed; }
 .pg-ellipsis { font-size:12px;color:var(--muted);padding:0 4px;line-height:32px; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    FORECAST CARD
-══════════════════════════════════════════ */
+========================================== */
 .forecast-card {
   background: var(--surface); border-radius: 16px;
   border: 1px solid var(--border); box-shadow: var(--shadow-sm);
@@ -669,9 +669,9 @@ html, body {
 .chart-bar.critical { background: linear-gradient(180deg, var(--danger), #ef4444); }
 .chart-bar:hover { filter: brightness(1.12); }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    PRODUCT CARDS
-══════════════════════════════════════════ */
+========================================== */
 .product-card {
   background: var(--surface);
   border-radius: 14px; padding: 18px;
@@ -680,9 +680,9 @@ html, body {
 }
 .product-card:hover { box-shadow: var(--shadow-md); border-color: var(--cyan-border); }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    PRODUCT OVERVIEW CARDS (clickable)
-══════════════════════════════════════════ */
+========================================== */
 .pov-card {
   background: var(--surface);
   border-radius: 16px;
@@ -727,9 +727,9 @@ html, body {
   font-size: 20px; font-weight: 800; color: var(--cyan);
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    PRODUCT OVERVIEW MODAL (POV)
-══════════════════════════════════════════ */
+========================================== */
 #modalPOV {
   position: fixed; inset: 0;
   background: rgba(13,27,38,.75); backdrop-filter: blur(6px);
@@ -910,9 +910,9 @@ html, body {
   .pov-img-panel { width: 100%; min-width: unset; height: 160px; }
 }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    SCAN / BARCODE
-══════════════════════════════════════════ */
+========================================== */
 .scan-area { text-align: center; padding: 8px 0 14px; }
 .scan-icon { font-size: 44px; color: var(--cyan); margin-bottom: 12px; }
 .scan-input {
@@ -943,9 +943,9 @@ html, body {
 .barcode-display { background: #0b0e13; border-radius: 11px; padding: 18px; text-align: center; margin: 12px 0; }
 .barcode-num { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .28em; color: #fff; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    VERIFY BANNER
-══════════════════════════════════════════ */
+========================================== */
 .verify-banner {
   background: rgba(37,99,235,.07); border: 1px solid rgba(37,99,235,.2);
   border-radius: 10px; padding: 13px 16px;
@@ -955,9 +955,9 @@ html, body {
 .verify-banner-text { font-size: 13px; color: var(--text); line-height: 1.5; }
 .verify-banner-text strong { color: var(--blue); }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    CHIPS / FILTERS
-══════════════════════════════════════════ */
+========================================== */
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px;
@@ -970,17 +970,17 @@ html, body {
 }
 .chip.active, .chip:hover { border-color: var(--cyan); background: rgba(23,184,220,.07); color: var(--cyan); }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    MISC
-══════════════════════════════════════════ */
+========================================== */
 .divider { height: 1px; background: var(--border); margin: 14px 0; }
 .empty-state { text-align: center; padding: 42px 20px; color: var(--muted); }
 .empty-state i { font-size: 34px; margin-bottom: 11px; opacity: .3; display: block; }
 .empty-state p { font-size: 13px; }
 
-/* ══════════════════════════════════════════
+/* ==========================================
    RESPONSIVE
-══════════════════════════════════════════ */
+========================================== */
 @media (max-width: 1024px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 900px) {
   .sidebar { width: 64px; min-width: 64px; }
@@ -996,9 +996,9 @@ html, body {
 </style>
 <body>
 
-<!-- ═══════════════════════════════
+<!-- ===============================
      LOGIN PAGE
-═══════════════════════════════ -->
+=============================== -->
 <!-- APP SHELL -->
 <div id="app">
   <div class="sidebar" id="sidebar">
@@ -1178,23 +1178,23 @@ html, body {
     <div class="modal-footer" style="justify-content:center;"><button class="btn btn-outline" onclick="closeModal('modalLogout')">Cancel</button><button class="btn btn-danger" onclick="doLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button></div>
   </div>
 </div>
-<script>
-// ════════════════════════════════════════════
-//  CONFIG — Laravel API
-// ════════════════════════════════════════════
-const API_URL  = '/api';
+<script charset="utf-8">
+// ============================================
+//  CONFIG - Laravel API
+// ============================================
+const API_URL = '/api';
 
 // Fix Google Drive URLs so they render as direct images
 function fixDriveUrl(url) {
   if (!url) return null;
-  // Already a direct thumbnail URL — leave it
+  // Already a direct thumbnail URL - leave it
   if (url.includes('drive.google.com/thumbnail') || url.includes('lh3.googleusercontent')) return url;
   // Convert uc?id= or uc?export=view&id= to thumbnail URL (more reliable for img tags)
   const m = url.match(/[?&]id=([\w-]+)/);
   if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
   return url;
 }
-const TOKEN    = localStorage.getItem('rfmoto_token') || '';
+const TOKEN    = sessionStorage.getItem('rfmoto_token') || '';
 const ACTIVE_PAGE = 'products';
 
 // Auth headers for every fetch request
@@ -1207,9 +1207,9 @@ function authHeaders() {
   };
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  STATE
-// ════════════════════════════════════════════
+// ============================================
 let PRODUCTS    = [];
 let ALL_PRODUCTS = []; // unfiltered master copy
 let CATEGORIES  = [];
@@ -1220,11 +1220,11 @@ let PAGE_SIZE   = 20;       // items per page
 let CURRENT_PAGE = 1;       // current page (1-based)
 let _povActiveVar = 0;
 
-// ════════════════════════════════════════════
-//  INIT — read session then load data
-// ════════════════════════════════════════════
+// ============================================
+//  INIT - read session then load data
+// ============================================
 async function initFromSession() {
-  const stored = localStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user');
   if (stored) {
     try { currentUser = JSON.parse(stored); } catch(e) {}
   }
@@ -1234,7 +1234,7 @@ async function initFromSession() {
   launchApp();
   await loadData();
 
-  // ── Auto-open product from Inventory List "View" button ──
+  // -- Auto-open product from Inventory List "View" button --
   const openId = sessionStorage.getItem('rfmoto_open_product');
   if (openId) {
     sessionStorage.removeItem('rfmoto_open_product');
@@ -1262,7 +1262,7 @@ async function loadData() {
 
     CATEGORIES = catData.categories || [];
 
-    // Normalize products — map API fields to UI fields
+    // Normalize products - map API fields to UI fields
     PRODUCTS = (prodData.products || []).map(p => ({
       id:        p.product_id,
       sku:       p.sku,
@@ -1307,9 +1307,9 @@ async function loadData() {
   }
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  APP LAUNCH (UI only, data loaded async)
-// ════════════════════════════════════════════
+// ============================================
 function launchApp() {
   const displayName = currentUser.fullname || currentUser.username || 'User';
   const initials = displayName.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
@@ -1337,9 +1337,9 @@ function launchApp() {
   }
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  NAVIGATION
-// ════════════════════════════════════════════
+// ============================================
 const PAGE_MAP = {
   'dashboard':     '/dashboard',
   'inventory':     '/inventory',
@@ -1372,9 +1372,9 @@ function toggleSidebar() {
   icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  DARK MODE
-// ════════════════════════════════════════════
+// ============================================
 function toggleDarkMode() {
   const html   = document.documentElement;
   const toggle = document.getElementById('darkToggle');
@@ -1386,9 +1386,9 @@ function toggleDarkMode() {
   localStorage.setItem('rfmoto_theme', isDark ? 'light' : 'dark');
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  CATEGORY GRADIENTS & ICONS
-// ════════════════════════════════════════════
+// ============================================
 const CATEGORY_GRADIENTS = {
   'Engine Parts':    'linear-gradient(135deg,#0d1b26 0%,#17b8dc22 100%)',
   'Electrical':      'linear-gradient(135deg,#1e1b4b 0%,#6366f133 100%)',
@@ -1409,9 +1409,9 @@ const CATEGORY_ICONS = {
   'Oils & Fluids':'fa-droplet','default':'fa-box',
 };
 
-// ════════════════════════════════════════════
+// ============================================
 //  PRODUCT OVERVIEW CARDS
-// ════════════════════════════════════════════
+// ============================================
 function renderProductCards() {
   const wrap = document.getElementById('productCards');
   if (!PRODUCTS.length) {
@@ -1476,7 +1476,7 @@ function renderPagination(totalPages, start, end) {
     `<option value="${n}" ${PAGE_SIZE === n ? 'selected' : ''}>${n}</option>`
   ).join('');
 
-  // Page number buttons — show max 5 around current
+  // Page number buttons - show max 5 around current
   let pageButtons = '';
   const delta = 2;
   const rangeStart = Math.max(1, CURRENT_PAGE - delta);
@@ -1496,7 +1496,7 @@ function renderPagination(totalPages, start, end) {
 
   bar.innerHTML = `
     <div style="font-size:12px;color:var(--muted);">
-      Showing <strong style="color:var(--text);">${start+1}–${end}</strong> of <strong style="color:var(--text);">${PRODUCTS.length}</strong> products
+      Showing <strong style="color:var(--text);">${start+1}-${end}</strong> of <strong style="color:var(--text);">${PRODUCTS.length}</strong> products
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="pg-btn" onclick="goToPage(${CURRENT_PAGE-1})" ${CURRENT_PAGE===1?'disabled':''}>
@@ -1527,9 +1527,9 @@ function changePageSize(val) {
   renderProductCards();
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  PRODUCT OVERVIEW MODAL
-// ════════════════════════════════════════════
+// ============================================
 function openProductOverview(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
@@ -1658,9 +1658,9 @@ function selectPovVar(productId, idx) {
 
 function closePOV() { document.getElementById('modalPOV').classList.remove('open'); }
 
-// ════════════════════════════════════════════
+// ============================================
 //  ADD / EDIT PRODUCT (Admin only)
-// ════════════════════════════════════════════
+// ============================================
 function buildProductSelects() {
   // Category select in Add/Edit modal
   const catSel = document.getElementById('pCategory');
@@ -1756,10 +1756,10 @@ async function saveProduct() {
 
   try {
     const url    = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
-    // Always POST — _method=PUT handles the update spoof
+    // Always POST - _method=PUT handles the update spoof
     const res    = await fetch(url, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('rfmoto_token')}`,
+      headers: { 'Authorization': `Bearer ${sessionStorage.getItem('rfmoto_token')}`,
                  'Accept': 'application/json' },
       body: fd,
     });
@@ -1780,9 +1780,9 @@ async function saveProduct() {
   }
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  GLOBAL SEARCH
-// ════════════════════════════════════════════
+// ============================================
 function globalSearchFn(val) {
   const search = val.toLowerCase().trim();
   PRODUCTS = search
@@ -1799,9 +1799,9 @@ function globalSearchFn(val) {
 
 function openScan() { document.getElementById('modalScan').classList.add('open'); }
 
-// ════════════════════════════════════════════
+// ============================================
 //  MODAL HELPERS
-// ════════════════════════════════════════════
+// ============================================
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function confirmLogout() { document.getElementById('modalLogout').classList.add('open'); }
@@ -1810,13 +1810,13 @@ async function doLogout() {
   try {
     await fetch(`${API_URL.replace('/api','')}/logout`, { method:'POST', headers: authHeaders() });
   } catch(e) {}
-  localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user');
+  sessionStorage.removeItem('rfmoto_token'); sessionStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  TOAST NOTIFICATIONS
-// ════════════════════════════════════════════
+// ============================================
 function showToast(msg, type='success') {
   const old = document.getElementById('rfmoto-toast');
   if (old) old.remove();
@@ -1835,9 +1835,9 @@ function showToast(msg, type='success') {
   setTimeout(() => toast.remove(), 3000);
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  QUICK SCAN STUB (wire to /api/barcode)
-// ════════════════════════════════════════════
+// ============================================
 function quickScanProcess() {
   const val = document.getElementById('quickScanInput').value.trim();
   if (!val) return;
@@ -1858,12 +1858,12 @@ function setQSAction(action) {
   document.getElementById(map[action])?.classList.add('selected');
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  BARCODE MODAL STUB
-// ════════════════════════════════════════════
+// ============================================
 function openGenerateBarcodeFor(id) {
   const sel = document.getElementById('barcodeProduct');
-  sel.innerHTML = PRODUCTS.map(p => `<option value="${p.id}" ${p.id===id?'selected':''}>${p.sku} — ${p.name}</option>`).join('');
+  sel.innerHTML = PRODUCTS.map(p => `<option value="${p.id}" ${p.id===id?'selected':''}>${p.sku} - ${p.name}</option>`).join('');
   previewBarcode();
   document.getElementById('modalBarcode').classList.add('open');
 }
@@ -1890,9 +1890,9 @@ function assignBarcode() {
   closeModal('modalBarcode');
 }
 
-// ════════════════════════════════════════════
+// ============================================
 //  BOOT
-// ════════════════════════════════════════════
+// ============================================
 window.addEventListener('DOMContentLoaded', initFromSession);
 </script>
 
