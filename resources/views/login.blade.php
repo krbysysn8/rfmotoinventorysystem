@@ -663,7 +663,7 @@
 <script>
   let currentRole = 'staff';
 
-const API_BASE = '{{ config("app.url") }}';
+const API_BASE = window.location.origin;
 const API_URL  = API_BASE + '/api';
 
   function selectRole(role) {
