@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto – Inventory List</title>
+<title>RF Moto - Inventory List</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -55,7 +55,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s}
 #app{display:flex;height:100vh}
 
-/* ── SIDEBAR ── */
+/* -- SIDEBAR -- */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22)}
 .sidebar.collapsed{width:64px;min-width:64px}
 .sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),#7ee8fa,var(--cyan2));background-size:300% 100%;animation:stripeShift 3s linear infinite;z-index:1}
@@ -111,7 +111,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0}
 
-/* ── TOPBAR ── */
+/* -- TOPBAR -- */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);flex:1;transition:color .3s}
@@ -133,13 +133,13 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);transition:color .3s}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 
-/* ── CONTENT ── */
+/* -- CONTENT -- */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s}
 .content-area::-webkit-scrollbar{width:5px}
 .content-area::-webkit-scrollbar-track{background:transparent}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* ── FILTER BAR ── */
+/* -- FILTER BAR -- */
 .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-sm)}
 .filter-search{position:relative;flex:1;min-width:220px}
 .filter-search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
@@ -152,7 +152,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .filter-select:focus{border-color:var(--cyan)}
 .filter-count{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 
-/* ── TABLE CARD ── */
+/* -- TABLE CARD -- */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s}
 .tbl-scroll{overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -165,7 +165,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .tbl tr:hover td{background:rgba(23,184,220,.04)}
 .tbl tr{transition:background .15s}
 
-/* ── BADGES ── */
+/* -- BADGES -- */
 .badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2)}
 .badge-red{background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2)}
@@ -174,7 +174,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .badge-blue{background:rgba(37,99,235,.08);color:#2563eb;border:1px solid rgba(37,99,235,.18)}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
 
-/* ── BUTTONS ── */
+/* -- BUTTONS -- */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28)}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px)}
@@ -185,10 +185,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .btn-sm{padding:5px 10px;font-size:11px}
 .btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:7px;font-size:12px}
 
-/* ── SKU CHIP ── */
+/* -- SKU CHIP -- */
 .sku-chip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;background:rgba(23,184,220,.08);color:var(--cyan);padding:2px 8px;border-radius:5px;border:1px solid var(--cyan-border)}
 
-/* ── COLOR SWATCHES ── */
+/* -- COLOR SWATCHES -- */
 .swatches{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .swatch{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s,box-shadow .15s;flex-shrink:0;position:relative}
 .swatch:hover{transform:scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -196,17 +196,17 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .swatch:hover .swatch-tooltip{opacity:1}
 .swatch-more{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);margin-left:2px}
 
-/* ── SUBCATEGORY CHIP ── */
+/* -- SUBCATEGORY CHIP -- */
 .subcat-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;background:rgba(23,184,220,.06);border:1px solid var(--cyan-border);font-size:10px;font-weight:600;color:var(--cyan);font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
 
-/* ── ACTION BTNS ── */
+/* -- ACTION BTNS -- */
 .action-group{display:flex;align-items:center;gap:5px}
 .action-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;transition:all .18s}
 .action-btn:hover.edit{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.08)}
 .action-btn:hover.view{border-color:var(--warn);color:var(--warn);background:rgba(217,119,6,.08)}
 .action-btn:hover.del{border-color:var(--danger);color:var(--danger);background:rgba(220,38,38,.08)}
 
-/* ── PAGINATION ── */
+/* -- PAGINATION -- */
 .pagination-wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:13px 18px;border-top:1px solid var(--border);background:var(--surface2)}
 .pg-btn{min-width:30px;height:30px;padding:0 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif}
 .pg-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
@@ -214,7 +214,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 .pg-ellipsis{font-size:12px;color:var(--muted);padding:0 3px}
 
-/* ── MODALS ── */
+/* -- MODALS -- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-backdrop.open{display:flex}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .24s cubic-bezier(.2,0,.2,1) both;overflow:hidden;transition:background .3s}
@@ -240,7 +240,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .form-ctrl textarea{resize:vertical;min-height:72px}
 .form-ctrl select{cursor:pointer}
 
-/* ── COLOR VARIANT BUILDER ── */
+/* -- COLOR VARIANT BUILDER -- */
 .variant-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .variant-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
 .variant-row input[type="text"]{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
@@ -255,18 +255,18 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .variant-header{display:grid;grid-template-columns:1fr 32px 80px 26px;gap:8px;padding:0 12px;margin-bottom:4px}
 .variant-header span{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
-/* ── DELETE CONFIRM ── */
+/* -- DELETE CONFIRM -- */
 .delete-confirm-icon{text-align:center;padding:20px 0 10px}
 .delete-confirm-icon i{font-size:42px;color:var(--danger)}
 
-/* ── EMPTY STATE ── */
+/* -- EMPTY STATE -- */
 .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-state i{font-size:40px;margin-bottom:14px;opacity:.3;display:block}
 .empty-state p{font-size:13px}
 
-/* ── RESPONSIVE ── */
+/* -- RESPONSIVE -- */
 
-/* ── RESPONSIVE ── */
+/* -- RESPONSIVE -- */
 @media(max-width:900px){.sidebar{width:64px;min-width:64px}.sidebar .sidebar-brand-wrap,.sidebar .sidebar-user-info,.sidebar .nav-item-label,.sidebar .nav-section,.sidebar .nav-badge,.sidebar-footer-btn span{display:none}}
 @media(max-width:600px){.content-area{padding:14px 14px}.form-row{grid-template-columns:1fr}}
 </style>
@@ -274,7 +274,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <body>
 
 <div id="app">
-  <!-- ═══ SIDEBAR ═══ -->
+  <!-- === SIDEBAR === -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo-pill">
@@ -316,7 +316,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     </div>
   </div>
 
-  <!-- ═══ MAIN ═══ -->
+  <!-- === MAIN === -->
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">Inventory <span style="color:var(--cyan)">List</span></div>
@@ -362,7 +362,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           <option value="">All Suppliers</option>
         </select>
         <div class="filter-sep"></div>
-        <span class="filter-count" id="filterCount">— items</span>
+        <span class="filter-count" id="filterCount">- items</span>
         <button class="btn btn-primary btn-sm" onclick="openAddItem()" id="addItemBtn" style="margin-left:auto">
           <i class="fa-solid fa-plus"></i> Add Item
         </button>
@@ -399,7 +399,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- ═══ MODAL: ADD / EDIT ITEM ═══ -->
+<!-- === MODAL: ADD / EDIT ITEM === -->
 <div class="modal-backdrop" id="modalItem">
   <div class="modal modal-lg">
     <div class="modal-header">
@@ -462,7 +462,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- ═══ MODAL: DELETE CONFIRM ═══ -->
+<!-- === MODAL: DELETE CONFIRM === -->
 <div class="modal-backdrop" id="modalDelete">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -472,7 +472,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     <div class="modal-body">
       <div class="delete-confirm-icon"><i class="fa-solid fa-trash-can"></i></div>
       <p style="text-align:center;font-size:14px;color:var(--text);margin-bottom:6px;">Remove this item from inventory?</p>
-      <p style="text-align:center;font-size:12px;color:var(--muted);" id="deleteItemName">—</p>
+      <p style="text-align:center;font-size:12px;color:var(--muted);" id="deleteItemName">-</p>
       <p style="text-align:center;font-size:11px;color:var(--danger);margin-top:10px;"><i class="fa-solid fa-triangle-exclamation"></i> This action cannot be undone.</p>
     </div>
     <div class="modal-footer" style="justify-content:center;">
@@ -482,7 +482,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- ═══ MODAL: LOGOUT ═══ -->
+<!-- === MODAL: LOGOUT === -->
 <div class="modal-backdrop" id="modalLogout">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -500,10 +500,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<script>
-// ════════════════════════════════════════
+<script charset="utf-8">
+// ========================================
 //  CONFIG
-// ════════════════════════════════════════
+// ========================================
 const API_URL = '/api';
 // TOKEN is read dynamically so it's never stale
 
@@ -512,13 +512,13 @@ function authHeaders() {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`,
+    'Authorization': `Bearer ${sessionStorage.getItem('rfmoto_token') || ''}`,
   };
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  STATE
-// ════════════════════════════════════════
+// ========================================
 let currentUser  = null;
 let ALL_PRODUCTS = [];
 let FILTERED     = [];
@@ -531,11 +531,11 @@ let SORT_DIR     = 'asc';
 let deletingId   = null;
 let editingId    = null;
 
-// ════════════════════════════════════════
+// ========================================
 //  INIT
-// ════════════════════════════════════════
+// ========================================
 window.addEventListener('DOMContentLoaded', async () => {
-  const stored = localStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user');
   if (!stored) { window.location.replace('/login'); return; }
   try { currentUser = JSON.parse(stored); } catch(e) { window.location.replace('/login'); return; }
 
@@ -634,9 +634,9 @@ async function loadAll() {
   }
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  FILTER DROPDOWNS
-// ════════════════════════════════════════
+// ========================================
 function populateFilterDropdowns() {
   // Categories
   const catSel = document.getElementById('filterCategory');
@@ -688,9 +688,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filterCategory').setAttribute('onchange', 'onFilterCategoryChange()');
 });
 
-// ════════════════════════════════════════
+// ========================================
 //  FILTER + SORT + RENDER
-// ════════════════════════════════════════
+// ========================================
 function applyFilters() {
   const search  = (document.getElementById('tableSearch')?.value || document.getElementById('globalSearch')?.value || '').toLowerCase().trim();
   const status  = document.getElementById('filterStatus').value;
@@ -767,7 +767,7 @@ function renderTable() {
     const qtyColor  = p.status === 'out_of_stock' ? 'var(--danger)' : p.status === 'low_stock' ? 'var(--warn)' : 'var(--text)';
 
     // Color swatches
-    let swatchHtml = '<span style="font-size:11px;color:var(--muted);">—</span>';
+    let swatchHtml = '<span style="font-size:11px;color:var(--muted);">-</span>';
     if (p.variations && p.variations.length > 0) {
       const maxShow = 5;
       const shown   = p.variations.slice(0, maxShow);
@@ -784,15 +784,15 @@ function renderTable() {
     // Subcategory
     const subcatHtml = p.subcategory
       ? `<span class="subcat-chip"><i class="fa-solid fa-folder-open" style="font-size:9px;"></i>${p.subcategory}</span>`
-      : `<span style="font-size:11px;color:var(--muted);">—</span>`;
+      : `<span style="font-size:11px;color:var(--muted);">-</span>`;
 
     // Supplier
     const supplierHtml = p.supplier
       ? `<span style="font-size:12px;color:var(--text2);">${p.supplier}</span>`
-      : `<span style="font-size:11px;color:var(--muted);">—</span>`;
+      : `<span style="font-size:11px;color:var(--muted);">-</span>`;
 
     // Updated date
-    const updDate = p.updated_at ? p.updated_at.substring(0,10) : '—';
+    const updDate = p.updated_at ? p.updated_at.substring(0,10) : '-';
 
     return `<tr>
       <td><span class="sku-chip">${p.barcode}</span></td>
@@ -842,7 +842,7 @@ function renderPagination(totalPages, start, end, total) {
 
   const sizes = [10,20,40,100].map(n => `<option value="${n}" ${PAGE_SIZE===n?'selected':''}>${n}</option>`).join('');
   bar.innerHTML = `
-    <span style="font-size:12px;color:var(--muted);">Showing <strong style="color:var(--text);">${start+1}–${end}</strong> of <strong style="color:var(--text);">${total}</strong> items</span>
+    <span style="font-size:12px;color:var(--muted);">Showing <strong style="color:var(--text);">${start+1}-${end}</strong> of <strong style="color:var(--text);">${total}</strong> items</span>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:9px;"></i></button>
       ${btns}
@@ -860,9 +860,9 @@ function goPage(p) {
   document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  VIEW IN PRODUCT OVERVIEW
-// ════════════════════════════════════════
+// ========================================
 function goToProductOverview(id) {
   // Navigate to Product Overview page with the product ID in sessionStorage
   // so that page can auto-open the product modal
@@ -870,9 +870,9 @@ function goToProductOverview(id) {
   window.location.href = '/products';
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  ADD / EDIT ITEM MODAL
-// ════════════════════════════════════════
+// ========================================
 function openAddItem() {
   if (currentUser?.role !== 'admin') return;
   editingId = null;
@@ -924,9 +924,9 @@ function openEditItem(id) {
   openModal('modalItem');
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  VARIANT ROWS
-// ════════════════════════════════════════
+// ========================================
 function addVariantRow(label = '', color = '#17b8dc', stock = 0) {
   const row = document.createElement('div');
   row.className = 'variant-row';
@@ -946,9 +946,9 @@ function collectVariants() {
   })).filter(v => v.variation_name);
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  SAVE ITEM
-// ════════════════════════════════════════
+// ========================================
 async function saveItem() {
   const sku          = document.getElementById('iSku').value.trim();
   const product_name = document.getElementById('iName').value.trim();
@@ -1000,9 +1000,9 @@ async function saveItem() {
   } catch(e) { showToast('Save failed. Please try again.', 'danger'); }
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  DELETE
-// ════════════════════════════════════════
+// ========================================
 function openDeleteItem(id, name) {
   deletingId = id;
   document.getElementById('deleteItemName').textContent = name;
@@ -1025,9 +1025,9 @@ async function confirmDelete() {
   } catch(e) { showToast('Delete failed.', 'danger'); }
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  NAVIGATION
-// ════════════════════════════════════════
+// ========================================
 const PAGE_MAP = {
   'dashboard':'/dashboard','inventory':'/inventory','products':'/products',
   'barcode':'/barcode','categories':'/categories','suppliers':'/suppliers',
@@ -1057,9 +1057,9 @@ function toggleSidebar() {
   icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  DARK MODE
-// ════════════════════════════════════════
+// ========================================
 function toggleDarkMode() {
   const html   = document.documentElement;
   const toggle = document.getElementById('darkToggle');
@@ -1071,25 +1071,25 @@ function toggleDarkMode() {
   localStorage.setItem('rfmoto_theme', isDark ? 'light' : 'dark');
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  MODAL HELPERS
-// ════════════════════════════════════════
+// ========================================
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ════════════════════════════════════════
+// ========================================
 //  LOGOUT
-// ════════════════════════════════════════
+// ========================================
 async function doLogout() {
   try { await fetch('/logout', { method:'POST', headers: authHeaders() }); } catch(e) {}
-  localStorage.removeItem('rfmoto_token');
-  localStorage.removeItem('rfmoto_user');
+  sessionStorage.removeItem('rfmoto_token');
+  sessionStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
-// ════════════════════════════════════════
+// ========================================
 //  TOAST
-// ════════════════════════════════════════
+// ========================================
 function showToast(msg, type='success') {
   const old = document.getElementById('rfmoto-toast');
   if (old) old.remove();
