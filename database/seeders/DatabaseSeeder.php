@@ -2,24 +2,40 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        DB::table('users')->updateOrInsert(
+            ['username' => 'admin'],
+            [
+                'full_name'     => 'Administrator',
+                'username'      => 'admin',
+                'password_hash' => Hash::make('admin123'),
+                'role_id'       => 1,
+                'status'        => 'active',
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        DB::table('users')->updateOrInsert(
+            ['username' => 'staff'],
+            [
+                'full_name'     => 'Staff User',
+                'username'      => 'staff',
+                'password_hash' => Hash::make('staff123'),
+                'role_id'       => 2,
+                'status'        => 'active',
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]
+        );
+
+        $this->call(RFMotoProductSeeder::class);
     }
 }

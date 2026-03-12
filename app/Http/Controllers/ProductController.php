@@ -2,89 +2,119 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-    // ─────────────────────────────────────────────────────────
-    //  GET /api/products  — list all products with variations
-    // ─────────────────────────────────────────────────────────
+    // ── GET /inventory  — blade view ─────────────────────────
+    public function inventoryView()
+    {
+        return view('inventory');
+    }
+
+    // Helper: check if subcategory_id column exists (cached)
+    private static ?bool $hasSubcat = null;
+    private static function hasSubcategoryColumn(): bool
+    {
+        if (self::$hasSubcat === null) {
+            self::$hasSubcat = Schema::hasColumn('products', 'subcategory_id');
+        }
+        return self::$hasSubcat;
+    }
+
+    // ── GET /api/products ─────────────────────────────────────
     public function index(Request $request)
     {
         $category = $request->query('category');
         $search   = $request->query('search');
+        $hasSubcat = self::hasSubcategoryColumn();
 
         $query = DB::table('products as p')
-            ->join('categories as c', 'p.category_id', '=', 'c.id')
-            ->select(
-                'p.id',
-                'p.sku',
-                'p.barcode',
-                'p.name',
-                'p.description',
-                'p.brand',
-                'p.price',
-                'p.cost',
-                'p.stock_qty as stock',
-                'p.reorder_level as reorder',
-                'p.is_active',
-                'c.name as category',
-                'c.icon as category_icon',
-                'c.gradient as category_gradient'
-            )
-            ->where('p.is_active', true);
+            ->join('categories as c', 'p.category_id', '=', 'c.category_id')
+            ->leftJoin('suppliers as s', 'p.supplier_id', '=', 's.supplier_id');
 
-        if ($category && $category !== 'All') {
-            $query->where('c.name', $category);
+        $selectCols = [
+            'p.product_id', 'p.sku', 'p.barcode', 'p.product_name', 'p.description',
+            'p.brand', 'p.unit_price', 'p.cost_price',
+            'p.stock_qty as stock', 'p.reorder_level as reorder',
+            'p.is_active', 'p.image_url', 'p.updated_at',
+            'p.category_id', 'p.supplier_id',
+            'c.category_name as category',
+            's.supplier_name',
+        ];
+
+        if ($hasSubcat) {
+            $query->leftJoin('subcategories as sc', 'p.subcategory_id', '=', 'sc.subcategory_id');
+            $selectCols[] = 'p.subcategory_id';
+            $selectCols[] = 'sc.subcategory_name';
         }
 
+        $query->select($selectCols)->where('p.is_active', true);
+
+        if ($category && $category !== 'All') {
+            $query->where('c.category_name', $category);
+        }
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->whereILike('p.name', "%{$search}%")
-                  ->orWhereILike('p.sku', "%{$search}%")
-                  ->orWhereILike('p.brand', "%{$search}%");
+                $q->whereRaw('LOWER(p.product_name) LIKE ?', [strtolower("%{$search}%")])
+                  ->orWhereRaw('LOWER(p.sku) LIKE ?',        [strtolower("%{$search}%")])
+                  ->orWhereRaw('LOWER(p.brand) LIKE ?',      [strtolower("%{$search}%")]);
             });
         }
 
-        $products = $query->orderBy('c.name')->orderBy('p.name')->get();
+        $products   = $query->orderBy('c.category_name')->orderBy('p.product_name')->get();
+        $productIds = $products->pluck('product_id');
 
-        // Attach variations for each product
-        $productIds = $products->pluck('id');
-
-        $variations = DB::table('product_variations')
-            ->whereIn('product_id', $productIds)
-            ->orderBy('product_id')
-            ->orderBy('sort_order')
-            ->get()
-            ->groupBy('product_id');
+        try {
+            $variations = DB::table('product_variations')
+                ->whereIn('product_id', $productIds)
+                ->where('is_active', true)
+                ->orderBy('product_id')->orderBy('sort_order')
+                ->get()->groupBy('product_id');
+        } catch (\Throwable $e) {
+            $variations = collect();
+        }
 
         $products = $products->map(function ($product) use ($variations) {
-            $product->variations = $variations->get($product->id, collect())->values();
+            $product->variations = $variations->get($product->product_id, collect())->values();
             return $product;
         });
 
-        return response()->json([
-            'status'   => 'success',
-            'products' => $products,
-        ]);
+        return response()->json(['status' => 'success', 'products' => $products]);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  GET /api/products/{id}  — single product with variations
-    // ─────────────────────────────────────────────────────────
+    // ── GET /api/products/{id} ────────────────────────────────
     public function show(int $id)
     {
-        $product = DB::table('products as p')
-            ->join('categories as c', 'p.category_id', '=', 'c.id')
-            ->select(
-                'p.id', 'p.sku', 'p.barcode', 'p.name', 'p.description',
-                'p.brand', 'p.price', 'p.cost',
-                'p.stock_qty as stock', 'p.reorder_level as reorder', 'p.is_active',
-                'c.name as category', 'c.icon as category_icon', 'c.gradient as category_gradient'
-            )
-            ->where('p.id', $id)
+        $hasSubcat = self::hasSubcategoryColumn();
+
+        $query = DB::table('products as p')
+            ->join('categories as c', 'p.category_id', '=', 'c.category_id')
+            ->leftJoin('suppliers as s', 'p.supplier_id', '=', 's.supplier_id');
+
+        $selectCols = [
+            'p.product_id', 'p.sku', 'p.barcode', 'p.product_name', 'p.description',
+            'p.brand', 'p.unit_price', 'p.cost_price',
+            'p.stock_qty as stock', 'p.reorder_level as reorder',
+            'p.is_active', 'p.image_url', 'p.updated_at',
+            'p.category_id', 'p.supplier_id',
+            'c.category_name as category',
+            's.supplier_name',
+        ];
+
+        if ($hasSubcat) {
+            $query->leftJoin('subcategories as sc', 'p.subcategory_id', '=', 'sc.subcategory_id');
+            $selectCols[] = 'p.subcategory_id';
+            $selectCols[] = 'sc.subcategory_name';
+        }
+
+        $product = $query->select($selectCols)
+            ->where('p.product_id', $id)
             ->where('p.is_active', true)
             ->first();
 
@@ -94,185 +124,279 @@ class ProductController extends Controller
 
         $product->variations = DB::table('product_variations')
             ->where('product_id', $id)
+            ->where('is_active', true)
             ->orderBy('sort_order')
             ->get();
 
         return response()->json(['status' => 'success', 'product' => $product]);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  POST /api/products  — create product (admin only)
-    // ─────────────────────────────────────────────────────────
+    // ── POST /api/products ────────────────────────────────────
     public function store(Request $request)
     {
+        $variationsRaw = $request->input('variations');
+        if (is_string($variationsRaw)) {
+            $decoded = json_decode($variationsRaw, true);
+            if (is_array($decoded)) {
+                $request->merge(['variations' => $decoded]);
+            }
+        }
+
         $validator = Validator::make($request->all(), [
-            'sku'           => 'required|string|max:50|unique:products,sku',
-            'barcode'       => 'required|string|max:100|unique:products,barcode',
-            'name'          => 'required|string|max:200',
-            'description'   => 'nullable|string',
-            'category_id'   => 'required|integer|exists:categories,id',
-            'brand'         => 'required|string|max:100',
-            'price'         => 'required|numeric|min:0',
-            'cost'          => 'required|numeric|min:0',
-            'stock_qty'     => 'required|integer|min:0',
-            'reorder_level' => 'required|integer|min:0',
-            'variations'    => 'nullable|array',
-            'variations.*.label' => 'required|string|max:100',
-            'variations.*.color' => 'required|string|max:30',
-            'variations.*.stock' => 'required|integer|min:0',
+            'sku'                         => 'required|string|max:50|unique:products,sku',
+            'barcode'                      => 'nullable|string|max:100|unique:products,barcode',
+            'product_name'                => 'required|string|max:200',
+            'description'                 => 'nullable|string',
+            'category_id'                 => 'required|integer|exists:categories,category_id',
+            'brand'                       => 'nullable|string|max:100',
+            'unit_price'                  => 'required|numeric|min:0',
+            'cost_price'                  => 'required|numeric|min:0',
+            'stock_qty'                   => 'required|integer|min:0',
+            'reorder_level'               => 'required|integer|min:0',
+            'photo'                       => 'nullable|image|mimes:jpeg,png,webp|max:2048',
+            'variations'                  => 'nullable|array',
+            'variations.*.variation_name' => 'required_with:variations|string|max:100',
+            'variations.*.unit_price'     => 'nullable|numeric|min:0',
+            'variations.*.cost_price'     => 'nullable|numeric|min:0',
+            'variations.*.stock_qty'      => 'nullable|integer|min:0',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
         }
 
+        $imageUrl = null;
+        if ($request->hasFile('photo')) {
+            $path     = $request->file('photo')->store('products', 'public');
+            $imageUrl = Storage::url($path);
+        }
+
         DB::beginTransaction();
         try {
-            $productId = DB::table('products')->insertGetId([
+            $insertData = [
                 'sku'           => $request->sku,
-                'barcode'       => $request->barcode,
-                'name'          => $request->name,
+                'barcode'       => $request->barcode ?: $request->sku,
+                'product_name'  => $request->product_name,
                 'description'   => $request->description,
                 'category_id'   => $request->category_id,
+                'supplier_id'   => $request->supplier_id    ?: null,
                 'brand'         => $request->brand,
-                'price'         => $request->price,
-                'cost'          => $request->cost,
+                'unit_price'    => $request->unit_price,
+                'cost_price'    => $request->cost_price,
                 'stock_qty'     => $request->stock_qty,
                 'reorder_level' => $request->reorder_level,
+                'image_url'     => $imageUrl,
                 'is_active'     => true,
                 'created_at'    => now(),
                 'updated_at'    => now(),
-            ]);
+            ];
 
-            // Insert variations if provided
+            if (self::hasSubcategoryColumn()) {
+                $insertData['subcategory_id'] = $request->subcategory_id ?: null;
+            }
+
+            $productId = DB::table('products')->insertGetId($insertData, 'product_id');
+
             if ($request->has('variations') && is_array($request->variations)) {
                 foreach ($request->variations as $index => $var) {
+                    $varSku      = $var['sku'] ?? null;
+                    $varBarcode  = $var['barcode'] ?: ($varSku ?: ($request->sku . '-' . ($index + 1)));
                     DB::table('product_variations')->insert([
-                        'product_id'  => $productId,
-                        'label'       => $var['label'],
-                        'color'       => $var['color'] ?? '#17b8dc',
-                        'stock'       => $var['stock'] ?? 0,
-                        'sort_order'  => $index,
-                        'created_at'  => now(),
-                        'updated_at'  => now(),
+                        'product_id'     => $productId,
+                        'variation_name' => $var['variation_name'],
+                        'color'          => $var['color']       ?? '#17b8dc',
+                        'sku'            => $varSku,
+                        'barcode'        => $varBarcode,
+                        'unit_price'     => $var['unit_price']  ?? $request->unit_price,
+                        'cost_price'     => $var['cost_price']  ?? $request->cost_price,
+                        'stock_qty'      => $var['stock_qty']   ?? 0,
+                        'sort_order'     => $index,
+                        'is_active'      => true,
+                        'created_at'     => now(),
+                        'updated_at'     => now(),
                     ]);
                 }
-            } else {
-                // Default single variation
-                DB::table('product_variations')->insert([
-                    'product_id'  => $productId,
-                    'label'       => 'Standard',
-                    'color'       => '#17b8dc',
-                    'stock'       => $request->stock_qty,
-                    'sort_order'  => 0,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
-                ]);
             }
 
             DB::commit();
+
+            ActivityLog::record(
+                action:      'stock_in',
+                subject:     $request->product_name,
+                description: "New product added. SKU: {$request->sku}. Initial stock: {$request->stock_qty} units.",
+                user:        $request->user(),
+            );
 
             return response()->json([
                 'status'     => 'success',
                 'message'    => 'Product created successfully.',
                 'product_id' => $productId,
             ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  PUT /api/products/{id}  — update product (admin only)
-    // ─────────────────────────────────────────────────────────
+    // ── PUT /api/products/{id} ────────────────────────────────
     public function update(Request $request, int $id)
     {
-        $product = DB::table('products')->where('id', $id)->first();
+        $product = DB::table('products')->where('product_id', $id)->first();
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Product not found'], 404);
         }
 
+        $variationsRaw = $request->input('variations');
+        if (is_string($variationsRaw)) {
+            $decoded = json_decode($variationsRaw, true);
+            if (is_array($decoded)) {
+                $request->merge(['variations' => $decoded]);
+            }
+        }
+
         $validator = Validator::make($request->all(), [
-            'sku'           => "required|string|max:50|unique:products,sku,{$id}",
-            'barcode'       => "required|string|max:100|unique:products,barcode,{$id}",
-            'name'          => 'required|string|max:200',
+            'sku'           => "required|string|max:50|unique:products,sku,{$id},product_id",
+            'barcode'       => "nullable|string|max:100|unique:products,barcode,{$id},product_id",
+            'product_name'  => 'required|string|max:200',
             'description'   => 'nullable|string',
-            'category_id'   => 'required|integer|exists:categories,id',
-            'brand'         => 'required|string|max:100',
-            'price'         => 'required|numeric|min:0',
-            'cost'          => 'required|numeric|min:0',
+            'category_id'   => 'required|integer|exists:categories,category_id',
+            'brand'         => 'nullable|string|max:100',
+            'unit_price'    => 'required|numeric|min:0',
+            'cost_price'    => 'required|numeric|min:0',
             'stock_qty'     => 'required|integer|min:0',
             'reorder_level' => 'required|integer|min:0',
+            'photo'         => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
         }
 
-        DB::table('products')->where('id', $id)->update([
+        $updateData = [
             'sku'           => $request->sku,
-            'barcode'       => $request->barcode,
-            'name'          => $request->name,
+            'barcode'       => $request->barcode ?: $request->sku,
+            'product_name'  => $request->product_name,
             'description'   => $request->description,
             'category_id'   => $request->category_id,
+            'supplier_id'   => $request->supplier_id ?: null,
             'brand'         => $request->brand,
-            'price'         => $request->price,
-            'cost'          => $request->cost,
+            'unit_price'    => $request->unit_price,
+            'cost_price'    => $request->cost_price,
             'stock_qty'     => $request->stock_qty,
             'reorder_level' => $request->reorder_level,
             'updated_at'    => now(),
-        ]);
+        ];
 
-        return response()->json(['status' => 'success', 'message' => 'Product updated successfully.']);
+        if (self::hasSubcategoryColumn()) {
+            $updateData['subcategory_id'] = $request->subcategory_id ?: null;
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($product->image_url) {
+                $oldPath = str_replace('/storage/', 'public/', $product->image_url);
+                Storage::delete($oldPath);
+            }
+            $path = $request->file('photo')->store('products', 'public');
+            $updateData['image_url'] = Storage::url($path);
+        }
+
+        $stockChange = (int)$request->stock_qty - (int)$product->stock_qty;
+        $stockNote   = $stockChange > 0
+            ? " Stock adjusted: +{$stockChange} units."
+            : ($stockChange < 0 ? " Stock adjusted: {$stockChange} units." : '');
+
+        DB::beginTransaction();
+        try {
+            DB::table('products')->where('product_id', $id)->update($updateData);
+
+            if ($request->has('variations') && is_array($request->variations)) {
+                DB::table('product_variations')->where('product_id', $id)->delete();
+                foreach ($request->variations as $index => $var) {
+                    $varSku      = $var['sku'] ?? null;
+                    $varBarcode  = $var['barcode'] ?: ($varSku ?: ($request->sku . '-' . ($index + 1)));
+                    DB::table('product_variations')->insert([
+                        'product_id'     => $id,
+                        'variation_name' => $var['variation_name'],
+                        'color'          => $var['color']      ?? '#17b8dc',
+                        'sku'            => $varSku,
+                        'barcode'        => $varBarcode,
+                        'unit_price'     => $var['unit_price'] ?? $request->unit_price,
+                        'cost_price'     => $var['cost_price'] ?? $request->cost_price,
+                        'stock_qty'      => $var['stock_qty']  ?? 0,
+                        'sort_order'     => $index,
+                        'is_active'      => true,
+                        'created_at'     => now(),
+                        'updated_at'     => now(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            ActivityLog::record(
+                action:      'item_updated',
+                subject:     $request->product_name,
+                description: "Product details updated. SKU: {$request->sku}.{$stockNote}",
+                user:        $request->user(),
+            );
+
+            return response()->json(['status' => 'success', 'message' => 'Product updated successfully.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  DELETE /api/products/{id}  — soft-delete (admin only)
-    // ─────────────────────────────────────────────────────────
-    public function destroy(int $id)
+    // ── DELETE /api/products/{id} — soft delete ───────────────
+    public function destroy(Request $request, int $id)
     {
-        $product = DB::table('products')->where('id', $id)->first();
+        $product = DB::table('products')->where('product_id', $id)->first();
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Product not found'], 404);
         }
 
-        DB::table('products')->where('id', $id)->update([
+        DB::table('products')->where('product_id', $id)->update([
             'is_active'  => false,
             'updated_at' => now(),
         ]);
 
+        ActivityLog::record(
+            action:      'deleted',
+            subject:     $product->product_name,
+            description: "Product deactivated. SKU: {$product->sku}.",
+            user:        $request->user(),
+        );
+
         return response()->json(['status' => 'success', 'message' => 'Product deactivated.']);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  GET /api/categories  — for dropdowns / filter chips
-    // ─────────────────────────────────────────────────────────
+    // ── GET /api/product-categories — for dropdowns ──────────
     public function categories()
     {
         $categories = DB::table('categories')
-            ->select('id', 'name', 'icon', 'gradient')
-            ->orderBy('name')
+            ->select('category_id', 'category_name')
+            ->orderBy('category_name')
             ->get();
 
         return response()->json(['status' => 'success', 'categories' => $categories]);
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  PUT /api/products/{id}/variations  — update variations
-    // ─────────────────────────────────────────────────────────
+    // ── PUT /api/products/{id}/variations ─────────────────────
     public function updateVariations(Request $request, int $id)
     {
-        $product = DB::table('products')->where('id', $id)->first();
+        $product = DB::table('products')->where('product_id', $id)->first();
         if (!$product) {
             return response()->json(['status' => 'error', 'message' => 'Product not found'], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'variations'         => 'required|array|min:1',
-            'variations.*.label' => 'required|string|max:100',
-            'variations.*.color' => 'required|string|max:30',
-            'variations.*.stock' => 'required|integer|min:0',
+            'variations'                  => 'required|array|min:1',
+            'variations.*.variation_name' => 'required|string|max:100',
+            'variations.*.unit_price'     => 'nullable|numeric|min:0',
+            'variations.*.cost_price'     => 'nullable|numeric|min:0',
+            'variations.*.stock_qty'      => 'nullable|integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -281,23 +405,37 @@ class ProductController extends Controller
 
         DB::beginTransaction();
         try {
-            // Delete existing variations
             DB::table('product_variations')->where('product_id', $id)->delete();
 
-            // Re-insert
+            $parentSku = DB::table('products')->where('product_id', $id)->value('sku');
             foreach ($request->variations as $index => $var) {
+                $varSku     = $var['sku'] ?? null;
+                $varBarcode = $var['barcode'] ?: ($varSku ?: ($parentSku . '-' . ($index + 1)));
                 DB::table('product_variations')->insert([
-                    'product_id'  => $id,
-                    'label'       => $var['label'],
-                    'color'       => $var['color'],
-                    'stock'       => $var['stock'],
-                    'sort_order'  => $index,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'product_id'     => $id,
+                    'variation_name' => $var['variation_name'],
+                    'color'          => $var['color']      ?? '#17b8dc',
+                    'sku'            => $varSku,
+                    'barcode'        => $varBarcode,
+                    'unit_price'     => $var['unit_price'] ?? null,
+                    'cost_price'     => $var['cost_price'] ?? null,
+                    'stock_qty'      => $var['stock_qty']  ?? 0,
+                    'sort_order'     => $index,
+                    'is_active'      => true,
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
                 ]);
             }
 
             DB::commit();
+
+            ActivityLog::record(
+                action:      'item_updated',
+                subject:     $product->product_name,
+                description: "Product variations updated. " . count($request->variations) . " variation(s) saved.",
+                user:        $request->user(),
+            );
+
             return response()->json(['status' => 'success', 'message' => 'Variations updated.']);
         } catch (\Exception $e) {
             DB::rollBack();

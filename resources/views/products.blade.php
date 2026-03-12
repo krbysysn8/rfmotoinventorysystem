@@ -342,12 +342,6 @@ html, body {
   background: var(--cyan);
 }
 
-.notif-dot {
-  position: absolute; top: 5px; right: 5px;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--danger); border: 1.5px solid var(--surface);
-}
-
 .topbar-user {
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; padding: 4px 8px;
@@ -362,50 +356,6 @@ html, body {
 }
 .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text); transition: color .3s; }
 .topbar-user-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-
-/* ══════════════════════════════════════════
-   NOTIFICATION DRAWER
-══════════════════════════════════════════ */
-.notif-drawer {
-  position: fixed; top: 56px; right: 0;
-  width: 316px; max-height: 72vh;
-  background: var(--surface);
-  border-left: 1px solid var(--border);
-  border-bottom-left-radius: 16px;
-  box-shadow: -4px 4px 24px rgba(0,0,0,.12);
-  z-index: 500; display: none; flex-direction: column;
-  overflow: hidden;
-  transition: background .3s;
-}
-.notif-drawer.open { display: flex; }
-.notif-drawer-header {
-  padding: 13px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.notif-drawer-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .06em;
-  color: var(--text);
-}
-.notif-list { overflow-y: auto; flex: 1; }
-.notif-item {
-  padding: 11px 16px; border-bottom: 1px solid var(--border);
-  display: flex; gap: 10px; align-items: flex-start;
-  cursor: pointer; transition: background .14s;
-}
-.notif-item:hover, .notif-item.unread { background: rgba(23,184,220,.04); }
-.notif-icon-wrap {
-  width: 32px; height: 32px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; flex-shrink: 0;
-}
-.notif-icon-wrap.warn { background: rgba(217,119,6,.1); color: var(--warn); }
-.notif-icon-wrap.danger { background: rgba(220,38,38,.08); color: var(--danger); }
-.notif-icon-wrap.cyan { background: rgba(23,184,220,.1); color: var(--cyan); }
-.notif-icon-wrap.green { background: rgba(22,163,74,.1); color: var(--success); }
-.notif-text { font-size: 12px; color: var(--text); line-height: 1.45; }
-.notif-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
 /* ══════════════════════════════════════════
    CONTENT AREA
@@ -693,6 +643,11 @@ html, body {
 .progress-bar-bg { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 5px; }
 .progress-bar-fill { height: 100%; border-radius: 99px; background: var(--warn); }
 .progress-bar-fill.critical { background: var(--danger); }
+.pg-btn { min-width:32px;height:32px;padding:0 8px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center; }
+.pg-btn:hover:not(:disabled) { border-color:var(--cyan);color:var(--cyan); }
+.pg-btn.active { background:var(--cyan);color:#fff;border-color:var(--cyan); }
+.pg-btn:disabled { opacity:.35;cursor:not-allowed; }
+.pg-ellipsis { font-size:12px;color:var(--muted);padding:0 4px;line-height:32px; }
 
 /* ══════════════════════════════════════════
    FORECAST CARD
@@ -1065,38 +1020,21 @@ html, body {
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <div class="nav-item" onclick="showPage('dashboard')">
-        <i class="fa-solid fa-gauge"></i><span class="nav-item-label">Dashboard</span>
-      </div>
+      <div class="nav-item" onclick="showPage('dashboard')"><i class="fa-solid fa-gauge"></i><span class="nav-item-label">Dashboard</span></div>
       <div class="nav-section">Inventory</div>
-      <div class="nav-item" onclick="showPage('inventory')">
-        <i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-label">Inventory</span>
-      </div>
-      <div class="nav-item active" onclick="showPage('products')">
-        <i class="fa-solid fa-tag"></i><span class="nav-item-label">Product Overview</span>
-      </div>
-      <div class="nav-item" onclick="showPage('barcode')">
-        <i class="fa-solid fa-barcode"></i><span class="nav-item-label">Barcode Scanner</span>
-      </div>
-      <div class="nav-item" onclick="showPage('stock-history')">
-        <i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-label">Stock History</span>
-      </div>
+      <div class="nav-item" onclick="showPage('inventory')"><i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-label">Inventory</span></div>
+      <div class="nav-item active" onclick="showPage('products')"><i class="fa-solid fa-tag"></i><span class="nav-item-label">Product Overview</span></div>
+      <div class="nav-item" onclick="showPage('categories')"><i class="fa-solid fa-tags"></i><span class="nav-item-label">Categories</span></div>
+      <div class="nav-item" onclick="showPage('suppliers')"><i class="fa-solid fa-truck"></i><span class="nav-item-label">Suppliers</span></div>
+      <div class="nav-item" onclick="showPage('barcode')"><i class="fa-solid fa-barcode"></i><span class="nav-item-label">Barcode Scanner</span></div>
+      <div class="nav-item" onclick="showPage('stock-history')"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-label">Stock History</span></div>
       <div class="nav-section">Transactions</div>
-      <div class="nav-item" onclick="showPage('sales')">
-        <i class="fa-solid fa-receipt"></i><span class="nav-item-label">Sales Record</span>
-      </div>
-      <div class="nav-item" onclick="showPage('returns')">
-        <i class="fa-solid fa-rotate-left"></i><span class="nav-item-label">Return Processing</span>
-      </div>
-      <div class="nav-item" onclick="showPage('returned-items')">
-        <i class="fa-solid fa-triangle-exclamation"></i><span class="nav-item-label">Returned Items</span>
-        <span class="nav-badge" id="returnedBadge">3</span>
-      </div>
+      <div class="nav-item" onclick="showPage('sales')"><i class="fa-solid fa-receipt"></i><span class="nav-item-label">Sales Record</span></div>
+      <div class="nav-item" onclick="showPage('returns')"><i class="fa-solid fa-rotate-left"></i><span class="nav-item-label">Returned Items</span><span class="nav-badge" id="returnedBadge" style="display:none">0</span></div>
       <div class="nav-section admin-only">Admin Only</div>
-      <div class="nav-item admin-only" onclick="showPage('verify')">
-        <i class="fa-solid fa-shield-check"></i><span class="nav-item-label">Verify Actions</span>
-        <span class="nav-badge" id="verifyBadge">2</span>
-      </div>
+      <div class="nav-item admin-only" onclick="showPage('reports')"><i class="fa-solid fa-chart-bar"></i><span class="nav-item-label">Reports</span></div>
+      <div class="nav-item admin-only" onclick="showPage('user-management')"><i class="fa-solid fa-users-gear"></i><span class="nav-item-label">User Management</span></div>
+      <div class="nav-item admin-only" onclick="showPage('activity-logs')"><i class="fa-solid fa-list-check"></i><span class="nav-item-label">Activity Logs</span></div>
     </nav>
     <div class="sidebar-footer">
       <button class="sidebar-footer-btn" onclick="toggleSidebar()">
@@ -1118,10 +1056,7 @@ html, body {
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
-        <div class="topbar-btn" onclick="openScan()"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-btn" onclick="toggleNotif()" id="notifBtn">
-          <i class="fa-solid fa-bell"></i><span class="notif-dot" id="notifDot"></span>
-        </div>
+        <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
         <div class="topbar-user" onclick="confirmLogout()">
           <div class="topbar-avatar" id="topbarAvatar">A</div>
           <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
@@ -1129,13 +1064,7 @@ html, body {
         </div>
       </div>
     </div>
-    <div class="notif-drawer" id="notifDrawer">
-      <div class="notif-drawer-header">
-        <span class="notif-drawer-title">Notifications</span>
-        <button class="btn btn-sm btn-outline" onclick="markAllRead()" style="font-size:10px;padding:4px 10px;">Mark All Read</button>
-      </div>
-      <div class="notif-list" id="notifList"></div>
-    </div>
+
     <div class="content-area" id="contentArea">
 
       
@@ -1146,6 +1075,7 @@ html, body {
           <div class="section-actions"><button class="btn btn-primary btn-sm" onclick="openAddProduct()"><i class="fa-solid fa-plus"></i> Add Product</button></div>
         </div>
         <div id="productCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;"></div>
+        <div id="paginationBar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:18px;padding:12px 4px;"></div>
       </div>
 
       
@@ -1159,10 +1089,11 @@ html, body {
     <div class="modal-header"><div class="modal-title" id="modalProductTitle">Add <span>Product</span></div><button class="modal-close" onclick="closeModal('modalProduct')">&#x2715;</button></div>
     <div class="modal-body">
       <div class="form-row"><div class="form-ctrl"><label>SKU</label><input type="text" id="pSku" placeholder="e.g. ENG-001"></div><div class="form-ctrl"><label>Product Name</label><input type="text" id="pName" placeholder="Product name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="pCategory"><option>Engine Parts</option><option>Electrical</option><option>Brake System</option><option>Suspension</option><option>Body & Frame</option><option>Transmission</option><option>Cooling System</option><option>Exhaust</option><option>Filters</option><option>Oils & Fluids</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="pBrand" placeholder="Brand name"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="pCategory"><option value="">Loading...</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="pBrand" placeholder="Brand name"></div></div>
       <div class="form-row"><div class="form-ctrl"><label>Unit Price (&#x20B1;)</label><input type="number" id="pPrice" placeholder="0.00" step="0.01"></div><div class="form-ctrl"><label>Cost Price (&#x20B1;)</label><input type="number" id="pCost" placeholder="0.00" step="0.01"></div></div>
       <div class="form-row"><div class="form-ctrl"><label>Stock Qty</label><input type="number" id="pStock" placeholder="0"></div><div class="form-ctrl"><label>Reorder Level</label><input type="number" id="pReorder" placeholder="5"></div></div>
       <div class="form-row full"><div class="form-ctrl"><label>Description</label><textarea id="pDesc" placeholder="Optional..."></textarea></div></div>
+      <div class="form-row full"><div class="form-ctrl"><label>Product Photo <span style="color:#888;font-weight:400;font-size:0.8em;">(optional, max 2MB)</span></label><input type="file" id="pPhoto" accept="image/jpeg,image/png,image/webp" style="padding:6px;"><div id="pPhotoPreview" style="margin-top:8px;display:none;"><img id="pPhotoImg" src="" alt="Preview" style="max-height:120px;max-width:200px;border-radius:8px;border:1px solid #e2e8f0;object-fit:cover;"></div></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalProduct')">Cancel</button><button class="btn btn-primary" onclick="saveProduct()"><i class="fa-solid fa-save"></i> Save Product</button></div>
   </div>
@@ -1252,7 +1183,18 @@ html, body {
 //  CONFIG — Laravel API
 // ════════════════════════════════════════════
 const API_URL  = '/api';
-const TOKEN    = sessionStorage.getItem('rfmoto_token') || '';
+
+// Fix Google Drive URLs so they render as direct images
+function fixDriveUrl(url) {
+  if (!url) return null;
+  // Already a direct thumbnail URL — leave it
+  if (url.includes('drive.google.com/thumbnail') || url.includes('lh3.googleusercontent')) return url;
+  // Convert uc?id= or uc?export=view&id= to thumbnail URL (more reliable for img tags)
+  const m = url.match(/[?&]id=([\w-]+)/);
+  if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+  return url;
+}
+const TOKEN    = localStorage.getItem('rfmoto_token') || '';
 const ACTIVE_PAGE = 'products';
 
 // Auth headers for every fetch request
@@ -1269,27 +1211,40 @@ function authHeaders() {
 //  STATE
 // ════════════════════════════════════════════
 let PRODUCTS    = [];
+let ALL_PRODUCTS = []; // unfiltered master copy
 let CATEGORIES  = [];
 let VARIATIONS  = {};       // { productId: [{label,color,stock}, ...] }
 let currentUser = null;
 let editingProductId = null;
+let PAGE_SIZE   = 20;       // items per page
+let CURRENT_PAGE = 1;       // current page (1-based)
 let _povActiveVar = 0;
 
 // ════════════════════════════════════════════
 //  INIT — read session then load data
 // ════════════════════════════════════════════
 async function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user');
+  const stored = localStorage.getItem('rfmoto_user');
   if (stored) {
     try { currentUser = JSON.parse(stored); } catch(e) {}
   }
   // Fallback for direct dev access
-  if (!currentUser) {
-    currentUser = { username: 'admin', fullname: 'Administrator', role: 'admin' };
-  }
+  if (!currentUser) { window.location.replace('/login'); return; }
 
   launchApp();
   await loadData();
+
+  // ── Auto-open product from Inventory List "View" button ──
+  const openId = sessionStorage.getItem('rfmoto_open_product');
+  if (openId) {
+    sessionStorage.removeItem('rfmoto_open_product');
+    const pid = parseInt(openId);
+    // Small delay to let cards render first
+    setTimeout(() => {
+      const found = PRODUCTS.find(x => x.id === pid);
+      if (found) openProductOverview(pid);
+    }, 400);
+  }
 }
 
 async function loadData() {
@@ -1309,38 +1264,41 @@ async function loadData() {
 
     // Normalize products — map API fields to UI fields
     PRODUCTS = (prodData.products || []).map(p => ({
-      id:       p.id,
-      sku:      p.sku,
-      barcode:  p.barcode,
-      name:     p.name,
-      category: p.category,
-      brand:    p.brand,
-      price:    parseFloat(p.price),
-      cost:     parseFloat(p.cost),
-      stock:    p.stock,
-      reorder:  p.reorder,
+      id:        p.product_id,
+      sku:       p.sku,
+      barcode:   p.barcode,
+      name:      p.product_name,
+      category:  p.category,
+      brand:     p.brand,
+      price:     parseFloat(p.unit_price),
+      cost:      parseFloat(p.cost_price),
+      stock:     p.stock,
+      reorder:   p.reorder,
+      image_url: p.image_url ? fixDriveUrl(p.image_url) : null,
     }));
+    ALL_PRODUCTS = [...PRODUCTS]; // keep master copy for search filtering
 
     // Build VARIATIONS lookup from embedded variations
     VARIATIONS = {};
     (prodData.products || []).forEach(p => {
-      VARIATIONS[p.id] = {
+      VARIATIONS[p.product_id] = {
         desc: p.description || 'No description available.',
         variations: (p.variations || []).map(v => ({
-          label: v.label,
-          color: v.color,
-          stock: v.stock,
+          label:     v.variation_name,
+          color:     v.color || '#17b8dc',
+          stock:     v.stock_qty ?? 0,
+          barcode:   v.barcode || null,
+          image_url: v.image_url ? fixDriveUrl(v.image_url) : null,
         })),
       };
       // Fallback if no variations
-      if (!VARIATIONS[p.id].variations.length) {
-        VARIATIONS[p.id].variations = [{ label: 'Standard', color: '#17b8dc', stock: p.stock }];
+      if (!VARIATIONS[p.product_id].variations.length) {
+        VARIATIONS[p.product_id].variations = [{ label: 'Standard', color: '#17b8dc', stock: p.stock ?? 0, barcode: p.barcode, image_url: null }];
       }
     });
 
     // Rebuild category select in Add/Edit modal
     buildProductSelects();
-    renderNotifications();
     renderProductCards();
 
   } catch (err) {
@@ -1353,11 +1311,12 @@ async function loadData() {
 //  APP LAUNCH (UI only, data loaded async)
 // ════════════════════════════════════════════
 function launchApp() {
-  const initials = currentUser.fullname.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const displayName = currentUser.fullname || currentUser.username || 'User';
+  const initials = displayName.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
   document.getElementById('sidebarAvatar').textContent  = initials;
-  document.getElementById('sidebarName').textContent    = currentUser.fullname;
+  document.getElementById('sidebarName').textContent    = currentUser.fullname || currentUser.username;
   document.getElementById('topbarAvatar').textContent   = initials;
-  document.getElementById('topbarName').textContent     = currentUser.fullname;
+  document.getElementById('topbarName').textContent     = currentUser.fullname || currentUser.username;
   document.getElementById('topbarRole').textContent     = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
   const badge = document.getElementById('sidebarRoleBadge');
   badge.textContent  = currentUser.role === 'admin' ? 'Admin' : 'Staff';
@@ -1386,16 +1345,24 @@ const PAGE_MAP = {
   'inventory':     '/inventory',
   'products':      '/products',
   'barcode':       '/barcode',
-  'stock-history': '/stock-history',
+  'categories': '/categories', 'suppliers': '/suppliers', 'reports': '/reports', 'stock-history': '/stock-history',
   'sales':         '/sales',
   'returns':       '/returns',
   'returned-items':'/returned-items',
   'verify':        '/verify',
 };
 
+
 function showPage(page) {
-  if (page === 'verify' && currentUser && currentUser.role !== 'admin') return;
-  if (PAGE_MAP[page]) window.location.href = PAGE_MAP[page];
+    const adminOnly = ['reports','user-management','activity-logs'];
+    if (adminOnly.includes(page) && currentUser?.role !== 'admin') return;
+    const map = {
+        'dashboard':'/dashboard','inventory':'/inventory','products':'/products',
+        'categories':'/categories','suppliers':'/suppliers','barcode':'/barcode',
+        'stock-history':'/stock-history','sales':'/sales','returns':'/returns',
+        'reports':'/reports','user-management':'/user-management','activity-logs':'/activity-logs',
+    };
+    if (map[page]) window.location.href = map[page];
 }
 
 function toggleSidebar() {
@@ -1404,33 +1371,6 @@ function toggleSidebar() {
   sb.classList.toggle('collapsed');
   icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
-
-// ════════════════════════════════════════════
-//  NOTIFICATIONS (kept as client-side demo;
-//  wire to /api/notifications when ready)
-// ════════════════════════════════════════════
-const NOTIFICATIONS = [
-  {id:1,type:'warn',  icon:'triangle-exclamation',text:'Low stock: ENG-003 Full Gasket Set (4 units)',time:'5 min ago',read:false},
-  {id:2,type:'danger',icon:'circle-xmark',         text:'Critical: SUS-001 Rear Shock Absorber (2 units)',time:'12 min ago',read:false},
-  {id:3,type:'cyan',  icon:'barcode',              text:'New barcode assigned: OIL-001',time:'1 hr ago',read:true},
-  {id:4,type:'warn',  icon:'triangle-exclamation', text:'Low stock: ELC-003 CDI Unit (3 units)',time:'2 hr ago',read:false},
-  {id:5,type:'green', icon:'check-circle',         text:'Sale SO-0003 completed — ₱450',time:'3 hr ago',read:true},
-];
-
-function renderNotifications() {
-  const list  = document.getElementById('notifList');
-  const unread = NOTIFICATIONS.filter(n=>!n.read).length;
-  document.getElementById('notifDot').style.display = unread > 0 ? 'block' : 'none';
-  list.innerHTML = NOTIFICATIONS.map(n => `
-    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead(${n.id})">
-      <div class="notif-icon-wrap ${n.type}"><i class="fa-solid fa-${n.icon}"></i></div>
-      <div><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></div>
-    </div>
-  `).join('');
-}
-function markRead(id)   { const n=NOTIFICATIONS.find(x=>x.id===id); if(n) n.read=true; renderNotifications(); }
-function markAllRead()  { NOTIFICATIONS.forEach(n=>n.read=true); renderNotifications(); }
-function toggleNotif()  { document.getElementById('notifDrawer').classList.toggle('open'); }
 
 // ════════════════════════════════════════════
 //  DARK MODE
@@ -1476,9 +1416,20 @@ function renderProductCards() {
   const wrap = document.getElementById('productCards');
   if (!PRODUCTS.length) {
     wrap.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted);"><i class="fa-solid fa-box-open" style="font-size:36px;margin-bottom:12px;display:block;"></i>No products found</div>';
+    document.getElementById('paginationBar').innerHTML = '';
     return;
   }
-  wrap.innerHTML = PRODUCTS.map(p => {
+
+  // Clamp current page
+  const totalPages = Math.ceil(PRODUCTS.length / PAGE_SIZE);
+  if (CURRENT_PAGE > totalPages) CURRENT_PAGE = totalPages;
+  if (CURRENT_PAGE < 1) CURRENT_PAGE = 1;
+
+  const start   = (CURRENT_PAGE - 1) * PAGE_SIZE;
+  const end     = Math.min(start + PAGE_SIZE, PRODUCTS.length);
+  const visible = PRODUCTS.slice(start, end);
+
+  wrap.innerHTML = visible.map(p => {
     const stockPct  = Math.min(100, Math.round((p.stock / Math.max(p.reorder*3,1)) * 100));
     const statusCls = p.stock === 0 ? 'badge-red' : p.stock <= p.reorder ? 'badge-warn' : 'badge-green';
     const statusTxt = p.stock === 0 ? 'Out of Stock' : p.stock <= p.reorder ? 'Low Stock' : 'In Stock';
@@ -1490,7 +1441,10 @@ function renderProductCards() {
     ).join('') || '';
     return `<div class="pov-card" onclick="openProductOverview(${p.id})" title="View ${p.name}">
       <div class="pov-card-img" style="background:${grad};">
-        <i class="fa-solid ${icon}" style="font-size:38px;color:rgba(255,255,255,.18);"></i>
+        ${p.image_url
+          ? `<img src="${p.image_url}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
+          : `<i class="fa-solid ${icon}" style="font-size:38px;color:rgba(255,255,255,.18);"></i>`
+        }
         <div style="position:absolute;top:10px;right:10px;"><span class="badge ${statusCls}" style="font-size:9px;">${statusTxt}</span></div>
         <div style="position:absolute;bottom:10px;left:12px;"><code style="font-size:10px;background:rgba(0,0,0,.45);padding:2px 7px;border-radius:4px;color:var(--cyan);font-weight:700;letter-spacing:.06em;">${p.sku}</code></div>
       </div>
@@ -1509,6 +1463,68 @@ function renderProductCards() {
       </div>
     </div>`;
   }).join('');
+
+  renderPagination(totalPages, start, end);
+}
+
+function renderPagination(totalPages, start, end) {
+  const bar = document.getElementById('paginationBar');
+  if (PRODUCTS.length === 0) { bar.innerHTML = ''; return; }
+
+  // Page size options
+  const sizeOptions = [20, 40, 60, 100].map(n =>
+    `<option value="${n}" ${PAGE_SIZE === n ? 'selected' : ''}>${n}</option>`
+  ).join('');
+
+  // Page number buttons — show max 5 around current
+  let pageButtons = '';
+  const delta = 2;
+  const rangeStart = Math.max(1, CURRENT_PAGE - delta);
+  const rangeEnd   = Math.min(totalPages, CURRENT_PAGE + delta);
+
+  if (rangeStart > 1) {
+    pageButtons += `<button class="pg-btn" onclick="goToPage(1)">1</button>`;
+    if (rangeStart > 2) pageButtons += `<span class="pg-ellipsis">…</span>`;
+  }
+  for (let i = rangeStart; i <= rangeEnd; i++) {
+    pageButtons += `<button class="pg-btn ${i === CURRENT_PAGE ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+  }
+  if (rangeEnd < totalPages) {
+    if (rangeEnd < totalPages - 1) pageButtons += `<span class="pg-ellipsis">…</span>`;
+    pageButtons += `<button class="pg-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+  }
+
+  bar.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);">
+      Showing <strong style="color:var(--text);">${start+1}–${end}</strong> of <strong style="color:var(--text);">${PRODUCTS.length}</strong> products
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <button class="pg-btn" onclick="goToPage(${CURRENT_PAGE-1})" ${CURRENT_PAGE===1?'disabled':''}>
+        <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+      </button>
+      ${pageButtons}
+      <button class="pg-btn" onclick="goToPage(${CURRENT_PAGE+1})" ${CURRENT_PAGE===totalPages?'disabled':''}>
+        <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+      </button>
+      <span style="font-size:12px;color:var(--muted);margin-left:8px;">Show:</span>
+      <select onchange="changePageSize(this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;cursor:pointer;">
+        ${sizeOptions}
+      </select>
+    </div>`;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(PRODUCTS.length / PAGE_SIZE);
+  if (page < 1 || page > totalPages) return;
+  CURRENT_PAGE = page;
+  renderProductCards();
+  document.getElementById('page-products').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function changePageSize(val) {
+  PAGE_SIZE = parseInt(val);
+  CURRENT_PAGE = 1;
+  renderProductCards();
 }
 
 // ════════════════════════════════════════════
@@ -1541,7 +1557,10 @@ function buildPovModal(p, meta, grad, icon, statusCls, statusTxt, activeIdx) {
     </button>`).join('');
   return `
     <div class="pov-img-panel" style="background:${grad};" id="povImgPanel">
-      <i class="fa-solid ${icon}" id="povIcon" style="font-size:72px;color:rgba(255,255,255,.22);transition:transform .3s;"></i>
+      ${(v.image_url || p.image_url)
+        ? `<img src="${v.image_url || p.image_url}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;opacity:.92;">`
+        : `<i class="fa-solid ${icon}" id="povIcon" style="font-size:72px;color:rgba(255,255,255,.22);transition:transform .3s;"></i>`
+      }
       <div class="pov-img-overlay">
         <span class="pov-sku-badge">${p.sku}</span>
         <span class="badge ${statusCls}">${statusTxt}</span>
@@ -1555,10 +1574,6 @@ function buildPovModal(p, meta, grad, icon, statusCls, statusTxt, activeIdx) {
         <div>
           <div class="pov-price-label">Unit Price</div>
           <div class="pov-price">₱${p.price.toLocaleString()}</div>
-        </div>
-        <div>
-          <div class="pov-price-label">Cost Price</div>
-          <div class="pov-cost">₱${p.cost.toLocaleString()}</div>
         </div>
       </div>
       <div class="pov-section-label">Variations</div>
@@ -1579,7 +1594,7 @@ function buildPovModal(p, meta, grad, icon, statusCls, statusTxt, activeIdx) {
         </div>
       </div>
       <div class="pov-footer-meta">
-        <span><i class="fa-solid fa-barcode" style="margin-right:4px;color:var(--cyan);"></i>${p.barcode||p.sku}</span>
+        <span><i class="fa-solid fa-barcode" style="margin-right:4px;color:var(--cyan);"></i>${v.barcode || p.barcode || p.sku}</span>
         <span><i class="fa-solid fa-tag" style="margin-right:4px;color:var(--cyan);"></i>ID #${p.id}</span>
       </div>
     </div>`;
@@ -1591,6 +1606,33 @@ function selectPovVar(productId, idx) {
   _povActiveVar = idx;
   const v    = meta.variations[idx];
   document.querySelectorAll('.pov-var-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+
+  // Update image panel
+  const imgPanel = document.getElementById('povImgPanel');
+  if (imgPanel) {
+    const imgUrl = v.image_url || p.image_url;
+    const existingImg = imgPanel.querySelector('img');
+    if (imgUrl) {
+      if (existingImg) {
+        existingImg.src = imgUrl;
+      } else {
+        const newImg = document.createElement('img');
+        newImg.src = imgUrl;
+        newImg.alt = p.name;
+        newImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;opacity:.92;';
+        imgPanel.appendChild(newImg);
+      }
+    } else if (existingImg) {
+      existingImg.remove();
+    }
+  }
+
+  // Update barcode in footer
+  const footerMeta = document.querySelector('.pov-footer-meta span:first-child');
+  if (footerMeta) {
+    footerMeta.innerHTML = `<i class="fa-solid fa-barcode" style="margin-right:4px;color:var(--cyan);"></i>${v.barcode || p.barcode || p.sku}`;
+  }
+
   const icon = document.getElementById('povIcon');
   if (icon) { icon.style.transform='scale(1.15)'; setTimeout(()=>icon.style.transform='scale(1)',280); }
   const vStock     = v.stock;
@@ -1623,7 +1665,7 @@ function buildProductSelects() {
   // Category select in Add/Edit modal
   const catSel = document.getElementById('pCategory');
   if (catSel && CATEGORIES.length) {
-    catSel.innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    catSel.innerHTML = CATEGORIES.map(c => `<option value="${c.category_id}">${c.category_name}</option>`).join('');
   }
 }
 
@@ -1636,6 +1678,8 @@ function openAddProduct() {
   });
   document.getElementById('pStock').value   = 0;
   document.getElementById('pReorder').value = 5;
+  document.getElementById('pPhoto').value   = '';
+  document.getElementById('pPhotoPreview').style.display = 'none';
   document.getElementById('modalProduct').classList.add('open');
 }
 
@@ -1653,35 +1697,72 @@ function openEditProduct(id) {
   document.getElementById('pStock').value   = p.stock;
   document.getElementById('pReorder').value = p.reorder;
   document.getElementById('pDesc').value    = VARIATIONS[p.id]?.desc || '';
+  // Reset photo field; show existing photo if available
+  document.getElementById('pPhoto').value = '';
+  const preview = document.getElementById('pPhotoPreview');
+  const img     = document.getElementById('pPhotoImg');
+  if (p.image_url) {
+    img.src = p.image_url;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
   // Set category select
   const catSel = document.getElementById('pCategory');
-  const cat    = CATEGORIES.find(c => c.name === p.category);
-  if (cat && catSel) catSel.value = cat.id;
+  const cat    = CATEGORIES.find(c => c.category_name === p.category);
+  if (cat && catSel) catSel.value = cat.category_id;
   document.getElementById('modalProduct').classList.add('open');
 }
 
-async function saveProduct() {
-  const payload = {
-    sku:           document.getElementById('pSku').value.trim(),
-    name:          document.getElementById('pName').value.trim(),
-    brand:         document.getElementById('pBrand').value.trim(),
-    category_id:   parseInt(document.getElementById('pCategory').value),
-    price:         parseFloat(document.getElementById('pPrice').value)||0,
-    cost:          parseFloat(document.getElementById('pCost').value)||0,
-    stock_qty:     parseInt(document.getElementById('pStock').value)||0,
-    reorder_level: parseInt(document.getElementById('pReorder').value)||5,
-    description:   document.getElementById('pDesc').value.trim(),
-    barcode:       document.getElementById('pSku').value.trim(), // auto-same as SKU
-  };
-
-  if (!payload.sku || !payload.name || !payload.brand) {
-    return showToast('SKU, Name and Brand are required.', 'danger');
+// Live photo preview
+document.getElementById('pPhoto').addEventListener('change', function() {
+  const file = this.files[0];
+  const preview = document.getElementById('pPhotoPreview');
+  const img     = document.getElementById('pPhotoImg');
+  if (file) {
+    img.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
   }
+});
+
+async function saveProduct() {
+  const sku          = document.getElementById('pSku').value.trim();
+  const product_name = document.getElementById('pName').value.trim();
+  const brand        = document.getElementById('pBrand').value.trim();
+  const category_id  = parseInt(document.getElementById('pCategory').value);
+  const photoFile    = document.getElementById('pPhoto').files[0];
+
+  if (!sku || !product_name || !brand || !category_id) {
+    return showToast('SKU, Name, Brand and Category are required.', 'danger');
+  }
+
+  // Use FormData so we can attach the photo file
+  const fd = new FormData();
+  fd.append('sku',           sku);
+  fd.append('product_name',  product_name);
+  fd.append('brand',         brand);
+  fd.append('category_id',   category_id);
+  fd.append('unit_price',    parseFloat(document.getElementById('pPrice').value)||0);
+  fd.append('cost_price',    parseFloat(document.getElementById('pCost').value)||0);
+  fd.append('stock_qty',     parseInt(document.getElementById('pStock').value)||0);
+  fd.append('reorder_level', parseInt(document.getElementById('pReorder').value)||5);
+  fd.append('description',   document.getElementById('pDesc').value.trim());
+  fd.append('barcode',       sku); // auto-same as SKU
+  if (photoFile) fd.append('photo', photoFile);
+  // Laravel PUT via FormData needs method spoofing
+  if (editingProductId) fd.append('_method', 'PUT');
 
   try {
     const url    = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
-    const method = editingProductId ? 'PUT' : 'POST';
-    const res    = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(payload) });
+    // Always POST — _method=PUT handles the update spoof
+    const res    = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('rfmoto_token')}`,
+                 'Accept': 'application/json' },
+      body: fd,
+    });
     const data   = await res.json();
 
     if (data.status === 'success') {
@@ -1689,10 +1770,12 @@ async function saveProduct() {
       showToast(editingProductId ? 'Product updated!' : 'Product created!', 'success');
       await loadData();
     } else {
-      const msg = data.errors ? Object.values(data.errors).flat().join(', ') : data.message;
+      const msg = data.errors ? Object.values(data.errors).flat().join(', ') : (data.message || 'Unknown error');
+      console.error('Save product error:', data);
       showToast(msg, 'danger');
     }
   } catch(e) {
+    console.error('Save product exception:', e);
     showToast('Save failed. Please try again.', 'danger');
   }
 }
@@ -1701,17 +1784,17 @@ async function saveProduct() {
 //  GLOBAL SEARCH
 // ════════════════════════════════════════════
 function globalSearchFn(val) {
-  const search = val.toLowerCase();
-  const wrap   = document.getElementById('productCards');
-  wrap.querySelectorAll('.pov-card').forEach((card, i) => {
-    const p   = PRODUCTS[i];
-    const hit = !search ||
-      p.name.toLowerCase().includes(search) ||
-      p.sku.toLowerCase().includes(search)  ||
-      p.brand.toLowerCase().includes(search)||
-      p.category.toLowerCase().includes(search);
-    card.style.display = hit ? '' : 'none';
-  });
+  const search = val.toLowerCase().trim();
+  PRODUCTS = search
+    ? ALL_PRODUCTS.filter(p =>
+        p.name.toLowerCase().includes(search)     ||
+        p.sku.toLowerCase().includes(search)      ||
+        p.brand.toLowerCase().includes(search)    ||
+        p.category.toLowerCase().includes(search)
+      )
+    : [...ALL_PRODUCTS];
+  CURRENT_PAGE = 1;
+  renderProductCards();
 }
 
 function openScan() { document.getElementById('modalScan').classList.add('open'); }
@@ -1727,7 +1810,7 @@ async function doLogout() {
   try {
     await fetch(`${API_URL.replace('/api','')}/logout`, { method:'POST', headers: authHeaders() });
   } catch(e) {}
-  sessionStorage.clear();
+  localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
@@ -1811,13 +1894,6 @@ function assignBarcode() {
 //  BOOT
 // ════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', initFromSession);
-window.addEventListener('click', e => {
-  const drawer = document.getElementById('notifDrawer');
-  const btn    = document.getElementById('notifBtn');
-  if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
-    drawer.classList.remove('open');
-  }
-});
 </script>
 
 {{-- Product Overview Modal (appended after body) --}}

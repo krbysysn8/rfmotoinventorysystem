@@ -663,7 +663,7 @@
 <script>
   let currentRole = 'staff';
 
-const API_BASE = 'https://rfmoto-laravel-production.up.railway.app';
+const API_BASE = '{{ config("app.url") }}';
 const API_URL  = API_BASE + '/api';
 
   function selectRole(role) {
@@ -726,7 +726,8 @@ const API_URL  = API_BASE + '/api';
 
       if (data.status === 'success' && data.user) {
 
-        sessionStorage.setItem('rfmoto_user', JSON.stringify({
+        localStorage.setItem('rfmoto_token', data.token);
+        localStorage.setItem('rfmoto_user', JSON.stringify({
           user_id:  data.user.user_id,
           username: data.user.username,
           fullname: data.user.fullname,
@@ -739,8 +740,7 @@ const API_URL  = API_BASE + '/api';
         btn.style.background = 'linear-gradient(90deg,#16a34a,#4cde8a)';
         btn.style.boxShadow  = '0 4px 20px rgba(76,222,138,0.35)';
 
-        setTimeout(() => { window.location.href = 'rfmoto-dashboard.html'; }, 1000);
-
+setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
       } else {
 
         const msg = (data.errors && data.errors.username && data.errors.username[0])
@@ -769,6 +769,15 @@ const API_URL  = API_BASE + '/api';
     pw.type = pw.type === 'password' ? 'text' : 'password';
     this.textContent = pw.type === 'password' ? '👁' : '🙈';
   });
+
+  // ── If already logged in, skip login page and go straight to dashboard ──
+  (function checkAlreadyLoggedIn() {
+    const token = localStorage.getItem('rfmoto_token');
+    const user  = localStorage.getItem('rfmoto_user');
+    if (token && user) {
+      window.location.replace('/dashboard');
+    }
+  })();
 
   window.addEventListener('load', () => {
     setTimeout(() => {

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\StockMovement;
-use App\Models\VerifyAction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,11 +20,16 @@ class DashboardController extends Controller
             ->whereColumn('stock_qty', '<=', 'reorder_level')
             ->count();
 
+        $outOfStock = Product::where('is_active', true)
+            ->where('stock_qty', 0)
+            ->count();
+
+        $totalCategories = DB::table('categories')->count();
+        $totalSuppliers  = DB::table('suppliers')->where('status', 'active')->count();
+
         $todaySales = SalesOrder::where('status', 'completed')
             ->whereDate('order_date', today())
             ->get();
-
-        $pendingVerify = VerifyAction::where('status', 'pending')->count();
 
         $forecast = Product::with('category')
             ->where('is_active', true)
@@ -68,18 +72,38 @@ class DashboardController extends Controller
                 'status'         => $o->status,
             ]);
 
+        // Recent stock movements for the activity feed
+        $recentMovements = DB::table('stock_movements as sm')
+            ->join('products as p', 'sm.product_id', '=', 'p.product_id')
+            ->leftJoin('users as u', 'sm.performed_by', '=', 'u.user_id')
+            ->select(
+                'p.product_name',
+                'p.sku',
+                'sm.movement_type',
+                'sm.quantity',
+                'sm.movement_date',
+                'sm.created_at',
+                DB::raw("COALESCE(u.full_name, u.username) as performed_by_name")
+            )
+            ->orderByDesc('sm.created_at')
+            ->limit(8)
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'data'   => [
-                'total_products'  => $totalProducts,
-                'total_stock'     => $totalStock,
-                'low_stock_count' => $lowStock,
-                'sales_today'     => $todaySales->count(),
-                'sales_today_amt' => $todaySales->sum('total_amount'),
-                'pending_verify'  => $pendingVerify,
-                'forecast'        => $forecast,
-                'low_stock_alerts'=> $alerts,
-                'recent_sales'    => $recentSales,
+                'total_products'   => $totalProducts,
+                'total_stock'      => $totalStock,
+                'low_stock_count'  => $lowStock,
+                'out_of_stock'     => $outOfStock,
+                'total_categories' => $totalCategories,
+                'total_suppliers'  => $totalSuppliers,
+                'sales_today'      => $todaySales->count(),
+                'sales_today_amt'  => $todaySales->sum('total_amount'),
+                'forecast'         => $forecast,
+                'low_stock_alerts' => $alerts,
+                'recent_sales'     => $recentSales,
+                'recent_movements' => $recentMovements,
             ],
         ]);
     }

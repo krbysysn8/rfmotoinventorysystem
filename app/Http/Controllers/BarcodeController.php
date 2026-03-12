@@ -45,43 +45,48 @@ class BarcodeController extends Controller
             return response()->json(['status' => 'error', 'message' => 'No barcode provided.'], 422);
         }
 
-        // Match by: products.barcode column, products.sku, or computed EAN-13
+        // 1. Match products.barcode or products.sku
         $product = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
-            ->select(
-                'p.product_id',
-                'p.sku',
-                'p.barcode',
-                'p.product_name',
-                'p.brand',
-                'p.unit_price',
-                'p.cost_price',
-                'p.stock_qty',
-                'p.reorder_level',
-                'p.is_active',
-                'c.category_name'
-            )
+            ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
+                     'p.unit_price','p.cost_price','p.stock_qty','p.reorder_level',
+                     'p.is_active','c.category_name')
             ->where('p.is_active', true)
             ->where(function ($q) use ($code) {
-                $q->where('p.barcode', $code)
-                  ->orWhere('p.sku', $code);
+                $q->where('p.barcode', $code)->orWhere('p.sku', $code);
             })
             ->first();
 
-        // If not found by barcode/sku, try matching computed EAN-13
+        // 2. Match product_variations.barcode or variation.sku
         if (!$product) {
-            $allProducts = DB::table('products as p')
+            $varRow = DB::table('product_variations as pv')
+                ->join('products as p', 'pv.product_id', '=', 'p.product_id')
                 ->join('categories as c', 'p.category_id', '=', 'c.category_id')
-                ->select('p.product_id', 'p.sku', 'p.barcode', 'p.product_name', 'p.brand',
-                         'p.unit_price', 'p.cost_price', 'p.stock_qty', 'p.reorder_level',
-                         'p.is_active', 'c.category_name')
                 ->where('p.is_active', true)
-                ->get();
+                ->where(function ($q) use ($code) {
+                    $q->where('pv.barcode', $code)->orWhere('pv.sku', $code);
+                })
+                ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
+                         'p.unit_price','p.cost_price','p.reorder_level','p.is_active',
+                         'c.category_name',
+                         'pv.stock_qty','pv.variation_name',
+                         DB::raw('pv.barcode as variation_barcode'),
+                         DB::raw('pv.sku as variation_sku'))
+                ->first();
+            if ($varRow) $product = $varRow;
+        }
 
-            foreach ($allProducts as $p) {
+        // 3. Match computed EAN-13
+        if (!$product) {
+            $all = DB::table('products as p')
+                ->join('categories as c', 'p.category_id', '=', 'c.category_id')
+                ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
+                         'p.unit_price','p.cost_price','p.stock_qty','p.reorder_level',
+                         'p.is_active','c.category_name')
+                ->where('p.is_active', true)->get();
+            foreach ($all as $p) {
                 if ($this->computeEAN13($p->product_id, $p->category_name) === $code) {
-                    $product = $p;
-                    break;
+                    $product = $p; break;
                 }
             }
         }
@@ -94,22 +99,37 @@ class BarcodeController extends Controller
             ]);
         }
 
-        $ean13 = $this->computeEAN13($product->product_id, $product->category_name);
+        // Auto-assign barcode if missing (realtime fix for existing products)
+        if (empty($product->barcode)) {
+            $autoCode = $product->sku;
+            DB::table('products')->where('product_id', $product->product_id)
+                ->update(['barcode' => $autoCode]);
+            $product->barcode = $autoCode;
+        }
+
+        // Use stored barcode as the scan code (not recomputed EAN-13)
+        $scanCode = $product->barcode ?: $product->sku;
+
+        // Include variation info if matched via variation
+        $variationName = $product->variation_name ?? null;
+        $variationCode = $product->variation_barcode ?? null;
+        $variationSku  = $product->variation_sku ?? null;
 
         return response()->json([
             'status'  => 'found',
             'product' => [
-                'product_id'    => $product->product_id,
-                'sku'           => $product->sku,
-                'barcode'       => $product->barcode,
-                'ean13'         => $ean13,
-                'product_name'  => $product->product_name,
-                'brand'         => $product->brand,
-                'unit_price'    => (float) $product->unit_price,
-                'cost_price'    => (float) $product->cost_price,
-                'stock_qty'     => (int) $product->stock_qty,
-                'reorder_level' => (int) $product->reorder_level,
-                'category_name' => $product->category_name,
+                'product_id'     => $product->product_id,
+                'sku'            => $variationSku ?: $product->sku,
+                'barcode'        => $variationCode ?: $scanCode,
+                'ean13'          => $variationCode ?: $scanCode,
+                'product_name'   => $product->product_name . ($variationName ? ' — ' . $variationName : ''),
+                'brand'          => $product->brand,
+                'unit_price'     => (float) $product->unit_price,
+                'cost_price'     => (float) ($product->cost_price ?? 0),
+                'stock_qty'      => (int) $product->stock_qty,
+                'reorder_level'  => (int) $product->reorder_level,
+                'category_name'  => $product->category_name,
+                'variation_name' => $variationName,
             ],
         ]);
     }
@@ -262,28 +282,64 @@ class BarcodeController extends Controller
     {
         $rows = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
-            ->select(
-                'p.product_id', 'p.sku', 'p.barcode', 'p.product_name',
-                'p.brand', 'p.unit_price', 'p.stock_qty', 'p.reorder_level',
-                'c.category_name'
-            )
+            ->select('p.product_id','p.sku','p.barcode','p.product_name',
+                     'p.brand','p.unit_price','p.stock_qty','p.reorder_level',
+                     'p.image_url','c.category_name')
             ->where('p.is_active', true)
-            ->orderBy('c.category_name')
-            ->orderBy('p.sku')
-            ->get();
+            ->orderBy('c.category_name')->orderBy('p.sku')->get();
 
-        $products = $rows->map(function ($p) {
+        $productIds = $rows->pluck('product_id');
+
+        // Auto-assign missing product barcodes (SKU fallback) — realtime fix
+        foreach ($rows as $p) {
+            if (!$p->barcode) {
+                DB::table('products')->where('product_id', $p->product_id)
+                    ->update(['barcode' => $p->sku]);
+                $p->barcode = $p->sku;
+            }
+        }
+
+        $allVariations = DB::table('product_variations')
+            ->whereIn('product_id', $productIds)
+            ->where('is_active', true)
+            ->orderBy('product_id')->orderBy('sort_order')
+            ->get()->groupBy('product_id');
+
+        // Auto-assign missing variation barcodes — realtime fix
+        foreach ($allVariations->flatten() as $v) {
+            if (!$v->barcode) {
+                $parentSku = $rows->firstWhere('product_id', $v->product_id)->sku ?? 'PROD';
+                $autoCode  = $v->sku ?: ($parentSku . '-' . $v->variation_id);
+                DB::table('product_variations')->where('variation_id', $v->variation_id)
+                    ->update(['barcode' => $autoCode]);
+                $v->barcode = $autoCode;
+            }
+        }
+
+        $products = $rows->map(function ($p) use ($allVariations) {
+            $vars = $allVariations->get($p->product_id, collect());
             return [
                 'product_id'    => $p->product_id,
                 'sku'           => $p->sku,
                 'barcode'       => $p->barcode,
-                'ean13'         => $this->computeEAN13($p->product_id, $p->category_name),
+                'ean13'         => $p->barcode, // use stored barcode as scan code
                 'product_name'  => $p->product_name,
                 'brand'         => $p->brand,
                 'unit_price'    => (float) $p->unit_price,
                 'stock_qty'     => (int) $p->stock_qty,
                 'reorder_level' => (int) $p->reorder_level,
+                'image_url'     => $p->image_url,
                 'category_name' => $p->category_name,
+                'variations'    => $vars->map(function ($v) use ($p) {
+                    return [
+                        'variation_id'   => $v->variation_id,
+                        'variation_name' => $v->variation_name,
+                        'sku'            => $v->sku ?? $p->sku,
+                        'barcode'        => $v->barcode,
+                        'image_url'      => $v->image_url ?? null,
+                        'stock_qty'      => (int) $v->stock_qty,
+                    ];
+                })->values(),
             ];
         });
 
@@ -312,6 +368,14 @@ class BarcodeController extends Controller
 
         return response()->json(['status' => 'success', 'logs' => $logs]);
     }
+    public function clearScanLogs(Request $request)
+    {
+        DB::table('scan_logs')
+            ->where('performed_by', Auth::id())
+            ->delete();
+        return response()->json(['status' => 'success', 'message' => 'Scan logs cleared.']);
+    }
+
     public function index()
     {
         return view('barcode');

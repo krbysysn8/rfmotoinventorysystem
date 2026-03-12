@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\LoginLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function showLogin()
+    {
+        return view('login');
+    }
+
     public function login(Request $request): JsonResponse
     {
         $request->validate([
@@ -47,11 +52,13 @@ class AuthController extends Controller
             $user->update(['password_hash' => Hash::make($request->password)]);
         }
 
-        // ── Delete old tokens, create new one ──
+        // Delete old tokens, create new one
         $user->tokens()->delete();
         $token = $user->createToken('rfmoto-token')->plainTextToken;
 
-        $user->update(['last_login' => now()]);
+        // Update last login timestamp (supports both column names)
+        $col = \Schema::hasColumn('users', 'last_login') ? 'last_login' : 'last_login';
+        $user->update([$col => now()]);
 
         LoginLog::create([
             'username'       => $request->username,
@@ -62,12 +69,20 @@ class AuthController extends Controller
             'user_agent'     => $request->userAgent(),
         ]);
 
+        // Record in activity logs
+        ActivityLog::record(
+            action:      'login',
+            subject:     $user->full_name ?? $user->username,
+            description: "User signed in as {$request->role}.",
+            user:        $user,
+        );
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Login successful.',
             'token'   => $token,
             'user'    => [
-                'user_id'  => $user->user_id,
+                'id'       => $user->user_id,
                 'username' => $user->username,
                 'fullname' => $user->full_name,
                 'role'     => $user->role->role_name,
@@ -92,7 +107,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'user'   => [
-                'user_id'  => $user->user_id,
+                'id'       => $user->user_id,
                 'username' => $user->username,
                 'fullname' => $user->full_name,
                 'role'     => $user->role->role_name,

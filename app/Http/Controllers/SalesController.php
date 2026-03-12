@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
@@ -18,10 +19,10 @@ class SalesController extends Controller
             ->orderByDesc('created_at')
             ->get()
             ->map(fn($o) => [
-                'order_id'      => $o->order_id,
-                'order_number'  => $o->order_number,
-                'customer_name' => $o->customer_name,
-                'items'         => $o->items->map(fn($i) => [
+                'order_id'       => $o->order_id,
+                'order_number'   => $o->order_number,
+                'customer_name'  => $o->customer_name,
+                'items'          => $o->items->map(fn($i) => [
                     'product_id'   => $i->product_id,
                     'product_name' => $i->product?->product_name,
                     'quantity'     => $i->quantity,
@@ -43,10 +44,10 @@ class SalesController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'customer_name'  => 'nullable|string|max:120',
-            'payment_method' => 'required|in:cash,gcash,card,bank_transfer,credit',
-            'discount'       => 'nullable|numeric|min:0',
-            'items'          => 'required|array|min:1',
+            'customer_name'      => 'nullable|string|max:120',
+            'payment_method'     => 'required|in:cash,gcash,card,bank_transfer,credit',
+            'discount'           => 'nullable|numeric|min:0',
+            'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,product_id',
             'items.*.quantity'   => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
@@ -57,14 +58,16 @@ class SalesController extends Controller
         $user        = $request->user();
 
         $order = DB::transaction(function () use ($request, $orderNumber, $discount, $user) {
-            $subtotal = 0;
+            $subtotal  = 0;
+            $itemNames = [];
 
             foreach ($request->items as $item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
                 if ($product->stock_qty < $item['quantity']) {
                     throw new \Exception("Insufficient stock for {$product->sku}.");
                 }
-                $subtotal += $item['quantity'] * $item['unit_price'];
+                $subtotal    += $item['quantity'] * $item['unit_price'];
+                $itemNames[]  = "{$product->product_name} x{$item['quantity']}";
             }
 
             $order = SalesOrder::create([
@@ -76,7 +79,7 @@ class SalesController extends Controller
                 'payment_method' => $request->payment_method,
                 'served_by'      => $user->user_id,
                 'status'         => 'completed',
-                'order_date'     => today(),
+                'order_date'     => \Carbon\Carbon::now('Asia/Manila')->toDateString(),
             ]);
 
             foreach ($request->items as $item) {
@@ -100,18 +103,29 @@ class SalesController extends Controller
                     'qty_after'     => $before - $item['quantity'],
                     'reference_no'  => $orderNumber,
                     'performed_by'  => $user->user_id,
-                    'movement_date' => today(),
+                    'movement_date' => \Carbon\Carbon::now('Asia/Manila')->toDateString(),
                 ]);
             }
 
-            return $order;
+            return ['order' => $order, 'itemNames' => $itemNames, 'subtotal' => $subtotal];
         });
+
+        $customer = $request->customer_name ?? 'Walk-in';
+        $items    = implode(', ', array_slice($order['itemNames'], 0, 3));
+        $more     = count($order['itemNames']) > 3 ? ' +' . (count($order['itemNames']) - 3) . ' more' : '';
+
+        ActivityLog::record(
+            action:      'stock_out',
+            subject:     $orderNumber,
+            description: "Sale completed. Customer: {$customer}. Items: {$items}{$more}. Total: ₱" . number_format($order['order']->total_amount, 2) . ".",
+            user:        $user,
+        );
 
         return response()->json([
             'status'       => 'success',
             'message'      => 'Sale completed.',
-            'order_number' => $order->order_number,
-            'total'        => $order->total_amount,
+            'order_number' => $order['order']->order_number,
+            'total'        => $order['order']->total_amount,
         ], 201);
     }
 }

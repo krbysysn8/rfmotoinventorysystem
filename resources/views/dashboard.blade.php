@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>RF Moto – Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-
 :root {
   --cyan:        #17b8dc;
   --cyan2:       #0ea5c9;
@@ -312,12 +313,6 @@ html, body {
   background: var(--cyan);
 }
 
-.notif-dot {
-  position: absolute; top: 5px; right: 5px;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--danger); border: 1.5px solid var(--surface);
-}
-
 .topbar-user {
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; padding: 4px 8px;
@@ -332,47 +327,6 @@ html, body {
 }
 .topbar-user-name { font-size: 13px; font-weight: 600; color: var(--text); transition: color .3s; }
 .topbar-user-role { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-
-.notif-drawer {
-  position: fixed; top: 56px; right: 0;
-  width: 316px; max-height: 72vh;
-  background: var(--surface);
-  border-left: 1px solid var(--border);
-  border-bottom-left-radius: 16px;
-  box-shadow: -4px 4px 24px rgba(0,0,0,.12);
-  z-index: 500; display: none; flex-direction: column;
-  overflow: hidden;
-  transition: background .3s;
-}
-.notif-drawer.open { display: flex; }
-.notif-drawer-header {
-  padding: 13px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.notif-drawer-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: .06em;
-  color: var(--text);
-}
-.notif-list { overflow-y: auto; flex: 1; }
-.notif-item {
-  padding: 11px 16px; border-bottom: 1px solid var(--border);
-  display: flex; gap: 10px; align-items: flex-start;
-  cursor: pointer; transition: background .14s;
-}
-.notif-item:hover, .notif-item.unread { background: rgba(23,184,220,.04); }
-.notif-icon-wrap {
-  width: 32px; height: 32px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; flex-shrink: 0;
-}
-.notif-icon-wrap.warn { background: rgba(217,119,6,.1); color: var(--warn); }
-.notif-icon-wrap.danger { background: rgba(220,38,38,.08); color: var(--danger); }
-.notif-icon-wrap.cyan { background: rgba(23,184,220,.1); color: var(--cyan); }
-.notif-icon-wrap.green { background: rgba(22,163,74,.1); color: var(--success); }
-.notif-text { font-size: 12px; color: var(--text); line-height: 1.45; }
-.notif-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
 .content-area {
   flex: 1; overflow-y: auto;
@@ -723,8 +677,80 @@ html, body {
   .form-row { grid-template-columns: 1fr; }
   .content-area { padding: 14px 14px; }
 }
+
+/* ── NEW DASHBOARD STAT CARDS ── */
+.stat-grid-new {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-card-new {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: box-shadow .2s;
+}
+.stat-card-new:hover { box-shadow: var(--shadow-md); }
+.forecast-card-stat { overflow: hidden; }
+.stat-card-icon {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.stat-card-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; line-height: 1;
+  color: var(--text);
+}
+.stat-card-label {
+  font-size: 11px; color: var(--muted);
+  margin-top: 4px; font-weight: 500;
+}
+.dash-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.dash-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.dash-chart-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: .03em;
+  color: var(--text);
+}
+.dash-chart-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stock-activity-table { max-height: 220px; overflow-y: auto; }
+.stock-activity-table tr td {
+  font-size: 12px; padding: 8px 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.stock-activity-table tr:last-child td { border-bottom: none; }
+@media (max-width: 1200px) { .stat-grid-new { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) {
+  .stat-grid-new { grid-template-columns: repeat(2, 1fr); }
+  .dash-charts-row { grid-template-columns: 1fr; }
+}
+
 </style>
+</head>
 <body>
+
 <div id="app">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -745,38 +771,21 @@ html, body {
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <div class="nav-item active" onclick="showPage('dashboard')">
-        <i class="fa-solid fa-gauge"></i><span class="nav-item-label">Dashboard</span>
-      </div>
+      <div class="nav-item active" onclick="showPage('dashboard')"><i class="fa-solid fa-gauge"></i><span class="nav-item-label">Dashboard</span></div>
       <div class="nav-section">Inventory</div>
-      <div class="nav-item" onclick="showPage('inventory')">
-        <i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-label">Inventory</span>
-      </div>
-      <div class="nav-item" onclick="showPage('products')">
-        <i class="fa-solid fa-tag"></i><span class="nav-item-label">Product Overview</span>
-      </div>
-      <div class="nav-item" onclick="showPage('barcode')">
-        <i class="fa-solid fa-barcode"></i><span class="nav-item-label">Barcode Scanner</span>
-      </div>
-      <div class="nav-item" onclick="showPage('stock-history')">
-        <i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-label">Stock History</span>
-      </div>
+      <div class="nav-item" onclick="showPage('inventory')"><i class="fa-solid fa-boxes-stacked"></i><span class="nav-item-label">Inventory</span></div>
+      <div class="nav-item" onclick="showPage('products')"><i class="fa-solid fa-tag"></i><span class="nav-item-label">Product Overview</span></div>
+      <div class="nav-item" onclick="showPage('categories')"><i class="fa-solid fa-tags"></i><span class="nav-item-label">Categories</span></div>
+      <div class="nav-item" onclick="showPage('suppliers')"><i class="fa-solid fa-truck"></i><span class="nav-item-label">Suppliers</span></div>
+      <div class="nav-item" onclick="showPage('barcode')"><i class="fa-solid fa-barcode"></i><span class="nav-item-label">Barcode Scanner</span></div>
+      <div class="nav-item" onclick="showPage('stock-history')"><i class="fa-solid fa-clock-rotate-left"></i><span class="nav-item-label">Stock History</span></div>
       <div class="nav-section">Transactions</div>
-      <div class="nav-item" onclick="showPage('sales')">
-        <i class="fa-solid fa-receipt"></i><span class="nav-item-label">Sales Record</span>
-      </div>
-      <div class="nav-item" onclick="showPage('returns')">
-        <i class="fa-solid fa-rotate-left"></i><span class="nav-item-label">Return Processing</span>
-      </div>
-      <div class="nav-item" onclick="showPage('returned-items')">
-        <i class="fa-solid fa-triangle-exclamation"></i><span class="nav-item-label">Returned Items</span>
-        <span class="nav-badge" id="returnedBadge">3</span>
-      </div>
+      <div class="nav-item" onclick="showPage('sales')"><i class="fa-solid fa-receipt"></i><span class="nav-item-label">Sales Record</span></div>
+      <div class="nav-item" onclick="showPage('returns')"><i class="fa-solid fa-rotate-left"></i><span class="nav-item-label">Returned Items</span><span class="nav-badge" id="returnedBadge" style="display:none">0</span></div>
       <div class="nav-section admin-only">Admin Only</div>
-      <div class="nav-item admin-only" onclick="showPage('verify')">
-        <i class="fa-solid fa-shield-check"></i><span class="nav-item-label">Verify Actions</span>
-        <span class="nav-badge" id="verifyBadge">2</span>
-      </div>
+      <div class="nav-item admin-only" onclick="showPage('reports')"><i class="fa-solid fa-chart-bar"></i><span class="nav-item-label">Reports</span></div>
+      <div class="nav-item admin-only" onclick="showPage('user-management')"><i class="fa-solid fa-users-gear"></i><span class="nav-item-label">User Management</span></div>
+      <div class="nav-item admin-only" onclick="showPage('activity-logs')"><i class="fa-solid fa-list-check"></i><span class="nav-item-label">Activity Logs</span></div>
     </nav>
     <div class="sidebar-footer">
       <button class="sidebar-footer-btn" onclick="toggleSidebar()">
@@ -798,10 +807,7 @@ html, body {
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
-        <div class="topbar-btn" onclick="openScan()"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-btn" onclick="toggleNotif()" id="notifBtn">
-          <i class="fa-solid fa-bell"></i><span class="notif-dot" id="notifDot"></span>
-        </div>
+        <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
         <div class="topbar-user" onclick="confirmLogout()">
           <div class="topbar-avatar" id="topbarAvatar">A</div>
           <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
@@ -809,41 +815,142 @@ html, body {
         </div>
       </div>
     </div>
-    <div class="notif-drawer" id="notifDrawer">
-      <div class="notif-drawer-header">
-        <span class="notif-drawer-title">Notifications</span>
-        <button class="btn btn-sm btn-outline" onclick="markAllRead()" style="font-size:10px;padding:4px 10px;">Mark All Read</button>
-      </div>
-      <div class="notif-list" id="notifList"></div>
-    </div>
     <div class="content-area" id="contentArea">
 
-      
-      <div class="page active" id="page-dashboard">
-        <div class="stat-grid">
-          <div class="stat-card cyan"><div class="stat-icon cyan"><i class="fa-solid fa-boxes-stacked"></i></div><div class="stat-value" id="statTotalProducts">0</div><div class="stat-label">Total Products</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 4 added this week</div></div>
-          <div class="stat-card blue"><div class="stat-icon blue"><i class="fa-solid fa-layer-group"></i></div><div class="stat-value" id="statTotalStock">0</div><div class="stat-label">Total Stock Units</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> 12 restocked today</div></div>
-          <div class="stat-card warn"><div class="stat-icon warn"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-value" id="statLowStock">0</div><div class="stat-label">Low Stock Items</div><div class="stat-change down"><i class="fa-solid fa-arrow-down"></i> Needs attention</div></div>
-          <div class="stat-card green"><div class="stat-icon green"><i class="fa-solid fa-receipt"></i></div><div class="stat-value" id="statSalesToday">0</div><div class="stat-label">Sales Today</div><div class="stat-change up"><i class="fa-solid fa-arrow-up"></i> <span id="salesTodayAmt">₱0</span></div></div>
-        </div>
-        <div class="forecast-card">
-          <div class="section-header"><div class="section-title"><i class="fa-solid fa-chart-bar" style="color:var(--cyan);margin-right:7px;"></i>Stock Forecast – Top Products</div></div>
-          <div style="position:relative;margin-top:14px;">
-            <div id="forecastGrid" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;"></div>
-            <div style="display:flex;align-items:flex-end;gap:6px;position:relative;z-index:1;" id="forecastChart"></div>
+<div class="page active" id="page-dashboard">
+
+        <!-- ── STAT CARDS (6 cards matching screenshot) ── -->
+        <div class="stat-grid-new">
+          <div class="stat-card-new">
+            <div class="stat-card-icon" style="background:rgba(23,184,220,.15);color:var(--cyan);">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="statTotalItems">0</div>
+              <div class="stat-card-label">Total Items</div>
+            </div>
           </div>
-          <div style="display:flex;gap:6px;margin-top:6px;" id="forecastLabels"></div>
+          <div class="stat-card-new">
+            <div class="stat-card-icon" style="background:rgba(217,119,6,.15);color:var(--warn);">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="statLowStockNew">0</div>
+              <div class="stat-card-label">Low Stock</div>
+            </div>
+          </div>
+          <div class="stat-card-new">
+            <div class="stat-card-icon" style="background:rgba(220,38,38,.15);color:var(--danger);">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="statOutOfStock">0</div>
+              <div class="stat-card-label">Out of Stock</div>
+            </div>
+          </div>
+          <div class="stat-card-new">
+            <div class="stat-card-icon" style="background:rgba(37,99,235,.15);color:var(--blue);">
+              <i class="fa-solid fa-tag"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="statCategories">0</div>
+              <div class="stat-card-label">Categories</div>
+            </div>
+          </div>
+          <div class="stat-card-new">
+            <div class="stat-card-icon" style="background:rgba(22,163,74,.15);color:var(--success);">
+              <i class="fa-solid fa-truck"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" id="statSuppliers">0</div>
+              <div class="stat-card-label">Suppliers</div>
+            </div>
+          </div>
+          <div class="stat-card-new forecast-card-stat">
+            <div style="position:absolute;top:10px;right:12px;">
+              <span class="badge badge-cyan" style="font-size:9px;">Forecast</span>
+            </div>
+            <div class="stat-card-icon" style="background:rgba(23,184,220,.15);color:var(--cyan);">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+            <div class="stat-card-body">
+              <div class="stat-card-value" style="color:var(--cyan);" id="statStockHealth">0%</div>
+              <div class="stat-card-label">Stock Health</div>
+            </div>
+          </div>
         </div>
-        <div class="section-header"><div class="section-title"><i class="fa-solid fa-bell" style="color:var(--warn);margin-right:7px;"></i>Low Stock Alerts</div></div>
-        <div id="lowStockAlerts"></div>
-        <div class="section-header" style="margin-top:20px;"><div class="section-title"><i class="fa-solid fa-receipt" style="color:var(--cyan);margin-right:7px;"></i>Recent Sales</div></div>
-        <div class="table-card"><div class="tbl-scroll"><table class="tbl"><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Staff</th><th>Date</th><th>Status</th></tr></thead><tbody id="recentSalesTbl"></tbody></table></div></div>
+
+        <!-- ── CHARTS ROW 1: Stock Movement (full width) ── -->
+        <div class="dash-charts-row" style="grid-template-columns:1fr;">
+          <div class="dash-chart-card">
+            <div class="dash-chart-title">Stock Movement</div>
+            <div class="dash-chart-sub">Monthly stock in vs stock out</div>
+            <div style="position:relative;height:200px;margin-top:12px;">
+              <canvas id="chartStockMovement"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CHARTS ROW 2: Inventory Control + Recent Stock Activity ── -->
+        <div class="dash-charts-row">
+          <div class="dash-chart-card">
+            <div class="dash-chart-title">Inventory Control</div>
+            <div class="dash-chart-sub">Stock levels vs reorder points by category</div>
+            <div style="position:relative;height:220px;margin-top:12px;">
+              <canvas id="chartInventory"></canvas>
+            </div>
+          </div>
+          <div class="dash-chart-card">
+            <div class="dash-chart-title">Recent Stock Activity</div>
+            <div class="dash-chart-sub">Latest stock movements</div>
+            <div class="stock-activity-table" style="margin-top:12px;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Item</th>
+                    <th style="text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Type</th>
+                    <th style="text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Qty</th>
+                    <th style="text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="stockActivityTbl"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ── LOW STOCK ALERTS ── -->
+        <div class="dash-chart-card" style="margin-top:0;" id="lowStockAlertsCard">
+          <div class="dash-chart-title" style="color:var(--warn);">
+            <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Low Stock Alerts
+          </div>
+          <div class="dash-chart-sub">Items that need restocking attention</div>
+          <div style="margin-top:12px;">
+            <table style="width:100%;border-collapse:collapse;" id="lowStockAlertsTbl">
+              <thead>
+                <tr>
+                  <th style="text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Product</th>
+                  <th style="text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Category</th>
+                  <th style="text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Stock</th>
+                  <th style="text-align:right;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Reorder</th>
+                  <th style="text-align:center;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);">Status</th>
+                </tr>
+              </thead>
+              <tbody id="lowStockAlertsBody"></tbody>
+            </table>
+            <div id="lowStockNoData" style="text-align:center;padding:20px;color:var(--muted);font-size:13px;display:none;">
+              <i class="fa-solid fa-circle-check" style="color:var(--success);font-size:20px;margin-bottom:6px;display:block;"></i>
+              All items are well stocked!
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      
-    </div>
-  </div>
-</div>
+    </div><!-- /content-area -->
+  </div><!-- /main -->
+</div><!-- /app -->
 
 <div class="modal-backdrop" id="modalProduct">
   <div class="modal modal-lg">
@@ -938,862 +1045,673 @@ html, body {
     <div class="modal-footer" style="justify-content:center;"><button class="btn btn-outline" onclick="closeModal('modalLogout')">Cancel</button><button class="btn btn-danger" onclick="doLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button></div>
   </div>
 </div>
+
 <script>
+// ═══════════════════════════════════════════════════════════════
+//  RF MOTO – Dashboard  |  Functional JS (API-driven)
+//  All data fetched from Laravel API via Sanctum token auth
+// ═══════════════════════════════════════════════════════════════
 
-const ACTIVE_PAGE = 'dashboard';
-const USERS = [
-  {username:'admin',   password:'admin123', role:'admin',  fullname:'Administrator'},
-  {username:'manager', password:'manager1', role:'admin',  fullname:'Jose Reyes'},
-  {username:'staff1',  password:'staff123', role:'staff',  fullname:'Juan dela Cruz'},
-  {username:'staff2',  password:'staff456', role:'staff',  fullname:'Maria Santos'},
-];
+const API_BASE  = '{{ config("app.url") }}/api';
+const TOKEN_KEY = 'rfmoto_token';
+const USER_KEY  = 'rfmoto_user';
 
-let PRODUCTS = [
-  {id:1,sku:'ENG-001',name:'Piston Kit 54mm Honda Wave',category:'Engine Parts',brand:'Daytona',price:450,cost:280,stock:30,reorder:5,barcode:'ENG-001-A'},
-  {id:2,sku:'ENG-002',name:'Valve Clearance Shim Set',category:'Engine Parts',brand:'Parts Pro',price:180,cost:110,stock:20,reorder:5,barcode:'ENG-002-B'},
-  {id:3,sku:'ENG-003',name:'Full Gasket Set Honda XRM',category:'Engine Parts',brand:'Daytona',price:650,cost:400,stock:4,reorder:5,barcode:'ENG-003-C'},
-  {id:4,sku:'ELC-001',name:'Yuasa Battery 12V 5Ah',category:'Electrical',brand:'Yuasa',price:850,cost:600,stock:25,reorder:8,barcode:'ELC-001-D'},
-  {id:5,sku:'ELC-002',name:'NGK Spark Plug CR6HSA',category:'Electrical',brand:'NGK',price:95,cost:55,stock:80,reorder:20,barcode:'ELC-002-E'},
-  {id:6,sku:'ELC-003',name:'CDI Unit Honda TMX 155',category:'Electrical',brand:'Daytona',price:750,cost:480,stock:3,reorder:3,barcode:'ELC-003-F'},
-  {id:7,sku:'BRK-001',name:'Front Brake Pad Set Honda Click',category:'Brake System',brand:'Bendix',price:320,cost:200,stock:40,reorder:10,barcode:'BRK-001-G'},
-  {id:8,sku:'BRK-002',name:'Rear Brake Shoe Honda Wave 110',category:'Brake System',brand:'Bendix',price:180,cost:110,stock:35,reorder:10,barcode:'BRK-002-H'},
-  {id:9,sku:'SUS-001',name:'Rear Shock Absorber Honda XRM',category:'Suspension',brand:'Kayaba',price:1800,cost:1200,stock:2,reorder:2,barcode:'SUS-001-I'},
-  {id:10,sku:'TRN-001',name:'Drive Chain 420H x 106L',category:'Transmission',brand:'DID',price:580,cost:380,stock:20,reorder:5,barcode:'TRN-001-J'},
-  {id:11,sku:'FLT-001',name:'Air Filter Honda Wave',category:'Filters',brand:'K&N',price:280,cost:175,stock:50,reorder:15,barcode:'FLT-001-K'},
-  {id:12,sku:'OIL-001',name:'Motul 7100 10W-40 1L',category:'Oils & Fluids',brand:'Motul',price:520,cost:350,stock:45,reorder:12,barcode:'OIL-001-L'},
-  {id:13,sku:'EXH-001',name:'Exhaust Muffler Honda TMX 155',category:'Exhaust',brand:'Daytona',price:2200,cost:1500,stock:5,reorder:2,barcode:'EXH-001-M'},
-  {id:14,sku:'BDY-001',name:'Side Cover Honda Wave 125',category:'Body & Frame',brand:'Honda OEM',price:1400,cost:950,stock:8,reorder:3,barcode:'BDY-001-N'},
-  {id:15,sku:'ELC-004',name:'Headlight Honda Click 125',category:'Electrical',brand:'Honda OEM',price:1800,cost:1250,stock:6,reorder:2,barcode:'ELC-004-O'},
-];
+// ── Auth helpers ────────────────────────────────────────────────
+function getToken()  { return localStorage.getItem(TOKEN_KEY); }
+function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
 
-let SALES = [
-  {id:1,orderNo:'SO-0001',customer:'Juan Cruz',items:[{productId:5,qty:2,price:95}],subtotal:190,discount:0,total:190,payment:'cash',servedBy:'staff1',date:'2026-03-01',status:'completed'},
-  {id:2,orderNo:'SO-0002',customer:'Walk-in',items:[{productId:7,qty:1,price:320},{productId:12,qty:1,price:520}],subtotal:840,discount:50,total:790,payment:'gcash',servedBy:'staff2',date:'2026-03-01',status:'completed'},
-  {id:3,orderNo:'SO-0003',customer:'Pedro Santos',items:[{productId:1,qty:1,price:450}],subtotal:450,discount:0,total:450,payment:'cash',servedBy:'staff1',date:'2026-03-02',status:'completed'},
-];
+async function apiFetch(path, opts = {}) {
+    const token = getToken();
+    const res = await fetch(API_BASE + path, {
+        ...opts,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept':       'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+            ...(opts.headers || {}),
+        },
+    });
+    if (res.status === 401) { clearAuth(); window.location.href = '/login'; return null; }
+    return res.json();
+}
 
-let HISTORY = [
-  {id:1,productId:1,sku:'ENG-001',product:'Piston Kit 54mm Honda Wave',type:'in',qty:10,before:20,after:30,ref:'PO-001',by:'admin',date:'2026-02-28'},
-  {id:2,productId:5,sku:'ELC-002',product:'NGK Spark Plug CR6HSA',type:'out',qty:2,before:82,after:80,ref:'SO-0001',by:'staff1',date:'2026-03-01'},
-  {id:3,productId:7,sku:'BRK-001',product:'Front Brake Pad Set',type:'out',qty:1,before:41,after:40,ref:'SO-0002',by:'staff2',date:'2026-03-01'},
-];
-
-let RETURNS = [
-  {id:1,returnNo:'RT-001',orderNo:'SO-0001',productId:5,product:'NGK Spark Plug CR6HSA',qty:1,reason:'Defective on arrival',condition:'defective',date:'2026-03-01',status:'pending'},
-  {id:2,returnNo:'RT-002',orderNo:'SO-0002',productId:7,product:'Front Brake Pad Set',qty:1,reason:'Wrong size delivered',condition:'wrong_item',date:'2026-03-01',status:'approved'},
-];
-
-let RETURNED_ITEMS = [
-  {id:1,itemNo:'RI-001',productId:5,product:'NGK Spark Plug CR6HSA',sku:'ELC-002',qty:1,condition:'defective',notes:'Burned electrode',dateReceived:'2026-03-01',disposition:'Discard'},
-  {id:2,itemNo:'RI-002',productId:7,product:'Front Brake Pad Set',sku:'BRK-001',qty:1,condition:'damaged',notes:'Cracked housing',dateReceived:'2026-03-01',disposition:'Pending Review'},
-  {id:3,itemNo:'RI-003',productId:1,product:'Piston Kit 54mm',sku:'ENG-001',qty:1,condition:'incomplete',notes:'Missing ring set',dateReceived:'2026-02-28',disposition:'Return to Supplier'},
-];
-
-let VERIFY_ACTIONS = [
-  {id:1,reqNo:'VA-001',actionType:'Large Stock Out',productId:13,product:'Exhaust Muffler Honda TMX 155',details:'Remove 4 units — stockout for bulk order',requestedBy:'staff1',date:'2026-03-02',status:'pending'},
-  {id:2,reqNo:'VA-002',actionType:'Price Adjustment',productId:1,product:'Piston Kit 54mm Honda Wave',details:'Unit price change: ₱450 → ₱390',requestedBy:'staff2',date:'2026-03-02',status:'pending'},
-];
-
-let NOTIFICATIONS = [
-  {id:1,type:'warn',icon:'triangle-exclamation',text:'Low stock: ENG-003 Full Gasket Set (4 units)',time:'5 min ago',read:false},
-  {id:2,type:'danger',icon:'circle-xmark',text:'Critical: SUS-001 Rear Shock Absorber (2 units)',time:'12 min ago',read:false},
-  {id:3,type:'cyan',icon:'barcode',text:'New barcode assigned: OIL-001',time:'1 hr ago',read:true},
-  {id:4,type:'warn',icon:'triangle-exclamation',text:'Low stock: ELC-003 CDI Unit (3 units)',time:'2 hr ago',read:false},
-  {id:5,type:'green',icon:'check-circle',text:'Sale SO-0003 completed — ₱450',time:'3 hr ago',read:true},
-];
-
-let currentUser = null;
-let currentRole = 'staff';
-let currentPage = 'dashboard';
-let editingProductId = null;
-let scanAction = 'add-new';
-let qsAction = 'add-new';
-let currentVerifyId = null;
-let saleItems = [];
-let saleTotal = 0;
+// ── App state ───────────────────────────────────────────────────
+let currentUser  = null;
+let currentPage  = 'dashboard';
+let dashStats    = {};
+let PRODUCTS     = [];
+let saleItems    = [];
+let saleTotal    = 0;
 let historyFilter = '';
 let historyTypeFilter = '';
 let returnedFilter = 'all';
+let editingProductId = null;
+let currentVerifyId = null;
+let scanActionCurrent = 'add-existing';
+let qsActionCurrent   = 'add-existing';
+let _chartSM = null, _chartInv = null;
+let _chartsLoaded = false;
+let invCatFilter = 'All';
 
-function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user');
-  if (stored) {
-    try { currentUser = JSON.parse(stored); } catch(e) {}
-  }
-  if (!currentUser) {
-    currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
-  }
-  launchApp();
+const CATEGORIES_LIST = ['All','Engine Parts','Electrical','Brake System','Suspension',
+    'Body & Frame','Transmission','Cooling System','Exhaust','Filters','Oils & Fluids'];
+
+let CATEGORIES_API = []; // populated from /api/categories with real IDs
+
+// ── Page init ───────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+    const user  = getUser();
+    const token = getToken();
+
+    // Nothing in storage — redirect immediately
+    if (!user || !token) {
+        window.location.replace('/login');
+        return;
+    }
+
+    // Boot UI immediately with cached user so page feels instant
+    currentUser = user;
+    bootUI(currentUser);
+    restoreTheme();
+
+    // Fire token validation AND dashboard data at the same time
+    const mePromise = fetch('{{ config("app.url") }}/api/me', {
+        headers: {
+            'Accept':        'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+    }).then(r => r.json()).catch(() => null);
+
+    // Dashboard starts loading immediately — no waiting for /api/me
+    const dashPromise = loadDashboard();
+
+    // Wait for token validation in the background
+    const meData = await mePromise;
+
+    if (meData === null) {
+        // Network error — already loaded with cached user, that's fine
+        console.warn('Token validation skipped (network error)');
+    } else if (!meData || meData.status !== 'success') {
+        // Token invalid/expired — abort and redirect
+        clearAuth();
+        window.location.replace('/login');
+        return;
+    } else {
+        // Refresh UI with latest server-side user data
+        currentUser = meData.user;
+        setUser(meData.user);
+        bootUI(currentUser);
+    }
+
+    await dashPromise;
+});
+
+function bootUI(user) {
+    const initials = (user.fullname || user.username).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+    el('sidebarAvatar').textContent  = initials;
+    el('sidebarName').textContent    = user.fullname || user.username;
+    el('topbarAvatar').textContent   = initials;
+    el('topbarName').textContent     = user.fullname || user.username;
+    el('topbarRole').textContent     = user.role === 'admin' ? 'Administrator' : 'Staff';
+    const badge = el('sidebarRoleBadge');
+    badge.textContent  = user.role === 'admin' ? 'Admin' : 'Staff';
+    badge.className    = 'sidebar-role-badge ' + user.role;
+    document.querySelectorAll('.admin-only').forEach(e => {
+        e.style.display = user.role === 'admin' ? '' : 'none';
+    });
 }
 
-function launchApp() {
-  const initials = currentUser.fullname.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-  document.getElementById('sidebarAvatar').textContent = initials;
-  document.getElementById('sidebarName').textContent = currentUser.fullname;
-  document.getElementById('topbarAvatar').textContent = initials;
-  document.getElementById('topbarName').textContent = currentUser.fullname;
-  document.getElementById('topbarRole').textContent = currentUser.role==='admin'?'Administrator':'Staff';
-  const badge = document.getElementById('sidebarRoleBadge');
-  badge.textContent = currentUser.role==='admin'?'Admin':'Staff';
-  badge.className = 'sidebar-role-badge ' + currentUser.role;
+function el(id) { return document.getElementById(id); }
 
-  // hide admin-only nav for staff
-  document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = currentUser.role==='admin'?'':'none';
-  });
+// ── Dashboard Data ──────────────────────────────────────────────
+async function loadDashboard() {
+    // Fire categories and stats in parallel
+    const [catRes, res] = await Promise.all([
+        apiFetch('/categories'),
+        apiFetch('/dashboard/stats'),
+    ]);
 
-  buildProductSelects();
-  renderNotifications();
-  renderDashboard();
+    if (catRes && catRes.status === 'success') {
+        CATEGORIES_API = catRes.categories || [];
+    }
 
-  const savedTheme = localStorage.getItem('rfmoto_theme');
-  const toggle = document.getElementById('darkToggle');
-  const knob = document.getElementById('darkKnob');
-  if (savedTheme === 'dark' && toggle) {
-    toggle.classList.add('on');
-    knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
-  }
+    if (!res || res.status !== 'success') return;
+    dashStats = res.data;
+
+    // Stat cards
+    setVal('statTotalItems',  dashStats.total_products);
+    setVal('statLowStockNew', dashStats.low_stock_count);
+    setVal('statOutOfStock',  dashStats.out_of_stock);
+    setVal('statCategories',  dashStats.total_categories);
+    setVal('statSuppliers',   dashStats.total_suppliers);
+
+    // Stock health %
+    const health = dashStats.total_products > 0
+        ? Math.round(((dashStats.total_products - dashStats.low_stock_count) / dashStats.total_products) * 100)
+        : 100;
+    setVal('statStockHealth', health + '%');
+
+    // Tables render immediately — data already in dashStats
+    renderStockActivity(dashStats.recent_movements || []);
+    renderLowStockAlerts(dashStats.low_stock_alerts || []);
+    renderRecentSales(dashStats.recent_sales || []);
+
+    // Store latest stats for other uses
+    _lastPollStats = dashStats;
+
+    // Charts only load once on first visit — don't reload on data refresh
+    if (!_chartsLoaded) {
+        _chartsLoaded = true;
+        await loadCharts();
+    }
 }
 
+function setVal(id, val) { const e = el(id); if (e) e.textContent = val; }
 
+// ── Charts ──────────────────────────────────────────────────────
+async function loadCharts() {
+    // Both chart data requests fire in parallel
+    const [smRes, pRes] = await Promise.all([
+        apiFetch('/reports/stock-movement'),
+        apiFetch('/products'),
+    ]);
+
+    if (smRes && smRes.status === 'success') {
+        renderStockMovementChart(smRes.labels, smRes.stock_in, smRes.stock_out);
+    }
+
+    if (pRes && pRes.status === 'success') {
+        PRODUCTS = pRes.data || pRes.products || [];
+        renderInventoryChart(PRODUCTS);
+    }
+}
+
+function destroyChart(c) { if (c) { c.destroy(); } return null; }
+
+function getChartColors() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+        grid: dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+        tick: dark ? '#9bb5c7' : '#7f99ab',
+    };
+}
+
+function renderStockMovementChart(labels, stockIn, stockOut) {
+    _chartSM = destroyChart(_chartSM);
+    const ctx = el('chartStockMovement');
+    if (!ctx) return;
+    const c = getChartColors();
+    _chartSM = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [
+            { label:'Stock In',  data: stockIn,  backgroundColor:'rgba(23,184,220,0.85)', borderRadius:4, borderSkipped:false },
+            { label:'Stock Out', data: stockOut, backgroundColor:'rgba(100,120,220,0.75)', borderRadius:4, borderSkipped:false },
+        ]},
+        options: { responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{ position:'bottom', labels:{ color:c.tick, font:{family:'Barlow',size:11}, boxWidth:12, padding:16 }}, tooltip:{mode:'index'}},
+            scales:{ x:{grid:{color:c.grid},ticks:{color:c.tick}}, y:{grid:{color:c.grid},ticks:{color:c.tick},beginAtZero:true}}
+        }
+    });
+}
+
+function renderInventoryChart(products) {
+    _chartInv = destroyChart(_chartInv);
+    const ctx = el('chartInventory');
+    if (!ctx) return;
+    const c = getChartColors();
+    const catMap = {};
+    products.forEach(p => {
+        const cat = p.category_name || p.category || 'Other';
+        if (!catMap[cat]) catMap[cat] = { stock:0, reorder:0 };
+        catMap[cat].stock   += (p.stock_qty  ?? p.stock   ?? 0);
+        catMap[cat].reorder += (p.reorder_level ?? p.reorder ?? 0);
+    });
+    const shortName = n => n.replace('Engine Parts','Engine').replace('Brake System','Brakes')
+        .replace('Body & Frame','Body').replace('Cooling System','Cooling').replace('Oils & Fluids','Oils');
+    const cats = Object.keys(catMap).slice(0,8);
+    _chartInv = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: cats.map(shortName), datasets: [
+            { label:'Stock Level',   data: cats.map(k=>catMap[k].stock),   backgroundColor:'rgba(23,184,220,0.85)', borderRadius:3, borderSkipped:false },
+            { label:'Reorder Level', data: cats.map(k=>catMap[k].reorder), type:'line', borderColor:'rgba(220,38,38,0.9)',
+              backgroundColor:'transparent', pointBackgroundColor:'rgba(220,38,38,0.9)', pointRadius:4,
+              borderWidth:2, borderDash:[5,3], fill:false, tension:0 }
+        ]},
+        options: { responsive:true, maintainAspectRatio:false, indexAxis:'y',
+            plugins:{ legend:{ position:'bottom', labels:{ color:c.tick, font:{family:'Barlow',size:11}, boxWidth:12, padding:16 }}},
+            scales:{ x:{grid:{color:c.grid},ticks:{color:c.tick,font:{size:10}},beginAtZero:true}, y:{grid:{color:c.grid},ticks:{color:c.tick,font:{size:10}}} }
+        }
+    });
+}
+
+// ── Dashboard tables ────────────────────────────────────────────
+function renderStockActivity(movements) {
+    const tbody = el('stockActivityTbl');
+    if (!tbody) return;
+    if (!movements || !movements.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">No recent activity</td></tr>';
+        return;
+    }
+    tbody.innerHTML = movements.map(m => {
+        const isIn  = m.movement_type === 'in';
+        const date  = m.movement_date ? m.movement_date.substring(0, 10) : '—';
+        return `<tr>
+            <td style="font-weight:600;padding:7px 8px;">${m.product_name}<br><span style="font-size:10px;color:var(--muted);">${m.sku}</span></td>
+            <td style="padding:7px 8px;">
+                <span class="badge ${isIn ? 'badge-green' : 'badge-red'}" style="font-size:10px;">
+                    <i class="fa-solid fa-arrow-${isIn ? 'up' : 'down'}" style="font-size:9px;"></i>
+                    ${isIn ? 'Stock In' : 'Stock Out'}
+                </span>
+            </td>
+            <td style="text-align:right;font-weight:800;font-family:'Barlow Condensed',sans-serif;font-size:14px;padding:7px 8px;">${m.quantity}</td>
+            <td style="text-align:right;color:var(--muted);font-size:11px;padding:7px 8px;">${date}</td>
+        </tr>`;
+    }).join('');
+}
+
+function renderLowStockAlerts(alerts) {
+    const tbody = el('lowStockAlertsBody');
+    const noData = el('lowStockNoData');
+    if (!tbody) return;
+    if (!alerts || !alerts.length) {
+        tbody.innerHTML = '';
+        if (noData) noData.style.display = 'block';
+        return;
+    }
+    if (noData) noData.style.display = 'none';
+    tbody.innerHTML = alerts.map(p => {
+        const stock   = p.stock ?? p.stock_qty ?? 0;
+        const reorder = p.reorder ?? p.reorder_level ?? 0;
+        const isOut   = stock === 0;
+        return `<tr>
+            <td style="font-weight:600;padding:7px 8px;">${p.name || p.product_name}</td>
+            <td style="padding:7px 8px;color:var(--muted);font-size:12px;">${p.category || p.category_name || '—'}</td>
+            <td style="text-align:right;font-weight:800;font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:7px 8px;color:${isOut?'var(--danger)':'var(--warn)'};">${stock}</td>
+            <td style="text-align:right;color:var(--muted);font-size:12px;padding:7px 8px;">${reorder}</td>
+            <td style="text-align:center;padding:7px 8px;">
+                <span class="badge ${isOut?'badge-red':'badge-warn'}" style="font-size:10px;">${isOut?'Out of Stock':'Low Stock'}</span>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function renderRecentSales(sales) {
+    // If a recent-sales element exists on dashboard, populate it
+    const wrap = el('recentSalesList');
+    if (!wrap || !sales.length) return;
+    wrap.innerHTML = sales.map(s => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+            <div>
+                <div style="font-size:13px;font-weight:600;">${s.order_number}</div>
+                <div style="font-size:11px;color:var(--muted);">${s.customer_name} · ${s.served_by || '—'}</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-weight:700;font-family:'Barlow Condensed',sans-serif;">₱${parseFloat(s.total_amount||0).toLocaleString()}</div>
+                <span class="badge badge-green" style="font-size:9px;">completed</span>
+            </div>
+        </div>`).join('');
+}
+
+// ── Navigation ───────────────────────────────────────────────────
 const pageTitles = {
-  'dashboard':'Dashboard','inventory':'Inventory','products':'Product Overview',
-  'barcode':'Barcode Scanner','stock-history':'Stock History','sales':'Sales Record',
-  'returns':'Return Processing','returned-items':'Returned Items','verify':'Verify Actions'
+    'dashboard':'Dashboard','inventory':'Inventory','products':'Product Overview',
+    'barcode':'Barcode Scanner','stock-history':'Stock History','sales':'Sales Record',
+    'returns':'Returned Items','reports':'Reports','user-management':'User Management','activity-logs':'Activity Logs'
 };
 
 function showPage(page) {
-  if (page==='verify' && currentUser && currentUser.role!=='admin') return;
-  const fileMap = {
-    'dashboard':     '/dashboard',
-    'inventory':     '/inventory',
-    'products':      '/products',
-    'barcode':       '/barcode',
-    'stock-history': '/stock-history',
-    'sales':         '/sales',
-    'returns':       '/returns',
-    'returned-items':'/returned-items',
-    'verify':        '/verify',
-  };
-  if (fileMap[page] && !window.location.pathname.endsWith(fileMap[page])) {
-    window.location.href = fileMap[page];
-  }
+    const adminOnly = ['reports','user-management','activity-logs'];
+    if (adminOnly.includes(page) && currentUser?.role !== 'admin') return;
+    const map = {
+        'dashboard':'/dashboard','inventory':'/inventory','products':'/products',
+        'categories':'/categories','suppliers':'/suppliers','barcode':'/barcode',
+        'stock-history':'/stock-history','sales':'/sales','returns':'/returns',
+        'reports':'/reports','user-management':'/user-management','activity-logs':'/activity-logs',
+    };
+    if (map[page]) window.location.href = map[page];
 }
 
+function globalSearchFn(v) {
+    if (!v) return;
+    // Search across products list
+}
+
+// ── Sidebar collapse ─────────────────────────────────────────────
 function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  const icon = document.getElementById('collapseIcon');
-  sb.classList.toggle('collapsed');
-  icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
+    const sb   = el('sidebar');
+    const icon = el('collapseIcon');
+    sb.classList.toggle('collapsed');
+    icon.className = sb.classList.contains('collapsed')
+        ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
-function renderNotifications() {
-  const list = document.getElementById('notifList');
-  const unread = NOTIFICATIONS.filter(n=>!n.read).length;
-  document.getElementById('notifDot').style.display = unread>0?'block':'none';
-  list.innerHTML = NOTIFICATIONS.map(n => `
-    <div class="notif-item ${n.read?'':'unread'}" onclick="markRead(${n.id})">
-      <div class="notif-icon-wrap ${n.type}"><i class="fa-solid fa-${n.icon}"></i></div>
-      <div><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></div>
-    </div>
-  `).join('');
-}
-function markRead(id) { const n=NOTIFICATIONS.find(x=>x.id===id); if(n) n.read=true; renderNotifications(); }
-function markAllRead() { NOTIFICATIONS.forEach(n=>n.read=true); renderNotifications(); }
-function toggleNotif() { document.getElementById('notifDrawer').classList.toggle('open'); }
-
-
-function renderDashboard() {
-  const low = PRODUCTS.filter(p=>p.stock<=p.reorder);
-  const totalStock = PRODUCTS.reduce((s,p)=>s+p.stock,0);
-  const todaySales = SALES.filter(s=>s.date===new Date().toISOString().split('T')[0]);
-  const todayAmt = todaySales.reduce((s,x)=>s+x.total,0);
-
-  document.getElementById('statTotalProducts').textContent = PRODUCTS.length;
-  document.getElementById('statTotalStock').textContent = totalStock.toLocaleString();
-  document.getElementById('statLowStock').textContent = low.length;
-  document.getElementById('statSalesToday').textContent = todaySales.length;
-  document.getElementById('salesTodayAmt').textContent = '₱'+todayAmt.toLocaleString();
-
-  const top = [...PRODUCTS].sort((a,b)=>b.stock-a.stock).slice(0,8);
-  const maxStock = Math.max(...top.map(p=>p.stock));
-  const chart = document.getElementById('forecastChart');
-  const labels = document.getElementById('forecastLabels');
-  const CHART_H = 120; 
-  const grid = document.getElementById('forecastGrid');
-  const gridLines = 4;
-  if (grid) {
-    grid.style.height = (CHART_H + 20) + 'px';
-    grid.innerHTML = Array.from({length: gridLines}, (_,i) => {
-      const val = Math.round(maxStock * (gridLines - i) / gridLines);
-      return `<div style="display:flex;align-items:center;gap:6px;width:100%;">
-        <span style="font-size:9px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;width:20px;text-align:right;flex-shrink:0;">${val}</span>
-        <div style="flex:1;height:1px;background:var(--border);opacity:.6;"></div>
-      </div>`;
-    }).join('');
-  }
-  chart.innerHTML = top.map(p => {
-    const px = Math.max(6, Math.round((p.stock / maxStock) * CHART_H));
-    const cls = p.stock<=p.reorder ? 'critical' : p.stock<=p.reorder*2 ? 'low' : '';
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:${CHART_H+20}px;">
-      <div style="font-size:9px;color:var(--muted);font-weight:700;line-height:1;">${p.stock}</div>
-      <div class="chart-bar ${cls}" style="height:${px}px;width:100%;min-height:6px;border-radius:4px 4px 0 0;"></div>
-    </div>`;
-  }).join('');
-  labels.innerHTML = top.map(p=>`<div style="flex:1;font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;padding-top:4px;margin-left:26px;">${p.sku}</div>`).join('');
-
-  const alerts = document.getElementById('lowStockAlerts');
-  if (low.length===0) { alerts.innerHTML='<div style="font-size:13px;color:var(--muted);padding:10px 0;">No low stock items. All products are well-stocked.</div>'; }
-  else {
-    alerts.innerHTML = low.map(p=>{
-      const pct = Math.round((p.stock/Math.max(p.reorder*3,1))*100);
-      const cls = p.stock===0?'critical':'';
-      return `<div class="low-stock-bar">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <div class="low-stock-bar-text"><strong>${p.name}</strong> (${p.sku}) — ${p.category}
-          <div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill ${cls}" style="width:${Math.min(pct,100)}%"></div></div></div>
-        </div>
-        <div class="low-stock-bar-qty">${p.stock} left</div>
-        <button class="btn btn-primary btn-sm" style="margin-left:8px;" onclick="quickRestock(${p.id})"><i class="fa-solid fa-plus"></i> Restock</button>
-      </div>`;
-    }).join('');
-  }
-
-  const tbody = document.getElementById('recentSalesTbl');
-  const recent = [...SALES].reverse().slice(0,5);
-  tbody.innerHTML = recent.map(s=>`
-    <tr>
-      <td><strong>${s.orderNo}</strong></td>
-      <td>${s.customer}</td>
-      <td>${s.items.length} item(s)</td>
-      <td><strong>₱${s.total.toLocaleString()}</strong></td>
-      <td>${s.servedBy}</td>
-      <td>${s.date}</td>
-      <td><span class="badge ${s.status==='completed'?'badge-green':'badge-warn'}">${s.status}</span></td>
-    </tr>`).join('');
+// ── Dark mode ────────────────────────────────────────────────────
+function toggleDarkMode() {
+    const html   = document.documentElement;
+    const toggle = el('darkToggle');
+    const knob   = el('darkKnob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+        html.setAttribute('data-theme', 'light');
+        toggle.classList.remove('on');
+        knob.innerHTML = '<i class="fa-solid fa-moon"></i>';
+        localStorage.setItem('rfmoto_theme', 'light');
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        toggle.classList.add('on');
+        knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        localStorage.setItem('rfmoto_theme', 'dark');
+    }
+    setTimeout(() => {
+        if (_chartSM) { _chartSM.destroy(); _chartSM = null; }
+        if (_chartInv) { _chartInv.destroy(); _chartInv = null; }
+        _chartsLoaded = false;
+        loadCharts().then(() => { _chartsLoaded = true; });
+    }, 50);
 }
 
-const CATEGORIES = ['All','Engine Parts','Electrical','Brake System','Suspension','Body & Frame','Transmission','Cooling System','Exhaust','Filters','Oils & Fluids'];
-let invCatFilter = 'All';
-
-function buildCategoryChips() {
-  const wrap = document.getElementById('categoryChips');
-  wrap.innerHTML = CATEGORIES.map(c=>`<div class="chip ${c==='All'?'active':''}" onclick="setInvCat('${c}',this)">${c}</div>`).join('');
+function restoreTheme() {
+    const saved  = localStorage.getItem('rfmoto_theme');
+    const toggle = el('darkToggle');
+    const knob   = el('darkKnob');
+    if (saved === 'dark') {
+        document.documentElement.setAttribute('data-theme','dark');
+        if (toggle) toggle.classList.add('on');
+        if (knob)   knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
 }
 
-function setInvCat(cat, el) {
-  invCatFilter = cat;
-  document.querySelectorAll('#categoryChips .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderInventory();
+// ── Modals ────────────────────────────────────────────────────────
+function openModal(id)  { const m = el(id); if(m) m.classList.add('open'); }
+function closeModal(id) { const m = el(id); if(m) m.classList.remove('open'); }
+
+// ── Logout ────────────────────────────────────────────────────────
+function confirmLogout() { openModal('modalLogout'); }
+async function doLogout() {
+    if (_notifPollTimer) { clearInterval(_notifPollTimer); _notifPollTimer = null; }
+    try {
+        await apiFetch('/logout', { method: 'POST' });
+    } catch(e) {}
+    clearAuth();
+    window.location.href = '/login';
 }
 
-function renderInventory(filter='') {
-  const search = filter || document.getElementById('invSearch')?.value||'';
-  let prods = PRODUCTS;
-  if (invCatFilter!=='All') prods = prods.filter(p=>p.category===invCatFilter);
-  if (search) prods = prods.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.sku.toLowerCase().includes(search.toLowerCase()));
-  const tbody = document.getElementById('inventoryTbl');
-  if (!tbody) return;
-  tbody.innerHTML = prods.map(p=>{
-    const lowCls = p.stock<=p.reorder?(p.stock===0?'badge-red':'badge-warn'):'badge-green';
-    const canEdit = currentUser.role==='admin';
-    return `<tr>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${p.sku}</code></td>
-      <td><strong>${p.name}</strong></td>
-      <td><span class="badge badge-cyan">${p.category}</span></td>
-      <td>${p.brand}</td>
-      <td><span class="badge ${lowCls}">${p.stock}</span></td>
-      <td style="color:var(--muted)">${p.reorder}</td>
-      <td><strong>₱${p.price.toLocaleString()}</strong></td>
-      <td><span class="badge ${p.stock>0?'badge-green':'badge-red'}">${p.stock>0?'In Stock':'Out of Stock'}</span></td>
-      <td>
-        <button class="btn btn-outline btn-sm btn-icon" title="Barcode" onclick="openGenerateBarcodeFor(${p.id})"><i class="fa-solid fa-barcode"></i></button>
-        ${canEdit?`<button class="btn btn-outline btn-sm btn-icon" title="Edit" onclick="openEditProduct(${p.id})" style="margin-left:4px;"><i class="fa-solid fa-pen"></i></button>`:''}
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-box-open"></i><p>No products found</p></div></td></tr>';
-}
-
-function filterInventory(v) { renderInventory(v); }
-
-function renderProductCards() {
-  const wrap = document.getElementById('productCards');
-  wrap.innerHTML = PRODUCTS.map(p=>{
-    const stockPct = Math.min(100, Math.round((p.stock/Math.max(p.reorder*3,1))*100));
-    const statusCls = p.stock===0?'badge-red':p.stock<=p.reorder?'badge-warn':'badge-green';
-    const statusTxt = p.stock===0?'Out of Stock':p.stock<=p.reorder?'Low Stock':'In Stock';
-    return `<div style="background:#fff;border-radius:14px;padding:18px;box-shadow:var(--card-shadow);border:1px solid var(--border);">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <code style="font-size:11px;background:var(--bg);padding:2px 8px;border-radius:4px;color:var(--cyan);font-weight:700;">${p.sku}</code>
-        <span class="badge ${statusCls}">${statusTxt}</span>
-      </div>
-      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3;">${p.name}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px;">${p.brand} · ${p.category}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);">₱${p.price.toLocaleString()}</span>
-        <span style="font-size:13px;font-weight:600;color:${p.stock<=p.reorder?'var(--danger)':'var(--text)'};">${p.stock} units</span>
-      </div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill ${p.stock<=p.reorder?'critical':''}" style="width:${stockPct}%"></div></div>
-    </div>`;
-  }).join('');
-}
-
-let scanActionCurrent = 'add-new';
-let qsActionCurrent = 'add-new';
+// ── Barcode / Quick Scan ──────────────────────────────────────────
+function openScan() { openModal('modalScan'); setTimeout(()=>el('quickScanInput')?.focus(),100); }
 
 function setScanAction(a) {
-  scanActionCurrent = a;
-  ['scanActionAdd','scanActionExisting','scanActionRemove'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  if (a==='add-new') document.getElementById('scanActionAdd').classList.add('selected');
-  if (a==='add-existing') document.getElementById('scanActionExisting').classList.add('selected');
-  if (a==='stock-out') document.getElementById('scanActionRemove').classList.add('selected');
+    scanActionCurrent = a;
+    ['scanActionAdd','scanActionExisting','scanActionRemove'].forEach(id => {
+        el(id)?.classList.remove('selected');
+    });
+    if (a==='add-new')       el('scanActionAdd')?.classList.add('selected');
+    if (a==='add-existing')  el('scanActionExisting')?.classList.add('selected');
+    if (a==='stock-out')     el('scanActionRemove')?.classList.add('selected');
 }
 
 function setQSAction(a) {
-  qsActionCurrent = a;
-  ['qsActionNew','qsActionExisting','qsActionRemove'].forEach(id=>document.getElementById(id).classList.remove('selected'));
-  if (a==='add-new') document.getElementById('qsActionNew').classList.add('selected');
-  if (a==='add-existing') document.getElementById('qsActionExisting').classList.add('selected');
-  if (a==='stock-out') document.getElementById('qsActionRemove').classList.add('selected');
+    qsActionCurrent = a;
+    ['qsActionNew','qsActionExisting','qsActionRemove'].forEach(id => {
+        el(id)?.classList.remove('selected');
+    });
+    if (a==='add-new')       el('qsActionNew')?.classList.add('selected');
+    if (a==='add-existing')  el('qsActionExisting')?.classList.add('selected');
+    if (a==='stock-out')     el('qsActionRemove')?.classList.add('selected');
 }
 
-function processBarcodeInput() { doScan(document.getElementById('barcodeInput').value.trim(), scanActionCurrent); }
-function quickScanProcess() { doScan(document.getElementById('quickScanInput').value.trim(), qsActionCurrent); closeModal('modalScan'); }
-
-function doScan(code, action) {
-  if (!code) { alert('Please enter or scan a barcode.'); return; }
-  const prod = PRODUCTS.find(p=>p.barcode===code||p.sku===code);
-  const title = document.getElementById('stockActionTitle');
-  const body = document.getElementById('stockActionBody');
-  window._scanAction = action;
-  window._scanProduct = prod;
-  window._scanCode = code;
-
-  if (action==='add-new') {
-    title.innerHTML = 'Add <span>New Product</span>';
-    body.innerHTML = `<p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Scanned barcode: <strong>${code}</strong></p>
-      <div class="form-row"><div class="form-ctrl"><label>SKU</label><input type="text" id="saNewSku" value="${code}"></div><div class="form-ctrl"><label>Product Name</label><input type="text" id="saNewName" placeholder="Name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="saNewCat"><option>Engine Parts</option><option>Electrical</option><option>Brake System</option><option>Suspension</option><option>Body & Frame</option><option>Transmission</option><option>Exhaust</option><option>Filters</option><option>Oils & Fluids</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="saNewBrand" placeholder="Brand"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Price (₱)</label><input type="number" id="saNewPrice" placeholder="0"></div><div class="form-ctrl"><label>Initial Stock</label><input type="number" id="saNewStock" placeholder="0"></div></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-primary';
-  } else if (action==='add-existing') {
-    if (!prod) { alert('Product not found for barcode: '+code); return; }
-    title.innerHTML = 'Add <span>Existing Stock</span>';
-    body.innerHTML = `<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;"><strong>${prod.name}</strong><br><span style="font-size:12px;color:var(--muted);">${prod.sku} · Current stock: ${prod.stock}</span></div>
-      <div class="form-ctrl"><label>Quantity to Add</label><input type="number" id="saAddQty" value="1" min="1"></div>
-      <div class="form-ctrl" style="margin-top:10px;"><label>Reference (PO #)</label><input type="text" id="saRef" placeholder="PO-000"></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-success';
-  } else {
-    if (!prod) { alert('Product not found for barcode: '+code); return; }
-    title.innerHTML = 'Stock <span>Out</span>';
-    body.innerHTML = `<div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;"><strong>${prod.name}</strong><br><span style="font-size:12px;color:var(--muted);">${prod.sku} · Current stock: ${prod.stock}</span></div>
-      <div class="form-ctrl"><label>Quantity to Remove</label><input type="number" id="saRemoveQty" value="1" min="1" max="${prod.stock}"></div>
-      <div class="form-ctrl" style="margin-top:10px;"><label>Reference (SO #)</label><input type="text" id="saRemRef" placeholder="SO-0000"></div>`;
-    document.getElementById('stockActionConfirmBtn').className = 'btn btn-danger';
-  }
-  openModal('modalStockAction');
-
-  addRecentScan(code, prod, action);
+async function quickScanProcess() {
+    const code = el('quickScanInput')?.value.trim();
+    if (!code) { alert('Please enter or scan a barcode.'); return; }
+    closeModal('modalScan');
+    await doBarcodeLookup(code, qsActionCurrent);
 }
 
-function addRecentScan(code, prod, action) {
-  const wrap = document.getElementById('recentScans');
-  const actionLabels = {'add-new':'Add New','add-existing':'Add Stock','stock-out':'Stock Out'};
-  const badgeCls = {'add-new':'badge-cyan','add-existing':'badge-green','stock-out':'badge-red'};
-  const item = `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0f4f7;">
-    <div><div style="font-size:13px;font-weight:600;">${code}</div><div style="font-size:11px;color:var(--muted);">${prod?prod.name:'Unknown Product'}</div></div>
-    <span class="badge ${badgeCls[action]}">${actionLabels[action]}</span>
-  </div>`;
-  if (wrap.querySelector('.empty-state')) wrap.innerHTML = '';
-  wrap.insertAdjacentHTML('afterbegin', item);
+async function processBarcodeInput() {
+    const code = el('barcodeInput')?.value.trim();
+    if (!code) { alert('Please enter or scan a barcode.'); return; }
+    await doBarcodeLookup(code, scanActionCurrent);
 }
 
-function confirmStockAction() {
-  const action = window._scanAction;
-  const prod = window._scanProduct;
-  if (action==='add-new') {
-    const sku = document.getElementById('saNewSku').value;
-    const name = document.getElementById('saNewName').value;
-    const cat = document.getElementById('saNewCat').value;
-    const brand = document.getElementById('saNewBrand').value;
-    const price = parseFloat(document.getElementById('saNewPrice').value)||0;
-    const stock = parseInt(document.getElementById('saNewStock').value)||0;
-    if (!sku||!name) { alert('SKU and Name are required.'); return; }
-    const newId = Math.max(...PRODUCTS.map(p=>p.id))+1;
-    PRODUCTS.push({id:newId,sku,name,category:cat,brand,price,cost:price*.6,stock,reorder:5,barcode:sku});
-    logHistory(newId,sku,name,'in',stock,0,stock,'NEW-PRODUCT','admin');
-  } else if (action==='add-existing') {
-    const qty = parseInt(document.getElementById('saAddQty').value)||0;
-    const ref = document.getElementById('saRef').value||'MANUAL';
-    logHistory(prod.id,prod.sku,prod.name,'in',qty,prod.stock,prod.stock+qty,ref,currentUser.username);
-    prod.stock += qty;
-  } else {
-    const qty = parseInt(document.getElementById('saRemoveQty').value)||0;
-    const ref = document.getElementById('saRemRef').value||'MANUAL';
-    if (qty>prod.stock) { alert('Not enough stock!'); return; }
-    if (qty>=4 && currentUser.role==='staff') {
-      VERIFY_ACTIONS.push({id:VERIFY_ACTIONS.length+1,reqNo:'VA-00'+(VERIFY_ACTIONS.length+1),actionType:'Large Stock Out',productId:prod.id,product:prod.name,details:`Remove ${qty} units (Ref: ${ref})`,requestedBy:currentUser.username,date:new Date().toISOString().split('T')[0],status:'pending'});
-      document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(v=>v.status==='pending').length;
-      closeModal('modalStockAction'); alert('Large stock-out flagged for Admin verification.'); return;
+async function doBarcodeLookup(code, action) {
+    const res = await apiFetch(`/barcode/lookup?code=${encodeURIComponent(code)}`);
+    if (!res) return;
+
+    const title = el('stockActionTitle');
+    const body  = el('stockActionBody');
+    const btn   = el('stockActionConfirmBtn');
+    window._scanAction = action;
+    window._scanCode   = code;
+    window._scanProduct= res.product || null;
+
+    if (res.status === 'not_found' || !res.product) {
+        if (action === 'add-new') {
+            title.innerHTML = 'Add <span>New Product</span>';
+            body.innerHTML  = `
+                <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Scanned barcode: <strong>${code}</strong></p>
+                <div class="form-row">
+                    <div class="form-ctrl"><label>SKU</label><input type="text" id="saNewSku" value="${code}"></div>
+                    <div class="form-ctrl"><label>Product Name</label><input type="text" id="saNewName" placeholder="Name"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-ctrl"><label>Category</label>
+                        <select id="saNewCat">${CATEGORIES_API.map(c=>`<option value="${c.category_id}">${c.category_name}</option>`).join('')}</select>
+                    </div>
+                    <div class="form-ctrl"><label>Brand</label><input type="text" id="saNewBrand" placeholder="Brand"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-ctrl"><label>Price (₱)</label><input type="number" id="saNewPrice" placeholder="0"></div>
+                    <div class="form-ctrl"><label>Initial Stock</label><input type="number" id="saNewStock" placeholder="0"></div>
+                </div>`;
+            btn.className = 'btn btn-primary';
+        } else {
+            alert('Product not found for barcode: ' + code);
+            return;
+        }
+    } else {
+        const p = res.product;
+        if (action === 'add-existing') {
+            title.innerHTML = 'Add <span>Existing Stock</span>';
+            body.innerHTML  = `
+                <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;">
+                    <strong>${p.product_name}</strong><br>
+                    <span style="font-size:12px;color:var(--muted);">${p.sku} · Current stock: ${p.stock_qty}</span>
+                </div>
+                <div class="form-ctrl"><label>Quantity to Add</label><input type="number" id="saAddQty" value="1" min="1"></div>
+                <div class="form-ctrl" style="margin-top:10px;"><label>Reference (PO #)</label><input type="text" id="saRef" placeholder="PO-000"></div>`;
+            btn.className = 'btn btn-success';
+        } else if (action === 'stock-out') {
+            title.innerHTML = 'Stock <span>Out</span>';
+            body.innerHTML  = `
+                <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;">
+                    <strong>${p.product_name}</strong><br>
+                    <span style="font-size:12px;color:var(--muted);">${p.sku} · Current stock: ${p.stock_qty}</span>
+                </div>
+                <div class="form-ctrl"><label>Quantity to Remove</label><input type="number" id="saRemoveQty" value="1" min="1" max="${p.stock_qty}"></div>
+                <div class="form-ctrl" style="margin-top:10px;"><label>Reference (SO #)</label><input type="text" id="saRemRef" placeholder="SO-0000"></div>`;
+            btn.className = 'btn btn-danger';
+        }
     }
-    logHistory(prod.id,prod.sku,prod.name,'out',qty,prod.stock,prod.stock-qty,ref,currentUser.username);
-    prod.stock -= qty;
-  }
-  closeModal('modalStockAction');
-  buildProductSelects();
-  renderDashboard();
-  if (currentPage==='inventory') renderInventory();
+    openModal('modalStockAction');
 }
 
-function logHistory(pid,sku,pname,type,qty,before,after,ref,by) {
-  const newId = HISTORY.length ? Math.max(...HISTORY.map(h=>h.id))+1 : 1;
-  HISTORY.unshift({id:newId,productId:pid,sku,product:pname,type,qty,before,after,ref,by,date:new Date().toISOString().split('T')[0]});
-}
-function buildProductSelects() {
-  const selects = ['barcodeProduct','saleProductSel','retProduct'];
-  selects.forEach(id=>{
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = PRODUCTS.map(p=>`<option value="${p.id}">${p.sku} – ${p.name}</option>`).join('');
-  });
+async function confirmStockAction() {
+    const action  = window._scanAction;
+    const product = window._scanProduct;
+
+    if (action === 'add-new') {
+        const sku   = el('saNewSku')?.value;
+        const name  = el('saNewName')?.value;
+        const cat   = el('saNewCat')?.value;
+        const brand = el('saNewBrand')?.value;
+        const price = parseFloat(el('saNewPrice')?.value) || 0;
+        const stock = parseInt(el('saNewStock')?.value)   || 0;
+        if (!sku || !name) { alert('SKU and Name are required.'); return; }
+
+        const res = await apiFetch('/products', {
+            method: 'POST',
+            body: JSON.stringify({ sku, product_name: name, category_id: parseInt(cat), brand,
+                unit_price: price, cost_price: price * 0.6, stock_qty: stock, reorder_level: 5 })
+        });
+        closeModal('modalStockAction');
+        if (res?.status === 'success') {
+            showToast('Product added successfully!', 'success');
+            await loadDashboard();
+        } else {
+            alert(res?.message || 'Error adding product.');
+        }
+
+    } else if (action === 'add-existing' || action === 'stock-out') {
+        const qty = parseInt(el(action === 'add-existing' ? 'saAddQty' : 'saRemoveQty')?.value) || 0;
+        const ref = el(action === 'add-existing' ? 'saRef' : 'saRemRef')?.value || '';
+
+        const res = await apiFetch('/barcode/stock-update', {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id:   product.product_id,
+                action:       action,
+                quantity:     qty,
+                reference_no: ref,
+                scanned_code: window._scanCode,
+            })
+        });
+        closeModal('modalStockAction');
+        if (res?.status === 'success') {
+            showToast(res.message, 'success');
+            await loadDashboard();
+        } else if (res?.status === 'requires_verify') {
+            showToast('Large stock-out flagged for Admin verification.', 'warn');
+        } else {
+            alert(res?.message || 'Error updating stock.');
+        }
+    }
 }
 
-function openGenerateBarcode() {
-  buildProductSelects();
-  document.getElementById('barcodePreview').style.display='none';
-  openModal('modalBarcode');
+// ── Barcode Generate ──────────────────────────────────────────────
+async function openGenerateBarcode() {
+    await loadBarcodeProducts();
+    el('barcodePreview').style.display = 'none';
+    openModal('modalBarcode');
 }
 
-function openGenerateBarcodeFor(id) {
-  buildProductSelects();
-  document.getElementById('barcodeProduct').value = id;
-  previewBarcode();
-  openModal('modalBarcode');
+async function openGenerateBarcodeFor(id) {
+    await loadBarcodeProducts();
+    const sel = el('barcodeProduct');
+    if (sel) sel.value = id;
+    previewBarcode();
+    openModal('modalBarcode');
+}
+
+async function loadBarcodeProducts() {
+    const res = await apiFetch('/barcode/products');
+    if (!res || res.status !== 'success') return;
+    const sel = el('barcodeProduct');
+    if (!sel) return;
+    sel.innerHTML = (res.products || []).map(p =>
+        `<option value="${p.product_id}">${p.sku} – ${p.product_name}</option>`
+    ).join('');
 }
 
 function previewBarcode() {
-  const id = parseInt(document.getElementById('barcodeProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  const preview = document.getElementById('barcodePreview');
-  preview.style.display='block';
-  const code = prod.barcode || prod.sku;
-  document.getElementById('barcodeNum').textContent = code;
-  const lines = document.getElementById('barcodeLines');
-  let html='';
-  for (let i=0;i<code.length;i++) {
-    const h = 30+((code.charCodeAt(i)*7)%40);
-    const w = i%3===0?3:i%3===1?2:1;
-    const color = i%4===0?'#fff':'#fff';
-    html+=`<div style="width:${w}px;height:${h}px;background:${i%2===0?'#fff':'#aaa'};border-radius:1px;"></div>`;
-  }
-  lines.innerHTML = html;
-}
-
-function assignBarcode() {
-  const id = parseInt(document.getElementById('barcodeProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (prod) {
-    NOTIFICATIONS.unshift({id:Date.now(),type:'cyan',icon:'barcode',text:`Barcode assigned: ${prod.barcode||prod.sku} → ${prod.name}`,time:'just now',read:false});
-    renderNotifications();
-  }
-  closeModal('modalBarcode');
-  alert('Barcode assigned successfully!');
-}
-
-function openScan() { openModal('modalScan'); setTimeout(()=>document.getElementById('quickScanInput').focus(),100); }
-
-function renderHistory(filter='',typeFilter='') {
-  const search = filter || historyFilter;
-  const type = typeFilter !== undefined ? typeFilter : historyTypeFilter;
-  let h = [...HISTORY];
-  if (search) h = h.filter(x=>x.product.toLowerCase().includes(search.toLowerCase())||x.sku.toLowerCase().includes(search.toLowerCase())||x.ref.toLowerCase().includes(search.toLowerCase()));
-  if (type) h = h.filter(x=>x.type===type);
-  const tbody = document.getElementById('historyTbl');
-  if (!tbody) return;
-  tbody.innerHTML = h.map(x=>{
-    const typeCls = x.type==='in'?'badge-green':x.type==='out'?'badge-red':'badge-blue';
-    return `<tr>
-      <td>${x.date}</td>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${x.sku}</code></td>
-      <td>${x.product}</td>
-      <td><span class="badge ${typeCls}">${x.type}</span></td>
-      <td><strong>${x.qty}</strong></td>
-      <td style="color:var(--muted)">${x.before}</td>
-      <td><strong>${x.after}</strong></td>
-      <td style="color:var(--muted)">${x.ref}</td>
-      <td>${x.by}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><p>No records found</p></div></td></tr>';
-}
-
-function filterHistory(v) { historyFilter=v; renderHistory(); }
-function filterHistoryType(v) { historyTypeFilter=v; renderHistory(); }
-function quickRestock(id) {
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  doScan(prod.barcode||prod.sku, 'add-existing');
-}
-
-// ════════════════════════════════════════════
-//  SALES
-// ════════════════════════════════════════════
-function renderSales(filter='') {
-  let s = [...SALES].reverse();
-  if (filter) s = s.filter(x=>x.orderNo.toLowerCase().includes(filter)||x.customer.toLowerCase().includes(filter));
-  const tbody = document.getElementById('salesTbl');
-  if (!tbody) return;
-  tbody.innerHTML = s.map(x=>`
-    <tr>
-      <td><strong>${x.orderNo}</strong></td>
-      <td>${x.customer}</td>
-      <td>${x.items.length}</td>
-      <td>₱${x.subtotal.toLocaleString()}</td>
-      <td>${x.discount>0?'₱'+x.discount:'-'}</td>
-      <td><strong>₱${x.total.toLocaleString()}</strong></td>
-      <td><span class="badge badge-cyan">${x.payment}</span></td>
-      <td>${x.servedBy}</td>
-      <td>${x.date}</td>
-      <td><span class="badge ${x.status==='completed'?'badge-green':'badge-warn'}">${x.status}</span></td>
-    </tr>`).join('');
-}
-
-function filterSales(v) { renderSales(v); }
-
-function openNewSale() {
-  saleItems = []; saleTotal = 0;
-  document.getElementById('saleCustomer').value = '';
-  document.getElementById('saleItems').innerHTML = '';
-  document.getElementById('saleTotalDisplay').textContent = '0.00';
-  buildProductSelects();
-  openModal('modalSale');
-}
-
-function addSaleItem() {
-  const id = parseInt(document.getElementById('saleProductSel').value);
-  const qty = parseInt(document.getElementById('saleQty').value)||1;
-  const prod = PRODUCTS.find(p=>p.id===id);
-  if (!prod) return;
-  if (prod.stock < qty) { alert('Not enough stock! Available: '+prod.stock); return; }
-  const existing = saleItems.find(i=>i.productId===id);
-  if (existing) { existing.qty += qty; existing.subtotal = existing.qty * existing.price; }
-  else saleItems.push({productId:id,name:prod.name,qty,price:prod.price,subtotal:qty*prod.price});
-  renderSaleItems();
-}
-
-function renderSaleItems() {
-  const wrap = document.getElementById('saleItems');
-  wrap.innerHTML = saleItems.map((item,i)=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:8px;margin-bottom:6px;">
-      <div style="flex:1;font-size:13px;"><strong>${item.name}</strong><br><span style="font-size:11px;color:var(--muted);">₱${item.price} × ${item.qty}</span></div>
-      <strong>₱${item.subtotal.toLocaleString()}</strong>
-      <button class="btn btn-sm btn-icon" style="border-color:var(--danger);color:var(--danger);" onclick="removeSaleItem(${i})"><i class="fa-solid fa-trash"></i></button>
-    </div>`).join('');
-  saleTotal = saleItems.reduce((s,i)=>s+i.subtotal,0);
-  document.getElementById('saleTotalDisplay').textContent = saleTotal.toLocaleString('en-PH',{minimumFractionDigits:2});
-}
-
-function removeSaleItem(i) { saleItems.splice(i,1); renderSaleItems(); }
-
-function completeSale() {
-  if (saleItems.length===0) { alert('Add at least one item.'); return; }
-  const customer = document.getElementById('saleCustomer').value || 'Walk-in';
-  const payment = document.getElementById('salePayment').value;
-  const newId = SALES.length ? Math.max(...SALES.map(s=>s.id))+1 : 1;
-  const orderNo = 'SO-'+String(newId).padStart(4,'0');
-  // deduct stock
-  saleItems.forEach(item=>{ const p=PRODUCTS.find(x=>x.id===item.productId); if(p) { logHistory(p.id,p.sku,p.name,'out',item.qty,p.stock,p.stock-item.qty,orderNo,currentUser.username); p.stock-=item.qty; }});
-  SALES.push({id:newId,orderNo,customer,items:[...saleItems],subtotal:saleTotal,discount:0,total:saleTotal,payment,servedBy:currentUser.username,date:new Date().toISOString().split('T')[0],status:'completed'});
-  closeModal('modalSale');
-  renderSales(); renderDashboard();
-  NOTIFICATIONS.unshift({id:Date.now(),type:'green',icon:'receipt',text:`Sale ${orderNo} completed — ₱${saleTotal.toLocaleString()}`,time:'just now',read:false});
-  renderNotifications();
-}
-
-// ════════════════════════════════════════════
-//  RETURNS
-// ════════════════════════════════════════════
-function renderReturns() {
-  const tbody = document.getElementById('returnsTbl');
-  if (!tbody) return;
-  tbody.innerHTML = RETURNS.map(r=>{
-    const condCls = r.condition==='damaged'||r.condition==='defective'?'badge-red':'badge-warn';
-    const canApprove = currentUser.role==='admin' && r.status==='pending';
-    return `<tr>
-      <td><strong>${r.returnNo}</strong></td>
-      <td>${r.orderNo||'—'}</td>
-      <td>${r.product}</td>
-      <td>${r.qty}</td>
-      <td style="font-size:12px;max-width:160px;">${r.reason}</td>
-      <td><span class="badge ${condCls}">${r.condition}</span></td>
-      <td>${r.date}</td>
-      <td><span class="badge ${r.status==='approved'?'badge-green':r.status==='rejected'?'badge-red':'badge-warn'}">${r.status}</span></td>
-      <td>
-        ${canApprove?`<button class="btn btn-success btn-sm" onclick="approveReturn(${r.id})"><i class="fa-solid fa-check"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="rejectReturn(${r.id})" style="margin-left:4px;"><i class="fa-solid fa-xmark"></i></button>`:''}
-      </td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-rotate-left"></i><p>No returns found</p></div></td></tr>';
-}
-
-function approveReturn(id) {
-  const r = RETURNS.find(x=>x.id===id);
-  if (!r) return;
-  r.status='approved';
-  RETURNED_ITEMS.push({id:RETURNED_ITEMS.length+1,itemNo:'RI-'+String(RETURNED_ITEMS.length+1).padStart(3,'0'),productId:r.productId,product:r.product,sku:PRODUCTS.find(p=>p.id===r.productId)?.sku||'',qty:r.qty,condition:r.condition,notes:r.reason,dateReceived:new Date().toISOString().split('T')[0],disposition:'Pending Review'});
-  document.getElementById('returnedBadge').textContent = RETURNED_ITEMS.length;
-  renderReturns();
-}
-
-function rejectReturn(id) { const r=RETURNS.find(x=>x.id===id); if(r){r.status='rejected';renderReturns();} }
-
-function openProcessReturn() {
-  buildProductSelects();
-  document.getElementById('retOrderNo').value='';
-  document.getElementById('retQty').value='1';
-  document.getElementById('retReason').value='';
-  openModal('modalReturn');
-}
-
-function submitReturn() {
-  const prodId = parseInt(document.getElementById('retProduct').value);
-  const prod = PRODUCTS.find(p=>p.id===prodId);
-  const qty = parseInt(document.getElementById('retQty').value)||1;
-  const condition = document.getElementById('retCondition').value;
-  const reason = document.getElementById('retReason').value||'No reason provided';
-  const orderNo = document.getElementById('retOrderNo').value;
-  const newId = RETURNS.length?Math.max(...RETURNS.map(r=>r.id))+1:1;
-  RETURNS.push({id:newId,returnNo:'RT-'+String(newId).padStart(3,'0'),orderNo,productId:prodId,product:prod?.name||'Unknown',qty,reason,condition,date:new Date().toISOString().split('T')[0],status:'pending'});
-  closeModal('modalReturn');
-  renderReturns();
-}
-
-// ════════════════════════════════════════════
-//  RETURNED ITEMS
-// ════════════════════════════════════════════
-function renderReturnedItems(filter='all') {
-  let items = RETURNED_ITEMS;
-  if (filter!=='all') items = items.filter(i=>i.condition===filter);
-  const tbody = document.getElementById('returnedItemsTbl');
-  if (!tbody) return;
-  tbody.innerHTML = items.map(i=>{
-    const condCls = i.condition==='damaged'?'badge-red':i.condition==='incomplete'?'badge-warn':'badge-red';
-    return `<tr>
-      <td><strong>${i.itemNo}</strong></td>
-      <td>${i.product}</td>
-      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px;">${i.sku}</code></td>
-      <td>${i.qty}</td>
-      <td><span class="badge ${condCls}">${i.condition}</span></td>
-      <td style="font-size:12px;color:var(--muted);">${i.notes}</td>
-      <td>${i.dateReceived}</td>
-      <td><span class="badge badge-gray">${i.disposition}</span></td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>No returned items</p></div></td></tr>';
-}
-
-function filterReturned(type, el) {
-  returnedFilter = type;
-  document.querySelectorAll('.chips-wrap .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderReturnedItems(type);
-}
-
-// ════════════════════════════════════════════
-//  VERIFY ACTIONS (ADMIN)
-// ════════════════════════════════════════════
-function renderVerify() {
-  if (currentUser.role!=='admin') return;
-  const tbody = document.getElementById('verifyTbl');
-  if (!tbody) return;
-  tbody.innerHTML = VERIFY_ACTIONS.map(v=>`
-    <tr>
-      <td><strong>${v.reqNo}</strong></td>
-      <td><span class="badge badge-blue">${v.actionType}</span></td>
-      <td>${v.product}</td>
-      <td style="font-size:12px;max-width:180px;">${v.details}</td>
-      <td>${v.requestedBy}</td>
-      <td>${v.date}</td>
-      <td><span class="badge ${v.status==='pending'?'badge-warn':v.status==='approved'?'badge-green':'badge-red'}">${v.status}</span></td>
-      <td>
-        ${v.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="openVerifyModal(${v.id})"><i class="fa-solid fa-shield-check"></i> Review</button>`:'—'}
-      </td>
-    </tr>`).join('');
-}
-
-function openVerifyModal(id) {
-  currentVerifyId = id;
-  const v = VERIFY_ACTIONS.find(x=>x.id===id);
-  if (!v) return;
-  document.getElementById('verifyModalBody').innerHTML = `
-    <div class="verify-banner"><i class="fa-solid fa-circle-info"></i><div class="verify-banner-text">Review this action request carefully before approving.</div></div>
-    <div style="background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Request #</span><br><strong>${v.reqNo}</strong></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Action Type</span><br><span class="badge badge-blue">${v.actionType}</span></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Product</span><br><strong>${v.product}</strong></div>
-        <div><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Requested By</span><br>${v.requestedBy}</div>
-      </div>
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:13px;"><span style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Details</span><br>${v.details}</div>
-    </div>`;
-  openModal('modalVerify');
-}
-
-function approveAction() {
-  const v = VERIFY_ACTIONS.find(x=>x.id===currentVerifyId);
-  if (v) {
-    v.status='approved';
-    // apply stock-out if it was a large stock-out request
-    if (v.actionType==='Large Stock Out') {
-      const prod = PRODUCTS.find(p=>p.id===v.productId);
-      const match = v.details.match(/Remove (\d+) units/);
-      if (prod && match) {
-        const qty = parseInt(match[1]);
-        logHistory(prod.id,prod.sku,prod.name,'out',qty,prod.stock,prod.stock-qty,v.reqNo,'admin[verified]');
-        prod.stock -= qty;
-      }
+    const sel    = el('barcodeProduct');
+    const preview= el('barcodePreview');
+    if (!sel || !preview) return;
+    preview.style.display = 'block';
+    const sku    = sel.options[sel.selectedIndex]?.text.split(' – ')[0] || sel.value;
+    el('barcodeNum').textContent = sku;
+    const lines = el('barcodeLines');
+    let html = '';
+    for (let i = 0; i < sku.length; i++) {
+        const h = 30 + ((sku.charCodeAt(i) * 7) % 40);
+        const w = i % 3 === 0 ? 3 : i % 3 === 1 ? 2 : 1;
+        html += `<div style="width:${w}px;height:${h}px;background:${i%2===0?'#fff':'#aaa'};border-radius:1px;"></div>`;
     }
-  }
-  document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(x=>x.status==='pending').length;
-  closeModal('modalVerify');
-  renderVerify();
+    lines.innerHTML = html;
 }
 
-function rejectAction() {
-  const v = VERIFY_ACTIONS.find(x=>x.id===currentVerifyId);
-  if (v) v.status='rejected';
-  document.getElementById('verifyBadge').textContent = VERIFY_ACTIONS.filter(x=>x.status==='pending').length;
-  closeModal('modalVerify');
-  renderVerify();
+async function assignBarcode() {
+    const productId = parseInt(el('barcodeProduct')?.value);
+    if (!productId) { alert('Select a product first.'); return; }
+    const res = await apiFetch('/barcode/generate', {
+        method: 'POST', body: JSON.stringify({ product_id: productId })
+    });
+    closeModal('modalBarcode');
+    if (res?.status === 'success') {
+        showToast(`Barcode ${res.ean13} assigned to ${res.product}`, 'success');
+    } else {
+        alert(res?.message || 'Error generating barcode.');
+    }
 }
 
-// ════════════════════════════════════════════
-//  PRODUCT ADD/EDIT
-// ════════════════════════════════════════════
+// ── Toast helper ─────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+    let toast = el('rfmotoToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'rfmotoToast';
+        toast.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;
+            border-radius:10px;font-size:13px;font-weight:600;font-family:'Barlow',sans-serif;
+            box-shadow:0 4px 20px rgba(0,0,0,0.2);transition:opacity .4s;`;
+        document.body.appendChild(toast);
+    }
+    const colors = { success:'#16a34a', warn:'#d97706', danger:'#dc2626', info:'#17b8dc' };
+    toast.style.background = colors[type] || colors.info;
+    toast.style.color = '#fff';
+    toast.style.opacity = '1';
+    toast.textContent = msg;
+    setTimeout(() => toast.style.opacity = '0', 2800);
+}
+
+// ── Categories chips (if inventory page included) ─────────────────
+function buildCategoryChips() {
+    const wrap = el('categoryChips');
+    if (!wrap) return;
+    wrap.innerHTML = CATEGORIES_LIST.map(c =>
+        `<div class="chip ${c==='All'?'active':''}" onclick="setInvCat('${c}',this)">${c}</div>`
+    ).join('');
+}
+function setInvCat(cat, e) {
+    invCatFilter = cat;
+    document.querySelectorAll('#categoryChips .chip').forEach(c => c.classList.remove('active'));
+    e.classList.add('active');
+}
+
+// ── Product modal (Admin-only add/edit) ────────────────────────────
 function openAddProduct() {
-  editingProductId = null;
-  document.getElementById('modalProductTitle').innerHTML = 'Add <span>Product</span>';
-  ['pSku','pName','pBrand','pDesc'].forEach(id=>document.getElementById(id).value='');
-  ['pPrice','pCost','pStock','pReorder'].forEach(id=>document.getElementById(id).value='');
-  openModal('modalProduct');
+    editingProductId = null;
+    el('modalProductTitle').innerHTML = 'Add <span>Product</span>';
+    ['pSku','pName','pBrand','pDesc'].forEach(id => { if(el(id)) el(id).value = ''; });
+    ['pPrice','pCost','pStock','pReorder'].forEach(id => { if(el(id)) el(id).value = ''; });
+    openModal('modalProduct');
 }
 
-function openEditProduct(id) {
-  if (currentUser.role!=='admin') return;
-  const p = PRODUCTS.find(x=>x.id===id);
-  if (!p) return;
-  editingProductId = id;
-  document.getElementById('modalProductTitle').innerHTML = 'Edit <span>Product</span>';
-  document.getElementById('pSku').value = p.sku;
-  document.getElementById('pName').value = p.name;
-  document.getElementById('pBrand').value = p.brand;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pCost').value = p.cost;
-  document.getElementById('pStock').value = p.stock;
-  document.getElementById('pReorder').value = p.reorder;
-  document.getElementById('pDesc').value = '';
-  const catSel = document.getElementById('pCategory');
-  for (let i=0;i<catSel.options.length;i++) if (catSel.options[i].text===p.category) { catSel.selectedIndex=i; break; }
-  openModal('modalProduct');
+async function saveProduct() {
+    const payload = {
+        sku:           el('pSku')?.value,
+        product_name:  el('pName')?.value,
+        brand:         el('pBrand')?.value,
+        unit_price:    parseFloat(el('pPrice')?.value) || 0,
+        cost_price:    parseFloat(el('pCost')?.value)  || 0,
+        stock_qty:     parseInt(el('pStock')?.value)   || 0,
+        reorder_level: parseInt(el('pReorder')?.value) || 5,
+        description:   el('pDesc')?.value,
+        category_name: el('pCategory')?.value,
+    };
+    const url    = editingProductId ? `/products/${editingProductId}` : '/products';
+    const method = editingProductId ? 'PUT' : 'POST';
+    const res    = await apiFetch(url, { method, body: JSON.stringify(payload) });
+    closeModal('modalProduct');
+    if (res?.status === 'success') {
+        showToast(editingProductId ? 'Product updated.' : 'Product added.', 'success');
+        await loadDashboard();
+    } else {
+        const errs = res?.errors ? Object.values(res.errors).flat().join('\n') : (res?.message || 'Error');
+        alert(errs);
+    }
 }
-
-function saveProduct() {
-  const sku = document.getElementById('pSku').value.trim();
-  const name = document.getElementById('pName').value.trim();
-  if (!sku||!name) { alert('SKU and Product Name are required.'); return; }
-  const data = {
-    sku, name,
-    category: document.getElementById('pCategory').value,
-    brand: document.getElementById('pBrand').value,
-    price: parseFloat(document.getElementById('pPrice').value)||0,
-    cost: parseFloat(document.getElementById('pCost').value)||0,
-    stock: parseInt(document.getElementById('pStock').value)||0,
-    reorder: parseInt(document.getElementById('pReorder').value)||5,
-    barcode: sku,
-  };
-  if (editingProductId) {
-    const p = PRODUCTS.find(x=>x.id===editingProductId);
-    if (p) Object.assign(p, data);
-  } else {
-    const newId = PRODUCTS.length ? Math.max(...PRODUCTS.map(p=>p.id))+1 : 1;
-    PRODUCTS.push({id:newId,...data});
-    logHistory(newId,sku,name,'in',data.stock,0,data.stock,'NEW-PRODUCT',currentUser.username);
-  }
-  closeModal('modalProduct');
-  buildProductSelects(); renderInventory(); renderDashboard();
-}
-
-// ════════════════════════════════════════════
-//  GLOBAL SEARCH
-// ════════════════════════════════════════════
-function globalSearchFn(v) {
-  if (!v) return;
-  showPage('inventory');
-  document.getElementById('invSearch').value = v;
-  filterInventory(v);
-}
-
-// ════════════════════════════════════════════
-//  MODAL HELPERS
-// ════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-backdrop').forEach(bd=>{
-  bd.addEventListener('click', e => { if (e.target===bd) bd.classList.remove('open'); });
-});
-
-// ════════════════════════════════════════════
-//  LOGOUT
-// ════════════════════════════════════════════
-function confirmLogout() { openModal('modalLogout'); }
-function doLogout() {
-  sessionStorage.removeItem('rfmoto_user');
-  closeModal('modalLogout');
-  // Redirect back to login page
-  window.location.href = '/login';
-}
-
-// Init on load
-window.addEventListener('load', initFromSession);
-
-// ════════════════════════════════════════════
-//  DARK MODE
-// ════════════════════════════════════════════
-function toggleDarkMode() {
-  const html = document.documentElement;
-  const toggle = document.getElementById('darkToggle');
-  const knob = document.getElementById('darkKnob');
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  if (isDark) {
-    html.setAttribute('data-theme', 'light');
-    toggle.classList.remove('on');
-    knob.innerHTML = '<i class="fa-solid fa-moon"></i>';
-    localStorage.setItem('rfmoto_theme', 'light');
-  } else {
-    html.setAttribute('data-theme', 'dark');
-    toggle.classList.add('on');
-    knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
-    localStorage.setItem('rfmoto_theme', 'dark');
-  }
-}
-
-// Restore saved theme
-(function() {
-  const saved = localStorage.getItem('rfmoto_theme');
-  if (saved === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    // toggle UI will be set after DOM loads
-  }
-})();
-
-// close notif drawer on outside click
-document.addEventListener('click', e => {
-  const drawer = document.getElementById('notifDrawer');
-  const btn = document.getElementById('notifBtn');
-  if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) {
-    drawer.classList.remove('open');
-  }
-});
 </script>
 </body>
 </html>
