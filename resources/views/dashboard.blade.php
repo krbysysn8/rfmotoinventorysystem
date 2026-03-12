@@ -1052,16 +1052,16 @@ html, body {
 //  All data fetched from Laravel API via Sanctum token auth
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE  = '{{ config("app.url") }}/api';
+const API_BASE  = '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
 // ── Auth helpers ────────────────────────────────────────────────
-function getToken()  { return localStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
-function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); }
+function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -1119,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     restoreTheme();
 
     // Fire token validation AND dashboard data at the same time
-    const mePromise = fetch('{{ config("app.url") }}/api/me', {
+    const mePromise = fetch('/api/me', {
         headers: {
             'Accept':        'application/json',
             'Authorization': `Bearer ${token}`,
