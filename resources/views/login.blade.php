@@ -703,8 +703,6 @@ const API_URL  = API_BASE;
 
     try {
 
-      await // csrf-cookie skip (token-based auth)
-
       const res  = await fetch(API_URL + '/login', {
         method:  'POST',
         headers: {
