@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto – User Management</title>
+<title>RF Moto - User Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -28,7 +28,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 #app{display:flex;height:100vh;}
 
-/* ── SIDEBAR ── */
+/* -- SIDEBAR -- */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed{width:64px;min-width:64px;}
 .sidebar.collapsed .sidebar-brand-wrap,.sidebar.collapsed .sidebar-user-info,.sidebar.collapsed .nav-item-label,.sidebar.collapsed .nav-section,.sidebar.collapsed .nav-badge,.sidebar.collapsed .sidebar-footer-btn span{display:none!important;}
@@ -88,7 +88,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171;}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
 
-/* ── MAIN ── */
+/* -- MAIN -- */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);flex:1;}
@@ -106,12 +106,12 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 
-/* ── CONTENT ── */
+/* -- CONTENT -- */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-/* ── SECTION HEADER ── */
+/* -- SECTION HEADER -- */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;}
 .search-bar{position:relative;max-width:320px;flex:1;}
 .search-bar input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
@@ -119,7 +119,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .search-bar input::placeholder{color:var(--muted);}
 .search-bar i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;}
 
-/* ── TABLE ── */
+/* -- TABLE -- */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s;}
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .tbl th{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
@@ -132,14 +132,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .empty-state{padding:40px;text-align:center;color:var(--muted);}
 .empty-state i{font-size:28px;margin-bottom:10px;display:block;opacity:.4;}
 
-/* ── BADGES ── */
+/* -- BADGES -- */
 .badge{display:inline-flex;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
 .badge-admin{background:rgba(23,184,220,.15);color:var(--cyan);border:1px solid var(--cyan-border);}
 .badge-staff{background:rgba(37,99,235,.12);color:#60a5fa;border:1px solid rgba(37,99,235,.22);}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2);}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
 
-/* ── BUTTONS ── */
+/* -- BUTTONS -- */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap;}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28);}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px);}
@@ -152,7 +152,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .action-btn.edit:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.07);}
 .action-btn.del:hover{border-color:var(--danger);color:var(--danger);background:rgba(220,38,38,.07);}
 
-/* ── MODAL ── */
+/* -- MODAL -- */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .24s cubic-bezier(.2,0,.2,1) both;overflow:hidden;}
@@ -180,7 +180,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .del-warn i{color:var(--danger);font-size:18px;flex-shrink:0;margin-top:1px;}
 .del-warn p{font-size:13px;color:var(--text);line-height:1.5;}
 
-/* ── TOAST ── */
+/* -- TOAST -- */
 #rfToast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;}
 </style>
 </head>
@@ -379,16 +379,16 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 
 <div id="rfToast"></div>
 
-<script>
-// ═══════════════════════════════════════════════════════════════
-const API_BASE  = '{{ config("app.url") }}/api';
+<script charset="utf-8">
+// ===============================================================
+const API_BASE = '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return localStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -411,7 +411,7 @@ let currentUser = null;
 let USERS_DATA  = [];
 let deletingId  = null;
 
-// ── Boot ────────────────────────────────────────────────────────
+// -- Boot --------------------------------------------------------
 document.addEventListener('DOMContentLoaded', async () => {
     const user  = getUser();
     const token = getToken();
@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     bootUI(currentUser);
     restoreTheme();
 
-    const mePromise = fetch('{{ config("app.url") }}/api/me', {
+    const mePromise = fetch('/api/me', {
         headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` },
     }).then(r => r.json()).catch(() => null);
 
@@ -451,7 +451,7 @@ function bootUI(user) {
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = user.role === 'admin' ? '' : 'none');
 }
 
-// ── Load Users ──────────────────────────────────────────────────
+// -- Load Users --------------------------------------------------
 async function loadUsers() {
     const res = await apiFetch('/users');
     if (!res || res.status !== 'success') { showToast('Failed to load users.', 'danger'); return; }
@@ -459,7 +459,7 @@ async function loadUsers() {
     renderUsers(USERS_DATA);
 }
 
-// ── Render ──────────────────────────────────────────────────────
+// -- Render ------------------------------------------------------
 const AVATAR_COLORS = ['#0ea5c9','#8b5cf6','#f97316','#22c55e','#ef4444','#06b6d4','#a855f7','#eab308'];
 function avatarColor(name) {
     let h = 0;
@@ -480,7 +480,7 @@ function renderUsers(rows) {
           <td style="color:var(--muted);font-size:12px;">@${u.username}</td>
           <td><span class="badge ${u.role==='admin'?'badge-admin':'badge-staff'}">${u.role}</span></td>
           <td><span class="badge ${u.status==='active'?'badge-green':'badge-gray'}">${u.status}</span></td>
-          <td style="color:var(--muted);font-size:12px;">${u.last_login ? u.last_login : '—'}</td>
+          <td style="color:var(--muted);font-size:12px;">${u.last_login ? u.last_login : '-'}</td>
           <td>
             <button class="action-btn edit" onclick="openEditUser(${u.id})" title="Edit"><i class="fa-regular fa-pen-to-square"></i></button>
             ${u.id !== me ? `<button class="action-btn del" onclick="confirmDelete(${u.id},'${(u.fullname||u.username).replace(/'/g,"\\'")}')" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ''}
@@ -497,7 +497,7 @@ function filterUsers(q) {
     ));
 }
 
-// ── CRUD ────────────────────────────────────────────────────────
+// -- CRUD --------------------------------------------------------
 function openAddUser() {
     el('editUserId').value   = '';
     el('uName').value        = '';
@@ -588,7 +588,7 @@ async function doDelete() {
     }
 }
 
-// ── Utilities ────────────────────────────────────────────────────
+// -- Utilities ----------------------------------------------------
 function togglePw(fieldId, btn) {
     const inp = el(fieldId);
     const show = inp.type === 'password';
@@ -637,7 +637,7 @@ function showToast(msg, type = 'success') {
 }
 
 
-// ── Live notifications from /api/dashboard/stats ─────────────────
+// -- Live notifications from /api/dashboard/stats -----------------
 
 function showPage(page) {
     const adminOnly = ['reports','user-management','activity-logs'];
