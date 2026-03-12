@@ -660,11 +660,11 @@
   </div>
 </div>
 
-<script>
+<script charset="utf-8">
   let currentRole = 'staff';
 
-const API_BASE = window.location.origin;
-const API_URL  = API_BASE + '/api';
+const API_BASE = '/api';
+const API_URL  = API_BASE;
 
   function selectRole(role) {
     currentRole = role;
@@ -681,7 +681,7 @@ const API_URL  = API_BASE + '/api';
     btn.style.cssText = '';
   }
 
-  // ── async function so we can use await ──
+  // -- async function so we can use await --
   async function handleLogin(e) {
     e.preventDefault();
 
@@ -703,9 +703,7 @@ const API_URL  = API_BASE + '/api';
 
     try {
 
-      await fetch(API_BASE + '/sanctum/csrf-cookie', {
-        credentials: 'include',
-      });
+      await // csrf-cookie skip (token-based auth)
 
       const res  = await fetch(API_URL + '/login', {
         method:  'POST',
@@ -726,8 +724,8 @@ const API_URL  = API_BASE + '/api';
 
       if (data.status === 'success' && data.user) {
 
-        localStorage.setItem('rfmoto_token', data.token);
-        localStorage.setItem('rfmoto_user', JSON.stringify({
+        sessionStorage.setItem('rfmoto_token', data.token);
+        sessionStorage.setItem('rfmoto_user', JSON.stringify({
           user_id:  data.user.user_id,
           username: data.user.username,
           fullname: data.user.fullname,
@@ -770,10 +768,10 @@ setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
     this.textContent = pw.type === 'password' ? '👁' : '🙈';
   });
 
-  // ── If already logged in, skip login page and go straight to dashboard ──
+  // -- If already logged in, skip login page and go straight to dashboard --
   (function checkAlreadyLoggedIn() {
-    const token = localStorage.getItem('rfmoto_token');
-    const user  = localStorage.getItem('rfmoto_user');
+    const token = sessionStorage.getItem('rfmoto_token');
+    const user  = sessionStorage.getItem('rfmoto_user');
     if (token && user) {
       window.location.replace('/dashboard');
     }
