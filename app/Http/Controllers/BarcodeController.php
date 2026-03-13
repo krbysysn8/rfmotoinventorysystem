@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;
 
 class BarcodeController extends Controller
 {
@@ -69,7 +70,8 @@ class BarcodeController extends Controller
                 ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
                          'p.unit_price','p.cost_price','p.reorder_level','p.is_active',
                          'c.category_name',
-                         'pv.stock_qty','pv.variation_name',
+                         DB::raw('p.stock_qty as stock_qty'),
+                         'pv.variation_name',
                          DB::raw('pv.barcode as variation_barcode'),
                          DB::raw('pv.sku as variation_sku'))
                 ->first();
@@ -184,6 +186,13 @@ class BarcodeController extends Controller
             ]);
         }
 
+        ActivityLog::record(
+            action:      'barcode_generated',
+            subject:     $product->product_name,
+            description: "Barcode generated for {$product->product_name} (SKU: {$product->sku}). EAN13: {$ean13}.",
+            user:        Auth::user(),
+        );
+
         return response()->json([
             'status'  => 'success',
             'ean13'   => $ean13,
@@ -195,11 +204,13 @@ class BarcodeController extends Controller
     public function stockUpdate(Request $request)
     {
         $request->validate([
-            'product_id'    => 'required|integer|exists:products,product_id',
-            'action'        => 'required|in:add-existing,stock-out',
-            'quantity'      => 'required|integer|min:1',
-            'reference_no'  => 'nullable|string|max:60',
-            'notes'         => 'nullable|string|max:255',
+            'product_id'      => 'required|integer|exists:products,product_id',
+            'variation_id'    => 'nullable|integer|exists:product_variations,variation_id',
+            'action'          => 'required|in:add-existing,stock-out',
+            'quantity'        => 'required|integer|min:1',
+            'reference_no'    => 'nullable|string|max:60',
+            'notes'           => 'nullable|string|max:255',
+            'movement_reason' => 'nullable|string|max:60',
         ]);
 
         $product = DB::table('products')
@@ -211,9 +222,10 @@ class BarcodeController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Product not found.'], 404);
         }
 
-        $qty    = (int) $request->quantity;
-        $action = $request->action;
-        $before = (int) $product->stock_qty;
+        $qty            = (int) $request->quantity;
+        $action         = $request->action;
+        $before         = (int) $product->stock_qty;
+        $movementReason = $request->movement_reason ?? null;
 
         if ($action === 'stock-out') {
             if ($qty > $before) {
@@ -236,41 +248,108 @@ class BarcodeController extends Controller
         try {
             $after = $action === 'add-existing' ? $before + $qty : $before - $qty;
 
+            // 1. Update stock qty — products table always, variation table if applicable
             DB::table('products')
                 ->where('product_id', $product->product_id)
                 ->update(['stock_qty' => $after, 'updated_at' => now()]);
 
+            if ($request->variation_id) {
+                DB::table('product_variations')
+                    ->where('variation_id', $request->variation_id)
+                    ->update(['stock_qty' => $after]);
+            }
+
+            // 2. If stock-out is a SALE -> create sales_orders + sales_order_items
+            $orderNumber = null;
+            if ($action === 'stock-out' && $movementReason === 'sales') {
+                $nextId      = (DB::table('sales_orders')->max('order_id') ?? 0) + 1;
+                $orderNumber = 'SO-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                $unitPrice   = (float) $product->unit_price;
+                $total       = $unitPrice * $qty;
+
+                $orderId = DB::table('sales_orders')->insertGetId([
+                    'order_number'   => $orderNumber,
+                    'customer_name'  => 'Walk-in',
+                    'subtotal'       => $total,
+                    'discount'       => 0,
+                    'total_amount'   => $total,
+                    'payment_method' => 'cash',
+                    'served_by'      => Auth::id(),
+                    'status'         => 'completed',
+                    'order_date'     => now('Asia/Manila')->toDateString(),
+                    'created_at'  => now('Asia/Manila'),
+                ], 'order_id');
+
+                DB::table('sales_order_items')->insert([
+                    'order_id'   => $orderId,
+                    'product_id' => $product->product_id,
+                    'quantity'   => $qty,
+                    'unit_price' => $unitPrice,
+                    'subtotal'   => $total,
+                ]);
+            }
+
+            // 3. Record stock movement
+            $refNo = $orderNumber ?? $request->reference_no;
+            $notes = $request->notes
+                ?? ($action === 'add-existing'
+                    ? 'Stock In via Barcode Scan'
+                    : ($movementReason === 'sales'
+                        ? "Sale via Barcode Scan — {$orderNumber}"
+                        : 'Stock Out via Barcode Scan'));
+
             DB::table('stock_movements')->insert([
-                'product_id'    => $product->product_id,
-                'movement_type' => $action === 'add-existing' ? 'in' : 'out',
-                'quantity'      => $qty,
-                'qty_before'    => $before,
-                'qty_after'     => $after,
-                'reference_no'  => $request->reference_no,
-                'notes'         => $request->notes ?? ($action === 'add-existing' ? 'Stock In via Barcode Scan' : 'Stock Out via Barcode Scan'),
-                'performed_by'  => Auth::id(),
-                'movement_date' => now()->toDateString(),
-                'created_at'    => now(),
+                'product_id'      => $product->product_id,
+                'movement_type'   => $action === 'add-existing' ? 'in' : 'out',
+                'movement_reason' => $action === 'add-existing' ? 'restock' : $movementReason,
+                'quantity'        => $qty,
+                'qty_before'      => $before,
+                'qty_after'       => $after,
+                'reference_no'    => $refNo,
+                'notes'           => $notes,
+                'performed_by'    => Auth::id(),
+                'movement_date'   => now('Asia/Manila')->toDateString(),
+                'created_at'      => now('Asia/Manila'),
             ]);
 
-            // Log scan
+            // 4. Log scan
             DB::table('scan_logs')->insert([
-                'product_id'  => $product->product_id,
-                'scanned_code'=> $request->scanned_code ?? $product->barcode ?? $product->sku,
-                'action'      => $action,
-                'quantity'    => $qty,
-                'performed_by'=> Auth::id(),
-                'scanned_at'  => now(),
+                'product_id'   => $product->product_id,
+                'scanned_code' => $request->scanned_code ?? $product->barcode ?? $product->sku,
+                'action'       => $action,
+                'quantity'     => $qty,
+                'performed_by' => Auth::id(),
+                'scanned_at'   => now('Asia/Manila'),
             ]);
 
             DB::commit();
 
+            $user        = Auth::user();
+            $productName = $product->product_name ?? $product->sku;
+            if ($action === 'add-existing') {
+                ActivityLog::record(
+                    action:      'stock_in',
+                    subject:     $productName,
+                    description: "Barcode stock-in: +{$qty} units. Stock: {$before} → {$after}. Ref: {$refNo}.",
+                    user:        $user,
+                );
+            } else {
+                $reason = $movementReason ? " Reason: {$movementReason}." : '';
+                ActivityLog::record(
+                    action:      'stock_out',
+                    subject:     $productName,
+                    description: "Barcode stock-out: -{$qty} units. Stock: {$before} → {$after}.{$reason} Ref: {$refNo}.",
+                    user:        $user,
+                );
+            }
+
             return response()->json([
-                'status'     => 'success',
-                'message'    => $action === 'add-existing' ? "Added {$qty} units." : "Removed {$qty} units.",
-                'qty_before' => $before,
-                'qty_after'  => $after,
-                'product_id' => $product->product_id,
+                'status'       => 'success',
+                'message'      => $action === 'add-existing' ? "Added {$qty} units." : "Removed {$qty} units.",
+                'qty_before'   => $before,
+                'qty_after'    => $after,
+                'product_id'   => $product->product_id,
+                'order_number' => $orderNumber,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -374,6 +453,39 @@ class BarcodeController extends Controller
             ->where('performed_by', Auth::id())
             ->delete();
         return response()->json(['status' => 'success', 'message' => 'Scan logs cleared.']);
+    }
+
+    public function logScan(Request $request)
+    {
+        $request->validate([
+            'product_id'   => 'nullable|integer|exists:products,product_id',
+            'scanned_code' => 'required|string|max:100',
+            'action'       => 'required|string|max:30',
+        ]);
+
+        DB::table('scan_logs')->insert([
+            'product_id'   => $request->product_id,
+            'scanned_code' => $request->scanned_code,
+            'action'       => $request->action,
+            'quantity'     => 0,
+            'performed_by' => Auth::id(),
+            'scanned_at'   => now('Asia/Manila'),
+        ]);
+
+        $productName = null;
+        if ($request->product_id) {
+            $p = DB::table('products')->where('product_id', $request->product_id)->value('product_name');
+            $productName = $p ?? $request->scanned_code;
+        }
+        $actionLabel = $request->action === 'not-found' ? 'Not Found' : 'Lookup';
+        ActivityLog::record(
+            action:      'barcode_scan',
+            subject:     $productName ?? $request->scanned_code,
+            description: "Barcode {$actionLabel}: scanned '{$request->scanned_code}'." . ($productName ? " Product: {$productName}." : ' Product not found.'),
+            user:        Auth::user(),
+        );
+
+        return response()->json(['status' => 'success']);
     }
 
     public function index()
