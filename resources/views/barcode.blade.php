@@ -1213,14 +1213,17 @@ html, body {
 
 <script>
 const API_URL = '/api';
-function getToken() { return sessionStorage.getItem('rfmoto_token') || ''; }
 const CSRF    = document.querySelector('meta[name="csrf-token"]').content;
 
+function getToken() { return localStorage.getItem('rfmoto_token') || ''; }
+
 function authHeaders(json = true) {
+    const token = getToken();
     const h = {
-        'Authorization': `Bearer ${getToken()}`,
+        'Authorization': `Bearer ${token}`,
         'X-CSRF-TOKEN':  CSRF,
         'Accept':        'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
     };
     if (json) h['Content-Type'] = 'application/json';
     return h;
@@ -1294,10 +1297,10 @@ let allProducts       = [];   // cache from /api/barcode/products
 let recentScansArr    = [];
 let scanLogsAll       = [];
 let scanLogsPage      = 1;
-const SCAN_PAGE_SIZE  = 10;
+const SCAN_PAGE_SIZE  = 5;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(sessionStorage.getItem('rfmoto_user') || '{}');
+    const user = JSON.parse(localStorage.getItem('rfmoto_user') || '{}');
     if (!getToken()) { window.location.href = '/login'; return; }
     if (user.fullname) document.getElementById('topbarName').textContent = user.fullname;
 
@@ -1309,14 +1312,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadProducts() {
     try {
-        const res  = await fetch(`${API_URL}/barcode/products`, { headers: authHeaders(false) });
+        const res  = await fetch(`${API_URL}/barcode/products`, {
+            credentials: 'include',
+            headers: authHeaders(false),
+        });
         const data = await res.json();
         if (data.status === 'success') {
             allProducts = data.products;
-            renderQuickRef(allProducts);
+            const q = document.getElementById('qrefSearch')?.value || '';
+            filterQRef(q);
             populateBarcodeSelect(allProducts);
         }
     } catch (e) {
+        console.error('[loadProducts] ERROR:', e);
         showToast('Failed to load products', 'danger');
     }
 }
@@ -1363,7 +1371,10 @@ function scanLogsPageChange(dir) {
 }
 
 function renderScanLogItem(log) {
-    const time       = new Date(log.scanned_at).toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+    // PostgreSQL returns timestamp without timezone — append +08:00 so JS parses as PH time correctly
+    const rawTs    = (log.scanned_at || '').replace(' ', 'T').replace(/\+.*$/, '') + '+08:00';
+    const tsDate   = new Date(rawTs);
+    const time     = isNaN(tsDate) ? '--:--' : tsDate.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
     const actionCls  = { 'add-existing':'badge-green','stock-out':'badge-red','lookup':'badge-cyan','not-found':'badge-warn' };
     const actionLbl  = { 'add-existing':'Stock In','stock-out':'Stock Out','lookup':'Lookup','not-found':'Not Found' };
     const stockColor = !log.stock_qty && log.stock_qty !== 0 ? '' :
@@ -1434,9 +1445,13 @@ async function doScan(code, action) {
         if (data.status === 'not_found') {
             showState('notfound');
             document.getElementById('srNotFoundCode').textContent = code;
-            addRecentScanToPanel(code, null, action);
-            // Log not-found scan
-            logScanToServer(code, null, 'not-found', 0);
+            // Log not-found scan + optimistic prepend
+            logScanToServer(code, null, 'not-found');
+            const _nowNF = new Date();
+            const _rawNF = _nowNF.getFullYear()+'-'+String(_nowNF.getMonth()+1).padStart(2,'0')+'-'+String(_nowNF.getDate()).padStart(2,'0')+'T'+String(_nowNF.getHours()).padStart(2,'0')+':'+String(_nowNF.getMinutes()).padStart(2,'0')+':'+String(_nowNF.getSeconds()).padStart(2,'0')+'+08:00';
+            scanLogsAll.unshift({ log_id:0, product_name:null, scanned_code:code, action:'not-found', quantity:0, stock_qty:null, scanned_at:_rawNF });
+            scanLogsPage = 1;
+            renderScanLogsPage();
             return;
         }
 
@@ -1448,14 +1463,18 @@ async function doScan(code, action) {
 
         // Step 2: Show stock info immediately
         showProductResult(prod);
-        addRecentScanToPanel(code, prod, action);
 
         // Step 3: If action is stock-out or add-existing, open the modal
         if (action === 'add-existing' || action === 'stock-out') {
             openUpdateStockWith(prod, action);
         } else {
-            // Lookup only — log it
-            logScanToServer(code, prod.product_id, 'lookup', 0);
+            // Lookup only — log it then refresh panel
+            logScanToServer(code, prod.product_id, 'lookup');
+            const _now = new Date();
+            const _rawNow = _now.getFullYear()+'-'+String(_now.getMonth()+1).padStart(2,'0')+'-'+String(_now.getDate()).padStart(2,'0')+'T'+String(_now.getHours()).padStart(2,'0')+':'+String(_now.getMinutes()).padStart(2,'0')+':'+String(_now.getSeconds()).padStart(2,'0')+'+08:00';
+            scanLogsAll.unshift({ log_id:0, product_name:prod.product_name, scanned_code:code, action:'lookup', quantity:0, stock_qty:prod.stock_qty, scanned_at:_rawNow });
+            scanLogsPage = 1;
+            renderScanLogsPage();
         }
 
     } catch (e) {
@@ -1560,16 +1579,16 @@ function addRecentScanToPanel(code, prod, action) {
     while (wrap.children.length > 15) wrap.removeChild(wrap.lastChild);
 }
 
-async function logScanToServer(code, productId, action, quantity) {
+async function logScanToServer(code, productId, action) {
     try {
-        await fetch(`${API_URL}/barcode/stock-update`, {
-            method: 'POST',
-            headers: authHeaders(),
+        await fetch(`${API_URL}/barcode/log-scan`, {
+            method:      'POST',
+            credentials: 'include',
+            headers:     authHeaders(),
             body: JSON.stringify({
-                product_id:   productId,
+                product_id:   productId || null,
                 scanned_code: code,
-                action:       action === 'not-found' ? 'lookup' : action,
-                quantity:     quantity || 0,
+                action:       action,
             })
         });
     } catch (e) { /* silent fail */ }
@@ -1583,6 +1602,9 @@ function openUpdateStock() {
 }
 
 function openUpdateStockWith(prod, action) {
+    // Always use freshest stock_qty from allProducts cache
+    const fresh = allProducts.find(p => p.product_id === prod.product_id);
+    if (fresh) prod = { ...prod, stock_qty: fresh.stock_qty };
     window._stockModalProd   = prod;
     window._stockModalAction = action;
 
@@ -1730,13 +1752,29 @@ async function confirmStockUpdate() {
 
         showProductResult({ ...prod, stock_qty: data.qty_after });
 
-        addRecentScanToPanel(window._lastScanCode || prod.ean13, { ...prod, stock_qty: data.qty_after }, action);
+        // Optimistic prepend so panel updates instantly, then sync from server
+        const _now = new Date();
+        const _rawNow = _now.getFullYear()+'-'+String(_now.getMonth()+1).padStart(2,'0')+'-'+String(_now.getDate()).padStart(2,'0')+'T'+String(_now.getHours()).padStart(2,'0')+':'+String(_now.getMinutes()).padStart(2,'0')+':'+String(_now.getSeconds()).padStart(2,'0')+'+08:00';
+        scanLogsAll.unshift({
+            log_id:       0,
+            product_name: prod.product_name,
+            scanned_code: window._lastScanCode || prod.ean13 || prod.sku,
+            action:       action,
+            quantity:     parseInt(document.getElementById('saQty')?.value)||1,
+            stock_qty:    data.qty_after,
+            scanned_at:   _rawNow,
+        });
+        scanLogsPage = 1;
+        renderScanLogsPage();
 
-        renderQuickRef(allProducts);
+        renderQuickRef(allProducts);  // immediate update from cache
 
         closeModal('modalStockUpdate');
-        loadScanLogs();
         showToast(data.message, 'success');
+
+        // Reload products + scan logs from server so Quick Ref stock is always accurate
+        loadScanLogs();
+        loadProducts();
 
     } catch (e) {
         showToast('Network error. Please try again.', 'danger');
@@ -1949,7 +1987,7 @@ function renderQuickRef(products) {
     wrap.innerHTML = rows.map(function(row) {
         var p = row.p, v = row.v, varIdx = row.varIdx, code = row.code, isSingle = row.isSingle;
         var vSku     = (v && v.sku) ? v.sku : p.sku;
-        var vStock   = (v && v.stock_qty !== undefined) ? v.stock_qty : p.stock_qty;
+        var vStock   = p.stock_qty;  // always use product-level stock — barcode scans update products table
         var isOut    = vStock === 0;
         var isLow    = !isOut && vStock <= p.reorder_level;
         var badgeCls = isOut ? 'badge-red' : isLow ? 'badge-warn' : 'badge-green';
@@ -2195,8 +2233,8 @@ async function doLogout() {
     try {
         await fetch('/logout', { method:'POST', headers: authHeaders() });
     } catch(e) {}
-    sessionStorage.removeItem('rfmoto_token');
-    sessionStorage.removeItem('rfmoto_user');
+    localStorage.removeItem('rfmoto_token');
+    localStorage.removeItem('rfmoto_user');
     window.location.href = '/login';
 }
 
@@ -2205,13 +2243,11 @@ async function doLogout() {
 let currentUser = null;
 
 function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user');
-  if (stored) {
-    try { currentUser = JSON.parse(stored); } catch(e) {}
-  }
-  if (!currentUser) {
-    currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
-  }
+  const token  = getToken();
+  const stored = localStorage.getItem('rfmoto_user');
+  if (!token || !stored) { window.location.href = '/login'; return; }
+  try { currentUser = JSON.parse(stored); } catch(e) {}
+  if (!currentUser) { window.location.href = '/login'; return; }
   launchApp();
 }
 
