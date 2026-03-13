@@ -1215,7 +1215,7 @@ html, body {
 const API_URL = '/api';
 const CSRF    = document.querySelector('meta[name="csrf-token"]').content;
 
-function getToken() { return localStorage.getItem('rfmoto_token') || ''; }
+function getToken() { return sessionStorage.getItem('rfmoto_token') || ''; }
 
 function authHeaders(json = true) {
     const token = getToken();
@@ -1300,14 +1300,8 @@ let scanLogsPage      = 1;
 const SCAN_PAGE_SIZE  = 5;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('rfmoto_user') || '{}');
     if (!getToken()) { window.location.href = '/login'; return; }
-    if (user.fullname) document.getElementById('topbarName').textContent = user.fullname;
-
-    loadProducts();
-    loadScanLogs();
-
-    document.getElementById('barcodeInput').focus();
+    setTimeout(() => { document.getElementById('barcodeInput')?.focus(); }, 400);
 });
 
 async function loadProducts() {
@@ -2233,8 +2227,8 @@ async function doLogout() {
     try {
         await fetch('/logout', { method:'POST', headers: authHeaders() });
     } catch(e) {}
-    localStorage.removeItem('rfmoto_token');
-    localStorage.removeItem('rfmoto_user');
+    sessionStorage.removeItem('rfmoto_token');
+    sessionStorage.removeItem('rfmoto_user');
     window.location.href = '/login';
 }
 
@@ -2244,7 +2238,7 @@ let currentUser = null;
 
 function initFromSession() {
   const token  = getToken();
-  const stored = localStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user');
   if (!token || !stored) { window.location.href = '/login'; return; }
   try { currentUser = JSON.parse(stored); } catch(e) {}
   if (!currentUser) { window.location.href = '/login'; return; }
