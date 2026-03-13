@@ -1298,7 +1298,7 @@ const SCAN_PAGE_SIZE  = 10;
 
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(sessionStorage.getItem('rfmoto_user') || '{}');
-    if (!TOKEN) { window.location.href = '/login'; return; }
+    if (!getToken()) { window.location.href = '/login'; return; }
     if (user.fullname) document.getElementById('topbarName').textContent = user.fullname;
 
     loadProducts();
