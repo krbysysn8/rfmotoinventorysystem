@@ -23,10 +23,6 @@ Route::get('/me',      [AuthController::class, 'me'])->middleware('auth:sanctum'
 // Protected API routes
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    // Notifications
-    Route::get ('/notifications',           [NotificationController::class, 'index']);
-    Route::post('/notifications/mark-read', [NotificationController::class, 'markRead']);
-    Route::post('/notifications/clear',     [NotificationController::class, 'clear']);
 
     // Dashboard & inventory (read)
     Route::get('/categories',      [CategoryController::class, 'list']);
@@ -44,6 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/barcode/scan-logs',  [BarcodeController::class, 'clearScanLogs']);
     Route::post  ('/barcode/generate',   [BarcodeController::class, 'generate']);
     Route::post  ('/barcode/stock-update', [BarcodeController::class, 'stockUpdate']);
+    Route::post  ('/barcode/log-scan',     [BarcodeController::class, 'logScan']);
 
     // Sales
     Route::get ('/sales', [SalesController::class, 'index']);
