@@ -1052,7 +1052,7 @@ html, body {
 //  All data fetched from Laravel API via Sanctum token auth
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE  = '{{ config("app.url") }}/api';
+const API_BASE  = '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
@@ -1119,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     restoreTheme();
 
     // Fire token validation AND dashboard data at the same time
-    const mePromise = fetch('{{ config("app.url") }}/api/me', {
+    const mePromise = fetch('/api/me', {
         headers: {
             'Accept':        'application/json',
             'Authorization': `Bearer ${token}`,
