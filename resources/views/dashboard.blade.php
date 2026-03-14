@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Dashboard</title>
+<title>RF Moto – Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -678,7 +678,7 @@ html, body {
   .content-area { padding: 14px 14px; }
 }
 
-/* -- NEW DASHBOARD STAT CARDS -- */
+/* ── NEW DASHBOARD STAT CARDS ── */
 .stat-grid-new {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -819,7 +819,7 @@ html, body {
 
 <div class="page active" id="page-dashboard">
 
-        <!-- -- STAT CARDS (6 cards matching screenshot) -- -->
+        <!-- ── STAT CARDS (6 cards matching screenshot) ── -->
         <div class="stat-grid-new">
           <div class="stat-card-new">
             <div class="stat-card-icon" style="background:rgba(23,184,220,.15);color:var(--cyan);">
@@ -880,7 +880,7 @@ html, body {
           </div>
         </div>
 
-        <!-- -- CHARTS ROW 1: Stock Movement (full width) -- -->
+        <!-- ── CHARTS ROW 1: Stock Movement (full width) ── -->
         <div class="dash-charts-row" style="grid-template-columns:1fr;">
           <div class="dash-chart-card">
             <div class="dash-chart-title">Stock Movement</div>
@@ -891,11 +891,11 @@ html, body {
           </div>
         </div>
 
-        <!-- -- CHARTS ROW 2: Inventory Control + Recent Stock Activity -- -->
+        <!-- ── CHARTS ROW 2: Inventory Control + Recent Stock Activity ── -->
         <div class="dash-charts-row">
           <div class="dash-chart-card">
             <div class="dash-chart-title">Inventory Control</div>
-            <div class="dash-chart-sub">Stock levels vs reorder points by category</div>
+            <div class="dash-chart-sub">Stock levels by category</div>
             <div style="position:relative;height:220px;margin-top:12px;">
               <canvas id="chartInventory"></canvas>
             </div>
@@ -920,7 +920,7 @@ html, body {
         </div>
 
 
-        <!-- -- LOW STOCK ALERTS -- -->
+        <!-- ── LOW STOCK ALERTS ── -->
         <div class="dash-chart-card" style="margin-top:0;" id="lowStockAlertsCard">
           <div class="dash-chart-title" style="color:var(--warn);">
             <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Low Stock Alerts
@@ -1046,22 +1046,22 @@ html, body {
   </div>
 </div>
 
-<script charset="utf-8">
-// ===============================================================
-//  RF MOTO - Dashboard  |  Functional JS (API-driven)
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  RF MOTO – Dashboard  |  Functional JS (API-driven)
 //  All data fetched from Laravel API via Sanctum token auth
-// ===============================================================
+// ═══════════════════════════════════════════════════════════════
 
-const API_BASE = '/api';
+const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-// -- Auth helpers ------------------------------------------------
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); }
-function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+// ── Auth helpers ────────────────────────────────────────────────
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); localStorage.setItem(TOKEN_KEY, t); }
+function setUser(u)  { const s = JSON.stringify(u); sessionStorage.setItem(USER_KEY, s); localStorage.setItem(USER_KEY, s); }
+function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -1079,7 +1079,7 @@ async function apiFetch(path, opts = {}) {
     return res.json();
 }
 
-// -- App state ---------------------------------------------------
+// ── App state ───────────────────────────────────────────────────
 let currentUser  = null;
 let currentPage  = 'dashboard';
 let dashStats    = {};
@@ -1102,12 +1102,12 @@ const CATEGORIES_LIST = ['All','Engine Parts','Electrical','Brake System','Suspe
 
 let CATEGORIES_API = []; // populated from /api/categories with real IDs
 
-// -- Page init ---------------------------------------------------
+// ── Page init ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     const user  = getUser();
     const token = getToken();
 
-    // Nothing in storage - redirect immediately
+    // Nothing in storage — redirect immediately
     if (!user || !token) {
         window.location.replace('/login');
         return;
@@ -1119,24 +1119,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     restoreTheme();
 
     // Fire token validation AND dashboard data at the same time
-    const mePromise = fetch('/api/me', {
+    const mePromise = fetch('{{ config("app.url") }}/api/me', {
         headers: {
             'Accept':        'application/json',
             'Authorization': `Bearer ${token}`,
         },
     }).then(r => r.json()).catch(() => null);
 
-    // Dashboard starts loading immediately - no waiting for /api/me
+    // Dashboard starts loading immediately — no waiting for /api/me
     const dashPromise = loadDashboard();
 
     // Wait for token validation in the background
     const meData = await mePromise;
 
     if (meData === null) {
-        // Network error - already loaded with cached user, that's fine
+        // Network error — already loaded with cached user, that's fine
         console.warn('Token validation skipped (network error)');
     } else if (!meData || meData.status !== 'success') {
-        // Token invalid/expired - abort and redirect
+        // Token invalid/expired — abort and redirect
         clearAuth();
         window.location.replace('/login');
         return;
@@ -1167,7 +1167,7 @@ function bootUI(user) {
 
 function el(id) { return document.getElementById(id); }
 
-// -- Dashboard Data ----------------------------------------------
+// ── Dashboard Data ──────────────────────────────────────────────
 async function loadDashboard() {
     // Fire categories and stats in parallel
     const [catRes, res] = await Promise.all([
@@ -1195,7 +1195,7 @@ async function loadDashboard() {
         : 100;
     setVal('statStockHealth', health + '%');
 
-    // Tables render immediately - data already in dashStats
+    // Tables render immediately — data already in dashStats
     renderStockActivity(dashStats.recent_movements || []);
     renderLowStockAlerts(dashStats.low_stock_alerts || []);
     renderRecentSales(dashStats.recent_sales || []);
@@ -1203,7 +1203,7 @@ async function loadDashboard() {
     // Store latest stats for other uses
     _lastPollStats = dashStats;
 
-    // Charts only load once on first visit - don't reload on data refresh
+    // Charts only load once on first visit — don't reload on data refresh
     if (!_chartsLoaded) {
         _chartsLoaded = true;
         await loadCharts();
@@ -1212,7 +1212,7 @@ async function loadDashboard() {
 
 function setVal(id, val) { const e = el(id); if (e) e.textContent = val; }
 
-// -- Charts ------------------------------------------------------
+// ── Charts ──────────────────────────────────────────────────────
 async function loadCharts() {
     // Both chart data requests fire in parallel
     const [smRes, pRes] = await Promise.all([
@@ -1276,10 +1276,7 @@ function renderInventoryChart(products) {
     _chartInv = new Chart(ctx, {
         type: 'bar',
         data: { labels: cats.map(shortName), datasets: [
-            { label:'Stock Level',   data: cats.map(k=>catMap[k].stock),   backgroundColor:'rgba(23,184,220,0.85)', borderRadius:3, borderSkipped:false },
-            { label:'Reorder Level', data: cats.map(k=>catMap[k].reorder), type:'line', borderColor:'rgba(220,38,38,0.9)',
-              backgroundColor:'transparent', pointBackgroundColor:'rgba(220,38,38,0.9)', pointRadius:4,
-              borderWidth:2, borderDash:[5,3], fill:false, tension:0 }
+            { label:'Stock Level', data: cats.map(k=>catMap[k].stock), backgroundColor:'rgba(23,184,220,0.85)', borderRadius:3, borderSkipped:false },
         ]},
         options: { responsive:true, maintainAspectRatio:false, indexAxis:'y',
             plugins:{ legend:{ position:'bottom', labels:{ color:c.tick, font:{family:'Barlow',size:11}, boxWidth:12, padding:16 }}},
@@ -1288,7 +1285,7 @@ function renderInventoryChart(products) {
     });
 }
 
-// -- Dashboard tables --------------------------------------------
+// ── Dashboard tables ────────────────────────────────────────────
 function renderStockActivity(movements) {
     const tbody = el('stockActivityTbl');
     if (!tbody) return;
@@ -1298,7 +1295,7 @@ function renderStockActivity(movements) {
     }
     tbody.innerHTML = movements.map(m => {
         const isIn  = m.movement_type === 'in';
-        const date  = m.movement_date ? m.movement_date.substring(0, 10) : '-';
+        const date  = m.movement_date ? m.movement_date.substring(0, 10) : '—';
         return `<tr>
             <td style="font-weight:600;padding:7px 8px;">${m.product_name}<br><span style="font-size:10px;color:var(--muted);">${m.sku}</span></td>
             <td style="padding:7px 8px;">
@@ -1329,7 +1326,7 @@ function renderLowStockAlerts(alerts) {
         const isOut   = stock === 0;
         return `<tr>
             <td style="font-weight:600;padding:7px 8px;">${p.name || p.product_name}</td>
-            <td style="padding:7px 8px;color:var(--muted);font-size:12px;">${p.category || p.category_name || '-'}</td>
+            <td style="padding:7px 8px;color:var(--muted);font-size:12px;">${p.category || p.category_name || '—'}</td>
             <td style="text-align:right;font-weight:800;font-family:'Barlow Condensed',sans-serif;font-size:15px;padding:7px 8px;color:${isOut?'var(--danger)':'var(--warn)'};">${stock}</td>
             <td style="text-align:right;color:var(--muted);font-size:12px;padding:7px 8px;">${reorder}</td>
             <td style="text-align:center;padding:7px 8px;">
@@ -1347,7 +1344,7 @@ function renderRecentSales(sales) {
         <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
             <div>
                 <div style="font-size:13px;font-weight:600;">${s.order_number}</div>
-                <div style="font-size:11px;color:var(--muted);">${s.customer_name} · ${s.served_by || '-'}</div>
+                <div style="font-size:11px;color:var(--muted);">${s.customer_name} · ${s.served_by || '—'}</div>
             </div>
             <div style="text-align:right;">
                 <div style="font-weight:700;font-family:'Barlow Condensed',sans-serif;">₱${parseFloat(s.total_amount||0).toLocaleString()}</div>
@@ -1356,7 +1353,7 @@ function renderRecentSales(sales) {
         </div>`).join('');
 }
 
-// -- Navigation ---------------------------------------------------
+// ── Navigation ───────────────────────────────────────────────────
 const pageTitles = {
     'dashboard':'Dashboard','inventory':'Inventory','products':'Product Overview',
     'barcode':'Barcode Scanner','stock-history':'Stock History','sales':'Sales Record',
@@ -1380,7 +1377,7 @@ function globalSearchFn(v) {
     // Search across products list
 }
 
-// -- Sidebar collapse ---------------------------------------------
+// ── Sidebar collapse ─────────────────────────────────────────────
 function toggleSidebar() {
     const sb   = el('sidebar');
     const icon = el('collapseIcon');
@@ -1389,7 +1386,7 @@ function toggleSidebar() {
         ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
-// -- Dark mode ----------------------------------------------------
+// ── Dark mode ────────────────────────────────────────────────────
 function toggleDarkMode() {
     const html   = document.documentElement;
     const toggle = el('darkToggle');
@@ -1406,12 +1403,27 @@ function toggleDarkMode() {
         knob.innerHTML = '<i class="fa-solid fa-sun"></i>';
         localStorage.setItem('rfmoto_theme', 'dark');
     }
-    setTimeout(() => {
-        if (_chartSM) { _chartSM.destroy(); _chartSM = null; }
-        if (_chartInv) { _chartInv.destroy(); _chartInv = null; }
-        _chartsLoaded = false;
-        loadCharts().then(() => { _chartsLoaded = true; });
-    }, 50);
+    // Update chart colors without destroying/reloading
+    setTimeout(() => updateChartsTheme(), 50);
+}
+
+function updateChartsTheme() {
+    const c = getChartColors();
+    [_chartSM, _chartInv].forEach(chart => {
+        if (!chart) return;
+        // Update grid and tick colors
+        if (chart.options.scales) {
+            Object.values(chart.options.scales).forEach(scale => {
+                if (scale.grid)  scale.grid.color  = c.grid;
+                if (scale.ticks) scale.ticks.color = c.tick;
+            });
+        }
+        // Update legend label color
+        if (chart.options.plugins?.legend?.labels) {
+            chart.options.plugins.legend.labels.color = c.tick;
+        }
+        chart.update('none'); // 'none' = no animation, instant update
+    });
 }
 
 function restoreTheme() {
@@ -1425,11 +1437,11 @@ function restoreTheme() {
     }
 }
 
-// -- Modals --------------------------------------------------------
+// ── Modals ────────────────────────────────────────────────────────
 function openModal(id)  { const m = el(id); if(m) m.classList.add('open'); }
 function closeModal(id) { const m = el(id); if(m) m.classList.remove('open'); }
 
-// -- Logout --------------------------------------------------------
+// ── Logout ────────────────────────────────────────────────────────
 function confirmLogout() { openModal('modalLogout'); }
 async function doLogout() {
     if (_notifPollTimer) { clearInterval(_notifPollTimer); _notifPollTimer = null; }
@@ -1440,7 +1452,7 @@ async function doLogout() {
     window.location.href = '/login';
 }
 
-// -- Barcode / Quick Scan ------------------------------------------
+// ── Barcode / Quick Scan ──────────────────────────────────────────
 function openScan() { openModal('modalScan'); setTimeout(()=>el('quickScanInput')?.focus(),100); }
 
 function setScanAction(a) {
@@ -1590,7 +1602,7 @@ async function confirmStockAction() {
     }
 }
 
-// -- Barcode Generate ----------------------------------------------
+// ── Barcode Generate ──────────────────────────────────────────────
 async function openGenerateBarcode() {
     await loadBarcodeProducts();
     el('barcodePreview').style.display = 'none';
@@ -1611,7 +1623,7 @@ async function loadBarcodeProducts() {
     const sel = el('barcodeProduct');
     if (!sel) return;
     sel.innerHTML = (res.products || []).map(p =>
-        `<option value="${p.product_id}">${p.sku} - ${p.product_name}</option>`
+        `<option value="${p.product_id}">${p.sku} – ${p.product_name}</option>`
     ).join('');
 }
 
@@ -1620,7 +1632,7 @@ function previewBarcode() {
     const preview= el('barcodePreview');
     if (!sel || !preview) return;
     preview.style.display = 'block';
-    const sku    = sel.options[sel.selectedIndex]?.text.split(' - ')[0] || sel.value;
+    const sku    = sel.options[sel.selectedIndex]?.text.split(' – ')[0] || sel.value;
     el('barcodeNum').textContent = sku;
     const lines = el('barcodeLines');
     let html = '';
@@ -1646,7 +1658,7 @@ async function assignBarcode() {
     }
 }
 
-// -- Toast helper -------------------------------------------------
+// ── Toast helper ─────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
     let toast = el('rfmotoToast');
     if (!toast) {
@@ -1665,7 +1677,7 @@ function showToast(msg, type = 'success') {
     setTimeout(() => toast.style.opacity = '0', 2800);
 }
 
-// -- Categories chips (if inventory page included) -----------------
+// ── Categories chips (if inventory page included) ─────────────────
 function buildCategoryChips() {
     const wrap = el('categoryChips');
     if (!wrap) return;
@@ -1679,7 +1691,7 @@ function setInvCat(cat, e) {
     e.classList.add('active');
 }
 
-// -- Product modal (Admin-only add/edit) ----------------------------
+// ── Product modal (Admin-only add/edit) ────────────────────────────
 function openAddProduct() {
     editingProductId = null;
     el('modalProductTitle').innerHTML = 'Add <span>Product</span>';
