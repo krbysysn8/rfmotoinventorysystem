@@ -51,6 +51,25 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post  ('/returns',      [ReturnController::class, 'store']);
     Route::delete('/returns/{id}', [ReturnController::class, 'destroy']);
 
+    // Categories (write) — accessible by all authenticated users
+    Route::post  ('/categories',                    [CategoryController::class, 'store']);
+    Route::put   ('/categories/{id}',               [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}',               [CategoryController::class, 'destroy']);
+
+    // Subcategories — accessible by all authenticated users
+    Route::post  ('/categories/{id}/subcategories', [CategoryController::class, 'storeSubcategory']);
+    Route::put   ('/subcategories/{id}',            [CategoryController::class, 'updateSubcategory']);
+    Route::delete('/subcategories/{id}',            [CategoryController::class, 'destroySubcategory']);
+
+    // Suppliers — accessible by all authenticated users
+    Route::get   ('/suppliers',      [SupplierController::class, 'list']);
+    Route::post  ('/suppliers',      [SupplierController::class, 'store']);
+    Route::put   ('/suppliers/{id}', [SupplierController::class, 'update']);
+    Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
+
+    // Stock history — accessible by all authenticated users
+    Route::get('/stock-history', [StockHistoryController::class, 'index']);
+
     // Admin-only
     Route::middleware('role:admin')->group(function () {
 
@@ -60,24 +79,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/products/{id}',            [ProductController::class, 'destroy']);
         Route::put   ('/products/{id}/variations', [ProductController::class, 'updateVariations']);
 
-        // Categories (write)
-        Route::post  ('/categories',                    [CategoryController::class, 'store']);
-        Route::put   ('/categories/{id}',               [CategoryController::class, 'update']);
-        Route::delete('/categories/{id}',               [CategoryController::class, 'destroy']);
 
-        // Subcategories
-        Route::post  ('/categories/{id}/subcategories', [CategoryController::class, 'storeSubcategory']);
-        Route::put   ('/subcategories/{id}',            [CategoryController::class, 'updateSubcategory']);
-        Route::delete('/subcategories/{id}',            [CategoryController::class, 'destroySubcategory']);
-
-        // Suppliers
-        Route::get   ('/suppliers',      [SupplierController::class, 'list']);
-        Route::post  ('/suppliers',      [SupplierController::class, 'store']);
-        Route::put   ('/suppliers/{id}', [SupplierController::class, 'update']);
-        Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
-
-        // Stock history
-        Route::get('/stock-history', [StockHistoryController::class, 'index']);
 
         // Reports (admin detail)
         Route::prefix('reports')->group(function () {
