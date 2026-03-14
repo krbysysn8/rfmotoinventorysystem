@@ -8,9 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* ══════════════════════════════════════════
-   DESIGN TOKENS — matching rfmoto-login.html
-══════════════════════════════════════════ */
+
 :root {
   --cyan:        #17b8dc;
   --cyan2:       #0ea5c9;
