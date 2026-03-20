@@ -645,7 +645,7 @@
           <label class="remember">
             <input type="checkbox"> Remember me
           </label>
-          <a class="forgot" href="#">Forgot password?</a>
+          <a class="forgot" href="#" id="forgotLink" onclick="openForgotModal(event)" style="display:none;">Forgot password?</a>
         </div>
 
 <button class="btn-login" type="button" id="loginBtn" onclick="handleLogin(event)">Sign In →</button>      
@@ -660,11 +660,11 @@
   </div>
 </div>
 
-<script charset="utf-8">
+<script>
   let currentRole = 'staff';
 
-const API_BASE = '/api';
-const API_URL  = API_BASE;
+const API_BASE = '{{ config("app.url") }}';
+const API_URL  = API_BASE + '/api';
 
   function selectRole(role) {
     currentRole = role;
@@ -679,9 +679,12 @@ const API_URL  = API_BASE;
     btn.textContent = 'Sign In →';
     btn.disabled = false;
     btn.style.cssText = '';
+    // Show "Forgot password?" only for Admin role
+    const forgotLink = document.getElementById('forgotLink');
+    if (forgotLink) forgotLink.style.display = role === 'admin' ? 'inline' : 'none';
   }
 
-  // -- async function so we can use await --
+  // ── async function so we can use await ──
   async function handleLogin(e) {
     e.preventDefault();
 
@@ -703,6 +706,10 @@ const API_URL  = API_BASE;
 
     try {
 
+      await fetch(API_BASE + '/sanctum/csrf-cookie', {
+        credentials: 'include',
+      });
+
       const res  = await fetch(API_URL + '/login', {
         method:  'POST',
         headers: {
@@ -722,8 +729,8 @@ const API_URL  = API_BASE;
 
       if (data.status === 'success' && data.user) {
 
-        sessionStorage.setItem('rfmoto_token', data.token);
-        sessionStorage.setItem('rfmoto_user', JSON.stringify({
+        localStorage.setItem('rfmoto_token', data.token);
+        localStorage.setItem('rfmoto_user', JSON.stringify({
           user_id:  data.user.user_id,
           username: data.user.username,
           fullname: data.user.fullname,
@@ -766,10 +773,10 @@ setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
     this.textContent = pw.type === 'password' ? '👁' : '🙈';
   });
 
-  // -- If already logged in, skip login page and go straight to dashboard --
+  // ── If already logged in, skip login page and go straight to dashboard ──
   (function checkAlreadyLoggedIn() {
-    const token = sessionStorage.getItem('rfmoto_token');
-    const user  = sessionStorage.getItem('rfmoto_user');
+    const token = localStorage.getItem('rfmoto_token');
+    const user  = localStorage.getItem('rfmoto_user');
     if (token && user) {
       window.location.replace('/dashboard');
     }
@@ -785,6 +792,125 @@ setTimeout(() => { window.location.href = '/dashboard'; }, 1000);
     }, 3000);
   });
 
+</script>
+
+<!-- ── FORGOT PASSWORD MODAL (Admin only) ── -->
+<div id="forgotModal" style="
+  display:none; position:fixed; inset:0;
+  background:rgba(13,27,38,.65); backdrop-filter:blur(3px);
+  z-index:9999; align-items:center; justify-content:center; padding:20px;
+">
+  <div style="
+    background:#fff; border-radius:20px; width:100%; max-width:400px;
+    box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);
+    overflow:hidden;
+  ">
+    <div style="height:4px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),#7ee8fa,var(--cyan2));background-size:300% 100%;animation:stripeShift 3s linear infinite;"></div>
+    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);">
+        Forgot <span style="color:var(--cyan);">Password</span>
+      </div>
+      <button onclick="closeForgotModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1;padding:4px 6px;border-radius:6px;">&#x2715;</button>
+    </div>
+    <div style="padding:20px 24px;">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;">
+        Enter your admin username. If your account has an email on file, we'll send a password reset link there.
+      </p>
+      <div id="forgotAlert" style="display:none;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:500;margin-bottom:14px;"></div>
+      <div style="margin-bottom:4px;">
+        <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Admin Username</label>
+        <div style="position:relative;">
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;color:var(--muted);"><i class="fa-solid fa-user-shield"></i></span>
+          <input type="text" id="forgotUsername" placeholder="Enter your admin username"
+            style="width:100%;padding:13px 14px 13px 38px;border:1px solid var(--border);border-radius:11px;
+            font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);background:var(--bg);outline:none;
+            transition:border-color .2s,box-shadow .2s;"
+            onkeydown="if(event.key==='Enter') submitForgot()">
+        </div>
+      </div>
+    </div>
+    <div style="padding:13px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:#f5f8fa;">
+      <button onclick="closeForgotModal()" style="
+        display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;
+        font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;
+        text-transform:uppercase;cursor:pointer;border:1px solid var(--border);
+        background:#fff;color:var(--text);transition:all .18s;">Cancel</button>
+      <button id="forgotSubmitBtn" onclick="submitForgot()" style="
+        display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;
+        font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;
+        text-transform:uppercase;cursor:pointer;border:1px solid var(--cyan);
+        background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;
+        box-shadow:0 3px 10px rgba(23,184,220,.28);transition:all .18s;">
+        <i class="fa-solid fa-paper-plane"></i> Send Reset Link
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Forgot Password (admin only) ──────────────────────────
+  function openForgotModal(e) {
+    if (e) e.preventDefault();
+    document.getElementById('forgotUsername').value = '';
+    const alert = document.getElementById('forgotAlert');
+    alert.style.display = 'none';
+    const btn = document.getElementById('forgotSubmitBtn');
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link';
+    btn.disabled = false;
+    const modal = document.getElementById('forgotModal');
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('forgotUsername').focus(), 80);
+  }
+
+  function closeForgotModal() {
+    document.getElementById('forgotModal').style.display = 'none';
+  }
+
+  // Close on backdrop click
+  document.getElementById('forgotModal').addEventListener('click', function(e) {
+    if (e.target === this) closeForgotModal();
+  });
+
+  async function submitForgot() {
+    const username = document.getElementById('forgotUsername').value.trim();
+    const alertEl  = document.getElementById('forgotAlert');
+    const btn      = document.getElementById('forgotSubmitBtn');
+
+    const showAlert = (msg, type) => {
+      alertEl.style.display = 'block';
+      alertEl.style.cssText = type === 'error'
+        ? 'display:block;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:500;margin-bottom:14px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:#dc2626;'
+        : 'display:block;padding:10px 13px;border-radius:9px;font-size:12px;font-weight:500;margin-bottom:14px;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.22);color:#16a34a;';
+      alertEl.innerHTML = msg;
+    };
+
+    if (!username) { showAlert('Please enter your admin username.', 'error'); return; }
+
+    btn.innerHTML = 'Sending...';
+    btn.disabled  = true;
+
+    try {
+      const res  = await fetch(API_URL + '/password/forgot', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify({ username }),
+      });
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        showAlert('<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>' + (data.message || 'Reset link sent! Check your email.'), 'success');
+        btn.innerHTML = '✓ Sent';
+      } else {
+        showAlert(data.message || 'Something went wrong.', 'error');
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link';
+        btn.disabled  = false;
+      }
+    } catch(err) {
+      showAlert('Cannot connect to server.', 'error');
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Reset Link';
+      btn.disabled  = false;
+    }
+  }
 </script>
 
 </body>
