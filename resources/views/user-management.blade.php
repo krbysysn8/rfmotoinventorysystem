@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - User Management</title>
+<title>RF Moto – User Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -28,7 +28,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 #app{display:flex;height:100vh;}
 
-/* -- SIDEBAR -- */
+/* ── SIDEBAR ── */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed{width:64px;min-width:64px;}
 .sidebar.collapsed .sidebar-brand-wrap,.sidebar.collapsed .sidebar-user-info,.sidebar.collapsed .nav-item-label,.sidebar.collapsed .nav-section,.sidebar.collapsed .nav-badge,.sidebar.collapsed .sidebar-footer-btn span{display:none!important;}
@@ -88,7 +88,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171;}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
 
-/* -- MAIN -- */
+/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);flex:1;}
@@ -106,12 +106,12 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-/* -- SECTION HEADER -- */
+/* ── SECTION HEADER ── */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;}
 .search-bar{position:relative;max-width:320px;flex:1;}
 .search-bar input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
@@ -119,7 +119,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .search-bar input::placeholder{color:var(--muted);}
 .search-bar i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;}
 
-/* -- TABLE -- */
+/* ── TABLE ── */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s;}
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .tbl th{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
@@ -132,14 +132,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .empty-state{padding:40px;text-align:center;color:var(--muted);}
 .empty-state i{font-size:28px;margin-bottom:10px;display:block;opacity:.4;}
 
-/* -- BADGES -- */
+/* ── BADGES ── */
 .badge{display:inline-flex;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
 .badge-admin{background:rgba(23,184,220,.15);color:var(--cyan);border:1px solid var(--cyan-border);}
 .badge-staff{background:rgba(37,99,235,.12);color:#60a5fa;border:1px solid rgba(37,99,235,.22);}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2);}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
 
-/* -- BUTTONS -- */
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap;}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28);}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px);}
@@ -151,8 +151,9 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .action-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:12px;transition:all .18s;margin-left:3px;}
 .action-btn.edit:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.07);}
 .action-btn.del:hover{border-color:var(--danger);color:var(--danger);background:rgba(220,38,38,.07);}
+.action-btn.reset-pw:hover{border-color:#d97706;color:#d97706;background:rgba(217,119,6,.07);}
 
-/* -- MODAL -- */
+/* ── MODAL ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:500px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .24s cubic-bezier(.2,0,.2,1) both;overflow:hidden;}
@@ -180,7 +181,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .del-warn i{color:var(--danger);font-size:18px;flex-shrink:0;margin-top:1px;}
 .del-warn p{font-size:13px;color:var(--text);line-height:1.5;}
 
-/* -- TOAST -- */
+/* ── TOAST ── */
 #rfToast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;}
 </style>
 </head>
@@ -313,19 +314,27 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           </select>
         </div>
       </div>
-      <div class="form-row">
+      <div class="form-row full">
         <div class="form-ctrl">
-          <label>Password</label>
-          <div class="pw-wrap">
-            <input type="password" id="uPassword" placeholder="Enter password">
-            <button class="pw-toggle" type="button" onclick="togglePw('uPassword',this)"><i class="fa-solid fa-eye"></i></button>
-          </div>
+          <label>Email Address <span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);">(required for password reset)</span></label>
+          <input type="text" id="uEmail" placeholder="e.g. juan@example.com">
         </div>
-        <div class="form-ctrl">
-          <label>Confirm Password</label>
-          <div class="pw-wrap">
-            <input type="password" id="uConfirmPw" placeholder="Repeat password">
-            <button class="pw-toggle" type="button" onclick="togglePw('uConfirmPw',this)"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <div id="uPwSection">
+        <div class="form-row">
+          <div class="form-ctrl">
+            <label>Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="uPassword" placeholder="Enter password">
+              <button class="pw-toggle" type="button" onclick="togglePw('uPassword',this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="form-ctrl">
+            <label>Confirm Password</label>
+            <div class="pw-wrap">
+              <input type="password" id="uConfirmPw" placeholder="Repeat password">
+              <button class="pw-toggle" type="button" onclick="togglePw('uConfirmPw',this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
           </div>
         </div>
       </div>
@@ -338,7 +347,6 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           </select>
         </div>
       </div>
-      <p id="uPwHint" style="font-size:11px;color:var(--muted);margin-top:-4px;display:none;">Leave password blank to keep current password.</p>
       <p id="uErrMsg" style="font-size:12px;color:var(--danger);margin-top:6px;display:none;"></p>
     </div>
     <div class="modal-footer">
@@ -377,18 +385,72 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
+<!-- ── MODAL: RESET PASSWORD ── -->
+<div class="modal-backdrop" id="modalResetPw">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">Reset <span>Password</span></div>
+      <button class="modal-close" onclick="closeModal('modalResetPw')">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="resetPwUserId">
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <button id="tabEmailBtn" onclick="switchResetTab('email')" style="flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--cyan);background:rgba(23,184,220,.08);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);transition:all .18s;">
+          <i class="fa-solid fa-envelope" style="margin-right:5px;"></i>Send Reset Email
+        </button>
+        <button id="tabManualBtn" onclick="switchResetTab('manual')" style="flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:all .18s;">
+          <i class="fa-solid fa-lock" style="margin-right:5px;"></i>Set Manually
+        </button>
+      </div>
+      <div id="tabEmailContent">
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:4px;">A reset link will be sent to the user's email. It expires in <strong>60 minutes</strong>.</p>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:12px;display:flex;align-items:center;gap:10px;">
+          <i class="fa-solid fa-envelope" style="color:var(--cyan);font-size:15px;flex-shrink:0;"></i>
+          <div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;">Email on file</div>
+            <div id="resetPwEmail" style="font-size:13px;color:var(--text);font-weight:500;">—</div>
+          </div>
+        </div>
+        <p id="resetPwNoEmail" style="display:none;font-size:12px;color:var(--danger);margin-top:10px;"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>This user has no email on file. Edit their profile to add one first.</p>
+      </div>
+      <div id="tabManualContent" style="display:none;">
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;">Set a new password directly. The user will be logged out of all sessions.</p>
+        <div class="form-row full" style="margin-bottom:10px;">
+          <div class="form-ctrl">
+            <label>New Password</label>
+            <div class="pw-wrap"><input type="password" id="manualPw1" placeholder="Minimum 8 characters"><button class="pw-toggle" type="button" onclick="togglePw('manualPw1',this)"><i class="fa-solid fa-eye"></i></button></div>
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-ctrl">
+            <label>Confirm Password</label>
+            <div class="pw-wrap"><input type="password" id="manualPw2" placeholder="Repeat new password"><button class="pw-toggle" type="button" onclick="togglePw('manualPw2',this)"><i class="fa-solid fa-eye"></i></button></div>
+          </div>
+        </div>
+      </div>
+      <p id="resetPwErr" style="font-size:12px;color:var(--danger);margin-top:8px;display:none;"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modalResetPw')">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="resetPwSubmitBtn" onclick="submitResetPw()">
+        <i class="fa-solid fa-paper-plane"></i> <span id="resetPwSubmitLabel">Send Reset Email</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="rfToast"></div>
 
-<script charset="utf-8">
-// ===============================================================
-const API_BASE = '/api';
+<script>
+// ═══════════════════════════════════════════════════════════════
+const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function getToken()  { return localStorage.getItem(TOKEN_KEY); }
+function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -411,7 +473,7 @@ let currentUser = null;
 let USERS_DATA  = [];
 let deletingId  = null;
 
-// -- Boot --------------------------------------------------------
+// ── Boot ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     const user  = getUser();
     const token = getToken();
@@ -422,7 +484,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     bootUI(currentUser);
     restoreTheme();
 
-    const mePromise = fetch('/api/me', {
+    const mePromise = fetch('{{ config("app.url") }}/api/me', {
         headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` },
     }).then(r => r.json()).catch(() => null);
 
@@ -451,7 +513,7 @@ function bootUI(user) {
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = user.role === 'admin' ? '' : 'none');
 }
 
-// -- Load Users --------------------------------------------------
+// ── Load Users ──────────────────────────────────────────────────
 async function loadUsers() {
     const res = await apiFetch('/users');
     if (!res || res.status !== 'success') { showToast('Failed to load users.', 'danger'); return; }
@@ -459,7 +521,7 @@ async function loadUsers() {
     renderUsers(USERS_DATA);
 }
 
-// -- Render ------------------------------------------------------
+// ── Render ──────────────────────────────────────────────────────
 const AVATAR_COLORS = ['#0ea5c9','#8b5cf6','#f97316','#22c55e','#ef4444','#06b6d4','#a855f7','#eab308'];
 function avatarColor(name) {
     let h = 0;
@@ -480,10 +542,11 @@ function renderUsers(rows) {
           <td style="color:var(--muted);font-size:12px;">@${u.username}</td>
           <td><span class="badge ${u.role==='admin'?'badge-admin':'badge-staff'}">${u.role}</span></td>
           <td><span class="badge ${u.status==='active'?'badge-green':'badge-gray'}">${u.status}</span></td>
-          <td style="color:var(--muted);font-size:12px;">${u.last_login ? u.last_login : '-'}</td>
+          <td style="color:var(--muted);font-size:12px;">${u.last_login ? u.last_login : '—'}</td>
           <td>
             <button class="action-btn edit" onclick="openEditUser(${u.id})" title="Edit"><i class="fa-regular fa-pen-to-square"></i></button>
-            ${u.id !== me ? `<button class="action-btn del" onclick="confirmDelete(${u.id},'${(u.fullname||u.username).replace(/'/g,"\\'")}')" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ''}
+            <button class="action-btn reset-pw" onclick="openResetPwModal(${u.id},'${(u.fullname||u.username).replace(/'/g,"\\'")}','${u.role}')" title="Reset Password" style="color:var(--muted);"><i class="fa-solid fa-key"></i></button>
+            ${u.id !== me ? `<button class="action-btn del" onclick="confirmDelete(${u.id},'${(u.fullname||u.username).replace(/'/g,"\\'")}' )" title="Delete"><i class="fa-regular fa-trash-can"></i></button>` : ''}
           </td>
         </tr>`).join('');
 }
@@ -497,17 +560,19 @@ function filterUsers(q) {
     ));
 }
 
-// -- CRUD --------------------------------------------------------
+// ── CRUD ────────────────────────────────────────────────────────
 function openAddUser() {
     el('editUserId').value   = '';
     el('uName').value        = '';
     el('uUsername').value    = '';
+    el('uEmail').value       = '';
     el('uPassword').value    = '';
     el('uConfirmPw').value   = '';
     el('uRole').value        = 'staff';
     el('uStatus').value      = 'active';
-    el('uPwHint').style.display = 'none';
     el('uErrMsg').style.display = 'none';
+    // Show password fields for new users
+    el('uPwSection').style.display = 'block';
     el('userModalTitle').innerHTML = 'Add <span>User</span>';
     openModal('modalUser');
 }
@@ -518,12 +583,14 @@ function openEditUser(id) {
     el('editUserId').value   = id;
     el('uName').value        = u.fullname || '';
     el('uUsername').value    = u.username;
+    el('uEmail').value       = u.email || '';
     el('uPassword').value    = '';
     el('uConfirmPw').value   = '';
     el('uRole').value        = u.role;
     el('uStatus').value      = u.status;
-    el('uPwHint').style.display  = 'block';
     el('uErrMsg').style.display  = 'none';
+    // Hide password fields when editing — use Reset Password modal instead
+    el('uPwSection').style.display = 'none';
     el('userModalTitle').innerHTML = 'Edit <span>User</span>';
     openModal('modalUser');
 }
@@ -531,6 +598,7 @@ function openEditUser(id) {
 async function saveUser() {
     const name     = el('uName').value.trim();
     const username = el('uUsername').value.trim();
+    const email    = el('uEmail').value.trim();
     const pw       = el('uPassword').value;
     const cpw      = el('uConfirmPw').value;
     const role     = el('uRole').value;
@@ -539,12 +607,15 @@ async function saveUser() {
 
     el('uErrMsg').style.display = 'none';
     if (!name || !username) { showErr('Name and username are required.'); return; }
-    if (!editId && !pw)               { showErr('Password is required for new users.'); return; }
-    if (pw && pw !== cpw)             { showErr('Passwords do not match.'); return; }
-    if (pw && pw.length < 8)         { showErr('Password must be at least 8 characters.'); return; }
+    // Password only required/validated when adding new user
+    if (!editId) {
+        if (!pw)          { showErr('Password is required for new users.'); return; }
+        if (pw !== cpw)   { showErr('Passwords do not match.'); return; }
+        if (pw.length < 8){ showErr('Password must be at least 8 characters.'); return; }
+    }
 
-    const payload = { fullname: name, username, role, status };
-    if (pw) payload.password = pw;
+    const payload = { fullname: name, username, email: email || null, role, status };
+    if (!editId && pw) payload.password = pw;
 
     const url    = editId ? `/users/${editId}` : '/users';
     const method = editId ? 'PUT' : 'POST';
@@ -588,7 +659,7 @@ async function doDelete() {
     }
 }
 
-// -- Utilities ----------------------------------------------------
+// ── Utilities ────────────────────────────────────────────────────
 function togglePw(fieldId, btn) {
     const inp = el(fieldId);
     const show = inp.type === 'password';
@@ -637,7 +708,119 @@ function showToast(msg, type = 'success') {
 }
 
 
-// -- Live notifications from /api/dashboard/stats -----------------
+
+// ── Reset Password (Admin action) ────────────────────────────
+let resetPwTab = 'email';
+let resetPwUserData = null;
+
+function openResetPwModal(id, name, role) {
+    const u = USERS_DATA.find(x => x.id === id);
+    resetPwUserData = u || { id, fullname: name, role };
+    el('resetPwUserId').value = id;
+    el('manualPw1').value = '';
+    el('manualPw2').value = '';
+    el('resetPwErr').style.display = 'none';
+
+    // Show email on file
+    const emailEl   = el('resetPwEmail');
+    const noEmailEl = el('resetPwNoEmail');
+    const email     = u?.email || null;
+    if (email) {
+        emailEl.textContent = email;
+        noEmailEl.style.display = 'none';
+    } else {
+        emailEl.textContent = 'No email on file';
+        emailEl.style.color = 'var(--muted)';
+        noEmailEl.style.display = 'block';
+    }
+
+    switchResetTab('email');
+    openModal('modalResetPw');
+}
+
+function switchResetTab(tab) {
+    resetPwTab = tab;
+    const emailBtn    = el('tabEmailBtn');
+    const manualBtn   = el('tabManualBtn');
+    const emailCont   = el('tabEmailContent');
+    const manualCont  = el('tabManualContent');
+    const submitLabel = el('resetPwSubmitLabel');
+    const submitIcon  = el('resetPwSubmitBtn').querySelector('i');
+    el('resetPwErr').style.display = 'none';
+
+    if (tab === 'email') {
+        emailBtn.style.cssText  = 'flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--cyan);background:rgba(23,184,220,.08);cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);transition:all .18s;';
+        manualBtn.style.cssText = 'flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:all .18s;';
+        emailCont.style.display  = 'block';
+        manualCont.style.display = 'none';
+        submitLabel.textContent  = 'Send Reset Email';
+        submitIcon.className     = 'fa-solid fa-paper-plane';
+    } else {
+        manualBtn.style.cssText = 'flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--cyan);background:rgba(23,184,220,.08);cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);transition:all .18s;';
+        emailBtn.style.cssText  = 'flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:all .18s;';
+        manualCont.style.display = 'block';
+        emailCont.style.display  = 'none';
+        submitLabel.textContent  = 'Set Password';
+        submitIcon.className     = 'fa-solid fa-check';
+    }
+}
+
+async function submitResetPw() {
+    const userId = parseInt(el('resetPwUserId').value);
+    const errEl  = el('resetPwErr');
+    const btn    = el('resetPwSubmitBtn');
+    errEl.style.display = 'none';
+
+    const showErr = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    if (resetPwTab === 'email') {
+        const u = USERS_DATA.find(x => x.id === userId);
+        if (!u?.email) { showErr('This user has no email on file. Use "Set Manually" instead.'); return; }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+        btn.disabled  = true;
+
+        const res  = await apiFetch('/password/admin-send-reset', {
+            method: 'POST',
+            body:   JSON.stringify({ user_id: userId }),
+        });
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>Send Reset Email</span>';
+        btn.disabled  = false;
+
+        if (res && res.status === 'success') {
+            closeModal('modalResetPw');
+            showToast('Reset email sent to ' + u.email, 'success');
+        } else {
+            showErr(res?.message || 'Failed to send reset email.');
+        }
+
+    } else {
+        const pw1 = el('manualPw1').value;
+        const pw2 = el('manualPw2').value;
+        if (!pw1)           { showErr('Please enter a new password.'); return; }
+        if (pw1.length < 8) { showErr('Password must be at least 8 characters.'); return; }
+        if (pw1 !== pw2)    { showErr('Passwords do not match.'); return; }
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+        btn.disabled  = true;
+
+        const res  = await apiFetch('/password/admin-set', {
+            method: 'POST',
+            body:   JSON.stringify({ user_id: userId, password: pw1 }),
+        });
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Set Password</span>';
+        btn.disabled  = false;
+
+        if (res && res.status === 'success') {
+            closeModal('modalResetPw');
+            showToast(res.message || 'Password updated successfully.', 'success');
+        } else {
+            showErr(res?.message || 'Failed to update password.');
+        }
+    }
+}
+
+// ── Live notifications from /api/dashboard/stats ─────────────────
 
 function showPage(page) {
     const adminOnly = ['reports','user-management','activity-logs'];
