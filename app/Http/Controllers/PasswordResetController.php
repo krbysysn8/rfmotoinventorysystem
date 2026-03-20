@@ -54,19 +54,25 @@ class PasswordResetController extends Controller
             'username' => 'required|string|max:50',
         ]);
 
-        // Must be an admin account
+        // Find the user first, then check role via loaded relationship
         $user = User::with('role')
-            ->whereHas('role', fn($q) => $q->where('role_name', 'admin'))
             ->where('username', $request->username)
             ->where('status', 'active')
             ->first();
 
-        // Always return success to prevent username enumeration
         if (! $user) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'No active admin account found with that username.',
+                'message' => 'No active account found with that username.',
             ], 404);
+        }
+
+        // Check if admin role
+        if ($user->role?->role_name !== 'admin') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'This feature is only available for admin accounts.',
+            ], 403);
         }
 
         if (! $user->email) {
