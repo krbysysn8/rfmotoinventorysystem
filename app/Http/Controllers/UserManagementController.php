@@ -16,7 +16,7 @@ class UserManagementController extends Controller
     public function index(): JsonResponse
     {
         $users = User::with('role:role_id,role_name')
-            ->select('user_id', 'full_name', 'username', 'role_id', 'status', 'last_login_at')
+            ->select('user_id', 'full_name', 'username', 'role_id', 'status', 'last_login_at', 'email')
             ->orderByDesc('user_id')
             ->get()
             ->map(fn($u) => [
@@ -26,6 +26,7 @@ class UserManagementController extends Controller
                 'role'       => $u->role?->role_name ?? '—',
                 'status'     => $u->status ?? 'active',
                 'last_login' => $u->last_login_at?->format('Y-m-d H:i') ?? null,
+                'email'      => $u->email,
             ]);
 
         return response()->json(['status' => 'success', 'data' => $users]);
@@ -37,6 +38,7 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'fullname' => 'required|string|max:100',
             'username' => 'required|string|max:50|unique:users,username',
+            'email'    => 'nullable|email|max:120|unique:users,email',
             'role'     => 'required|in:admin,staff',
             'status'   => 'required|in:active,inactive',
             'password' => ['required', Password::min(8)],
@@ -47,6 +49,7 @@ class UserManagementController extends Controller
         $user = User::create([
             'full_name'     => $data['fullname'],
             'username'      => $data['username'],
+            'email'         => $data['email'] ?? null,
             'role_id'       => $role->role_id,
             'status'        => $data['status'],
             'password_hash' => Hash::make($data['password']),
@@ -70,6 +73,7 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'fullname' => 'required|string|max:100',
             'username' => "required|string|max:50|unique:users,username,{$id},user_id",
+            'email'    => "nullable|email|max:120|unique:users,email,{$id},user_id",
             'role'     => 'required|in:admin,staff',
             'status'   => 'required|in:active,inactive',
             'password' => ['nullable', Password::min(8)],
@@ -79,6 +83,7 @@ class UserManagementController extends Controller
 
         $user->full_name = $data['fullname'];
         $user->username  = $data['username'];
+        $user->email     = $data['email'] ?? $user->email;
         $user->role_id   = $role->role_id;
         $user->status    = $data['status'];
         if (!empty($data['password'])) {
