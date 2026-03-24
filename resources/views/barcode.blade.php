@@ -906,7 +906,7 @@ html, body {
       <div class="topbar-title" id="topbarTitle">Barcode Scanner</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchFn(this.value)">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
@@ -1208,14 +1208,13 @@ html, body {
 </div>
 
 
-
-<div id="rfToast" style="position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;"></div>
+{{-- #rfToast is already declared above — duplicate removed (fix #1) --}}
 
 <script>
 const API_URL = '/api';
 const CSRF    = document.querySelector('meta[name="csrf-token"]').content;
 
-function getToken() { return sessionStorage.getItem('rfmoto_token') || ''; }
+function getToken() { return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || ''; }
 
 function authHeaders(json = true) {
     const token = getToken();
@@ -1230,9 +1229,9 @@ function authHeaders(json = true) {
 }
 
 // ── BARCODE ENGINE (CODE 128 — scannable by all 1D physical scanners) ──
-const _CAT = {'Engine Parts':'01','Electrical':'02','Brake System':'03','Suspension':'04',
-  'Body & Frame':'05','Transmission':'06','Cooling System':'07','Exhaust':'08',
-  'Filters':'09','Oils & Fluids':'10'};
+// Category → code map lives in BarcodeController::$categoryCodeMap (PHP).
+// The JS barcode engine uses CODE128 directly and does not need this map client-side.
+// Removed duplicate hardcoded _CAT object to avoid drift. (fix #6)
 
 // CODE 128B patterns (11 bits each)
 const _C128 = [
@@ -1325,7 +1324,7 @@ async function loadProducts() {
 
 async function loadScanLogs() {
     try {
-        const res  = await fetch(`${API_URL}/barcode/scan-logs`, { headers: authHeaders(false) });
+        const res  = await fetch(`${API_URL}/barcode/scan-logs`, { credentials: 'include', headers: authHeaders(false) });
         const data = await res.json();
         if (data.status === 'success') {
             scanLogsAll  = data.logs || [];
@@ -1398,7 +1397,7 @@ function renderScanLogItem(log) {
 async function clearRecentScans() {
     if (!confirm('Clear all your scan logs? This cannot be undone.')) return;
     try {
-        const res  = await fetch(`${API_URL}/barcode/scan-logs`, { method: 'DELETE', headers: authHeaders(false) });
+        const res  = await fetch(`${API_URL}/barcode/scan-logs`, { method: 'DELETE', credentials: 'include', headers: authHeaders(false) });
         const data = await res.json();
         if (data.status === 'success') {
             recentScansArr = []; scanLogsAll = []; scanLogsPage = 1;
@@ -1432,6 +1431,7 @@ async function doScan(code, action) {
     try {
         // Step 1: Lookup the product
         const res  = await fetch(`${API_URL}/barcode/lookup?code=${encodeURIComponent(code)}`, {
+            credentials: 'include',
             headers: authHeaders(false)
         });
         const data = await res.json();
@@ -1717,6 +1717,7 @@ async function confirmStockUpdate() {
     try {
         const res  = await fetch(`${API_URL}/barcode/stock-update`, {
             method: 'POST',
+            credentials: 'include',
             headers: authHeaders(),
             body: JSON.stringify({
                 product_id:      prod.product_id,
@@ -2227,8 +2228,8 @@ async function doLogout() {
     try {
         await fetch('/logout', { method:'POST', headers: authHeaders() });
     } catch(e) {}
-    sessionStorage.removeItem('rfmoto_token');
-    sessionStorage.removeItem('rfmoto_user');
+    sessionStorage.removeItem('rfmoto_token'); sessionStorage.removeItem('rfmoto_user');
+    localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user');
     window.location.href = '/login';
 }
 
@@ -2238,7 +2239,7 @@ let currentUser = null;
 
 function initFromSession() {
   const token  = getToken();
-  const stored = sessionStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user');
   if (!token || !stored) { window.location.href = '/login'; return; }
   try { currentUser = JSON.parse(stored); } catch(e) {}
   if (!currentUser) { window.location.href = '/login'; return; }
@@ -2338,11 +2339,8 @@ function toggleSidebar() {
 }
 
 
-function globalSearchFn(v) {
-  if (v && v.length > 1) {
-    filterQRef(v);
-  }
-}
+
+
 
 function toggleDarkMode() {
   const html = document.documentElement;
@@ -2403,5 +2401,19 @@ window.onload = function() {
 };
 </script>
 
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
