@@ -169,7 +169,7 @@
 
 <script>
   const TOKEN   = '{{ $token ?? "" }}';
-  const API_URL = '{{ config("app.url") }}/api';
+  const API_URL = '/api';
 
   function togglePw(id, btn) {
     const inp  = document.getElementById(id);
