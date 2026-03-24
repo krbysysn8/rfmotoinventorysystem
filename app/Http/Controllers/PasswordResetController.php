@@ -54,25 +54,19 @@ class PasswordResetController extends Controller
             'username' => 'required|string|max:50',
         ]);
 
-        // Find the user first, then check role via loaded relationship
+        // Must be an admin account
         $user = User::with('role')
+            ->whereHas('role', fn($q) => $q->where('role_name', 'admin'))
             ->where('username', $request->username)
             ->where('status', 'active')
             ->first();
 
+        // Always return success to prevent username enumeration
         if (! $user) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'No active account found with that username.',
+                'message' => 'No active admin account found with that username.',
             ], 404);
-        }
-
-        // Check if admin role
-        if ($user->role?->role_name !== 'admin') {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'This feature is only available for admin accounts.',
-            ], 403);
         }
 
         if (! $user->email) {
@@ -258,6 +252,8 @@ class PasswordResetController extends Controller
 
     private function sendResetEmail(User $user, string $token, string $type): void
     {
+        // ⚠️ RENDER DEPLOY: APP_URL in .env must match your live domain for this link to work.
+        // e.g. APP_URL=https://rfmoto.onrender.com — if wrong, the email link will point to localhost.
         $resetUrl  = config('app.url') . '/reset-password?token=' . $token;
         $name      = $user->full_name ?? $user->username;
         $appName   = config('app.name', 'RF Moto Parts');
