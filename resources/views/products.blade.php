@@ -8,7 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-
+/* ══════════════════════════════════════════
+   DESIGN TOKENS — matching rfmoto-login.html
+══════════════════════════════════════════ */
 :root {
   --cyan:        #17b8dc;
   --cyan2:       #0ea5c9;
@@ -99,6 +101,16 @@ html, body {
   box-shadow: 2px 0 24px rgba(0,0,0,.22);
 }
 .sidebar.collapsed { width: 64px; min-width: 64px; }
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span { display: none !important; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .nav-item i { width: auto; font-size: 16px; }
+.sidebar.collapsed .sidebar-footer { align-items: center; }
+.sidebar.collapsed .sidebar-footer-btn { justify-content: center; }
 
 /* ── Sidebar top stripe (matches login card-stripe) ── */
 .sidebar::before {
@@ -979,6 +991,20 @@ html, body {
 /* ══════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════ */
+/* ── PRODUCT VARIANT BUILDER ── */
+.p-variant-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);margin-bottom:0}
+.p-variant-row-top{display:flex;align-items:center;gap:8px}
+.p-variant-row-top input[type="text"]{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
+.p-variant-row-top input[type="text"]:focus{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan-glow)}
+.p-variant-row-top input[type="color"]{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);cursor:pointer;background:none;padding:2px}
+.p-variant-row-top input[type="number"]{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
+.p-variant-row-img{display:flex;align-items:center;gap:8px}
+.p-variant-row-img label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.p-variant-row-img input[type="file"]{font-size:11px;color:var(--muted);flex:1}
+.p-variant-img-preview{width:36px;height:36px;border-radius:6px;border:1px solid var(--border);object-fit:cover;display:none}
+.p-variant-remove{width:26px;height:26px;border-radius:6px;border:1px solid rgba(220,38,38,.3);background:rgba(220,38,38,.07);color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0}
+.p-variant-remove:hover{background:var(--danger);color:#fff}
+
 @media (max-width: 1024px) { .stat-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 900px) {
   .sidebar { width: 64px; min-width: 64px; }
@@ -1048,17 +1074,28 @@ html, body {
       <div class="topbar-title" id="topbarTitle">Product Overview</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchFn(this.value)">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchFn(this.value)" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user" onclick="confirmLogout()">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          </div>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1088,10 +1125,21 @@ html, body {
     <div class="modal-body">
       <div class="form-row"><div class="form-ctrl"><label>SKU</label><input type="text" id="pSku" placeholder="e.g. ENG-001"></div><div class="form-ctrl"><label>Product Name</label><input type="text" id="pName" placeholder="Product name"></div></div>
       <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="pCategory"><option value="">Loading...</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="pBrand" placeholder="Brand name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Unit Price (&#x20B1;)</label><input type="number" id="pPrice" placeholder="0.00" step="0.01"></div><div class="form-ctrl"><label>Cost Price (&#x20B1;)</label><input type="number" id="pCost" placeholder="0.00" step="0.01"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Stock Qty</label><input type="number" id="pStock" placeholder="0"></div><div class="form-ctrl"><label>Reorder Level</label><input type="number" id="pReorder" placeholder="5"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Unit Price (&#x20B1;)</label><input type="number" id="pPrice" placeholder="0.00" step="0.01"></div><div class="form-ctrl"><label>Stock Qty</label><input type="number" id="pStock" placeholder="0"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Reorder Level</label><input type="number" id="pReorder" placeholder="5"></div><div class="form-ctrl"></div></div>
       <div class="form-row full"><div class="form-ctrl"><label>Description</label><textarea id="pDesc" placeholder="Optional..."></textarea></div></div>
       <div class="form-row full"><div class="form-ctrl"><label>Product Photo <span style="color:#888;font-weight:400;font-size:0.8em;">(optional, max 2MB)</span></label><input type="file" id="pPhoto" accept="image/jpeg,image/png,image/webp" style="padding:6px;"><div id="pPhotoPreview" style="margin-top:8px;display:none;"><img id="pPhotoImg" src="" alt="Preview" style="max-height:120px;max-width:200px;border-radius:8px;border:1px solid #e2e8f0;object-fit:cover;"></div></div></div>
+      <!-- Variations Section -->
+      <div style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);white-space:nowrap;"><i class="fa-solid fa-layer-group" style="margin-right:5px;font-size:10px;"></i>Variations</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">The product itself is the first variation. Add more rows for different sizes, colors, or types.</p>
+        <div id="pVariantList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+        <button type="button" class="variant-add-btn" onclick="addPVariantRow()" style="display:flex;align-items:center;gap:7px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:10px;background:transparent;color:var(--muted);font-size:12px;font-family:'Barlow',sans-serif;cursor:pointer;transition:all .18s;width:100%;justify-content:center;"><i class="fa-solid fa-plus"></i> Add Another Variation</button>
+      </div>
     </div>
     <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalProduct')">Cancel</button><button class="btn btn-primary" onclick="saveProduct()"><i class="fa-solid fa-save"></i> Save Product</button></div>
   </div>
@@ -1232,6 +1280,20 @@ async function initFromSession() {
   launchApp();
   await loadData();
 
+  // ── Auto-search from global topbar search (via URL param) ──
+  const urlParams = new URLSearchParams(window.location.search);
+  const pendingSearch = urlParams.get('q') || sessionStorage.getItem('rfmoto_search');
+  if (pendingSearch) {
+    sessionStorage.removeItem('rfmoto_search');
+    // Replace URL so the ?q= doesn't persist on refresh
+    window.history.replaceState({}, '', '/products');
+    setTimeout(() => {
+      const gs = document.getElementById('globalSearch');
+      if (gs) gs.value = pendingSearch;
+      globalSearchFn(pendingSearch);
+    }, 100);
+  }
+
   // ── Auto-open product from Inventory List "View" button ──
   const openId = sessionStorage.getItem('rfmoto_open_product');
   if (openId) {
@@ -1261,37 +1323,58 @@ async function loadData() {
     CATEGORIES = catData.categories || [];
 
     // Normalize products — map API fields to UI fields
-    PRODUCTS = (prodData.products || []).map(p => ({
-      id:        p.product_id,
-      sku:       p.sku,
-      barcode:   p.barcode,
-      name:      p.product_name,
-      category:  p.category,
-      brand:     p.brand,
-      price:     parseFloat(p.unit_price),
-      cost:      parseFloat(p.cost_price),
-      stock:     p.stock,
-      reorder:   p.reorder,
-      image_url: p.image_url ? fixDriveUrl(p.image_url) : null,
-    }));
+    PRODUCTS = (prodData.products || []).map(p => {
+      const stockVal   = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
+      const reorderVal = parseInt(p.reorder ?? p.reorder_level ?? 0);
+      return {
+        id:          p.product_id,
+        sku:         p.sku          || '',
+        barcode:     p.barcode      || p.sku || '',
+        name:        p.product_name || '',
+        category:    p.category     || p.category_name || '',
+        category_id: p.category_id  || null,
+        supplier:    p.supplier_name || '',
+        supplier_id: p.supplier_id   || null,
+        brand:       p.brand         || '',
+        price:       parseFloat(p.unit_price  || 0),
+        cost:        parseFloat(p.cost_price  || 0),
+        stock:       stockVal,
+        reorder:     reorderVal,
+        status:      stockVal === 0 ? 'out_of_stock' : stockVal <= reorderVal ? 'low_stock' : 'in_stock',
+        image_url:   p.image_url ? fixDriveUrl(p.image_url) : null,
+        color:       p.color || '#17b8dc',
+        desc:        p.description   || '',
+        subcategory: p.subcategory_name || '',
+        subcategory_id: p.subcategory_id || null,
+        updated_at:  p.updated_at    || '',
+      };
+    });
     ALL_PRODUCTS = [...PRODUCTS]; // keep master copy for search filtering
 
     // Build VARIATIONS lookup from embedded variations
     VARIATIONS = {};
     (prodData.products || []).forEach(p => {
+      const productColor = p.color || '#17b8dc';
+      const baseStock    = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
       VARIATIONS[p.product_id] = {
         desc: p.description || 'No description available.',
         variations: (p.variations || []).map(v => ({
-          label:     v.variation_name,
-          color:     v.color || '#17b8dc',
-          stock:     v.stock_qty ?? 0,
-          barcode:   v.barcode || null,
+          label:     v.variation_name || 'Standard',
+          color:     v.color          || productColor,
+          stock:     parseInt(v.stock_qty ?? 0),
+          barcode:   v.barcode        || null,
           image_url: v.image_url ? fixDriveUrl(v.image_url) : null,
         })),
       };
       // Fallback if no variations
       if (!VARIATIONS[p.product_id].variations.length) {
-        VARIATIONS[p.product_id].variations = [{ label: 'Standard', color: '#17b8dc', stock: p.stock ?? 0, barcode: p.barcode, image_url: null }];
+        VARIATIONS[p.product_id].variations = [{
+          label:     'Standard',
+          color:     productColor,
+          stock:     baseStock,
+          barcode:   p.barcode || null,
+          image_url: null,
+        }];
       }
     });
 
@@ -1316,6 +1399,8 @@ function launchApp() {
   document.getElementById('topbarAvatar').textContent   = initials;
   document.getElementById('topbarName').textContent     = currentUser.fullname || currentUser.username;
   document.getElementById('topbarRole').textContent     = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
+  const dn = document.getElementById('dropdownName'); if (dn) dn.textContent = currentUser.fullname || currentUser.username;
+  const dr = document.getElementById('dropdownRole'); if (dr) dr.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
   const badge = document.getElementById('sidebarRoleBadge');
   badge.textContent  = currentUser.role === 'admin' ? 'Admin' : 'Staff';
   badge.className    = 'sidebar-role-badge ' + currentUser.role;
@@ -1531,7 +1616,7 @@ function changePageSize(val) {
 function openProductOverview(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
-  const meta      = VARIATIONS[id] || { desc: 'No description available.', variations:[{label:'Standard',color:'#17b8dc',stock:p.stock}] };
+  const meta      = VARIATIONS[id] || { desc: 'No description available.', variations:[{label:'Standard',color:p.color||'#17b8dc',stock:p.stock}] };
   _povActiveVar   = 0;
   const grad      = CATEGORY_GRADIENTS[p.category] || CATEGORY_GRADIENTS['default'];
   const icon      = CATEGORY_ICONS[p.category]     || CATEGORY_ICONS['default'];
@@ -1600,7 +1685,7 @@ function buildPovModal(p, meta, grad, icon, statusCls, statusTxt, activeIdx) {
 
 function selectPovVar(productId, idx) {
   const p    = PRODUCTS.find(x => x.id === productId);
-  const meta = VARIATIONS[productId] || {variations:[{label:'Standard',color:'#17b8dc',stock:p.stock}]};
+  const meta = VARIATIONS[productId] || {variations:[{label:'Standard',color:p.color||'#17b8dc',stock:p.stock}]};
   _povActiveVar = idx;
   const v    = meta.variations[idx];
   document.querySelectorAll('.pov-var-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
@@ -1671,13 +1756,21 @@ function openAddProduct() {
   if (currentUser.role !== 'admin') return;
   editingProductId = null;
   document.getElementById('modalProductTitle').innerHTML = 'Add <span>Product</span>';
-  ['pSku','pName','pBrand','pPrice','pCost','pStock','pReorder','pDesc'].forEach(id => {
+  ['pSku','pName','pBrand','pPrice','pStock','pReorder','pDesc'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('pStock').value   = 0;
   document.getElementById('pReorder').value = 5;
   document.getElementById('pPhoto').value   = '';
   document.getElementById('pPhotoPreview').style.display = 'none';
+  // Seed first variation row — empty label syncs with pName as user types
+  document.getElementById('pVariantList').innerHTML = '';
+  addPVariantRow('', '#17b8dc', 0, '');
+  const firstRow = document.querySelector('#pVariantList .p-variant-row');
+  if (firstRow) {
+    firstRow.dataset.isProductRow = '1';
+    firstRow.querySelector('.pvar-label').placeholder = 'Auto-fills from Product Name';
+  }
   document.getElementById('modalProduct').classList.add('open');
 }
 
@@ -1691,7 +1784,6 @@ function openEditProduct(id) {
   document.getElementById('pName').value    = p.name;
   document.getElementById('pBrand').value   = p.brand;
   document.getElementById('pPrice').value   = p.price;
-  document.getElementById('pCost').value    = p.cost;
   document.getElementById('pStock').value   = p.stock;
   document.getElementById('pReorder').value = p.reorder;
   document.getElementById('pDesc').value    = VARIATIONS[p.id]?.desc || '';
@@ -1709,10 +1801,45 @@ function openEditProduct(id) {
   const catSel = document.getElementById('pCategory');
   const cat    = CATEGORIES.find(c => c.category_name === p.category);
   if (cat && catSel) catSel.value = cat.category_id;
+  // Populate variants — always show product itself as first row
+  const vl = document.getElementById('pVariantList');
+  vl.innerHTML = '';
+  const savedVars = VARIATIONS[p.id]?.variations || [];
+  if (savedVars.length === 0) {
+    addPVariantRow(p.name, p.color || '#17b8dc', p.stock, p.image_url || '');
+  } else {
+    savedVars.forEach(v => addPVariantRow(v.label, v.color || '#17b8dc', v.stock, v.image_url || ''));
+  }
   document.getElementById('modalProduct').classList.add('open');
 }
 
 // Live photo preview
+// Sync pName → first variation row label (Add mode)
+document.addEventListener('input', e => {
+  if (e.target.id === 'pName') {
+    const firstRow = document.querySelector('#pVariantList .p-variant-row[data-is-product-row="1"]');
+    if (firstRow) {
+      const lbl = firstRow.querySelector('.pvar-label');
+      if (lbl && !lbl.dataset.userEdited) lbl.value = e.target.value;
+    }
+  }
+  if (e.target.id === 'pStock') {
+    const firstRow = document.querySelector('#pVariantList .p-variant-row[data-is-product-row="1"]');
+    if (firstRow) {
+      const stk = firstRow.querySelector('.pvar-stock');
+      if (stk && !stk.dataset.userEdited) stk.value = e.target.value;
+    }
+  }
+  // Mark pvar inputs as manually edited
+  if (e.target.classList.contains('pvar-label') || e.target.classList.contains('pvar-stock')) {
+    e.target.dataset.userEdited = '1';
+  }
+  if (e.target.classList.contains('pvar-color')) {
+    const row = e.target.closest('.p-variant-row');
+    if (row) row.dataset.colorEdited = '1';
+  }
+});
+
 document.getElementById('pPhoto').addEventListener('change', function() {
   const file = this.files[0];
   const preview = document.getElementById('pPhotoPreview');
@@ -1724,6 +1851,56 @@ document.getElementById('pPhoto').addEventListener('change', function() {
     preview.style.display = 'none';
   }
 });
+
+// ════════════════════════════════════════════
+//  PRODUCT VARIANT ROWS (Add/Edit modal)
+// ════════════════════════════════════════════
+function addPVariantRow(label = '', color = '#17b8dc', stock = 0, imageUrl = '') {
+  const row = document.createElement('div');
+  row.className = 'p-variant-row';
+  row.innerHTML = `
+    <div class="p-variant-row-top">
+      <div class="pvar-color-wrap" title="Click to change color" onclick="this.querySelector('.pvar-color').click()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;flex-shrink:0;transition:border-color .2s;">
+        <div class="pvar-color-swatch" style="width:22px;height:22px;border-radius:5px;border:2px solid rgba(255,255,255,.2);box-shadow:0 1px 4px rgba(0,0,0,.3);background:${color};flex-shrink:0;"></div>
+        <input type="color" value="${color}" class="pvar-color" style="position:absolute;opacity:0;width:0;height:0;" onchange="this.closest('.pvar-color-wrap').querySelector('.pvar-color-swatch').style.background=this.value;this.closest('.pvar-color-wrap').querySelector('.pvar-color-hex').textContent=this.value.toUpperCase();">
+        <span class="pvar-color-hex" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">${color.toUpperCase()}</span>
+      </div>
+      <input type="text" placeholder="Variant name (e.g. Red, XL, Type A)" value="${label}" class="pvar-label">
+      <input type="number" placeholder="Stock" value="${stock}" min="0" class="pvar-stock" style="width:74px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none;" title="Stock quantity">
+      <button type="button" class="p-variant-remove" onclick="this.closest('.p-variant-row').remove()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="p-variant-row-img">
+      <label>Image</label>
+      <input type="file" accept="image/jpeg,image/png,image/webp" class="pvar-img-file" onchange="previewPVarImg(this)">
+      ${imageUrl ? `<img src="${imageUrl}" class="p-variant-img-preview" style="display:block;">` : `<img class="p-variant-img-preview">`}
+    </div>`;
+  document.getElementById('pVariantList').appendChild(row);
+}
+
+function previewPVarImg(input) {
+  const img = input.closest('.p-variant-row-img').querySelector('.p-variant-img-preview');
+  if (input.files[0]) {
+    img.src = URL.createObjectURL(input.files[0]);
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
+}
+
+function collectPVariants() {
+  return [...document.querySelectorAll('#pVariantList .p-variant-row')].map(row => ({
+    variation_name: row.querySelector('.pvar-label').value.trim() || 'Standard',
+    color:          row.querySelector('.pvar-color').value || '#17b8dc',
+    stock_qty:      parseInt(row.querySelector('.pvar-stock').value) || 0,
+  })).filter(v => v.variation_name);
+}
+
+function collectPVariantFiles() {
+  return [...document.querySelectorAll('#pVariantList .p-variant-row')].map(row => {
+    const f = row.querySelector('.pvar-img-file');
+    return f && f.files[0] ? f.files[0] : null;
+  });
+}
 
 async function saveProduct() {
   const sku          = document.getElementById('pSku').value.trim();
@@ -1743,14 +1920,20 @@ async function saveProduct() {
   fd.append('brand',         brand);
   fd.append('category_id',   category_id);
   fd.append('unit_price',    parseFloat(document.getElementById('pPrice').value)||0);
-  fd.append('cost_price',    parseFloat(document.getElementById('pCost').value)||0);
+  fd.append('cost_price',    0);
   fd.append('stock_qty',     parseInt(document.getElementById('pStock').value)||0);
   fd.append('reorder_level', parseInt(document.getElementById('pReorder').value)||5);
   fd.append('description',   document.getElementById('pDesc').value.trim());
-  fd.append('barcode',       sku); // auto-same as SKU
+  fd.append('barcode',       sku);
   if (photoFile) fd.append('photo', photoFile);
-  // Laravel PUT via FormData needs method spoofing
   if (editingProductId) fd.append('_method', 'PUT');
+
+  // Variants
+  const variants = collectPVariants();
+  if (variants.length) fd.append('variations', JSON.stringify(variants));
+  collectPVariantFiles().forEach((file, i) => {
+    if (file) fd.append(`variation_photo_${i}`, file);
+  });
 
   try {
     const url    = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
@@ -1802,7 +1985,19 @@ function openScan() { document.getElementById('modalScan').classList.add('open')
 // ════════════════════════════════════════════
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function confirmLogout() { document.getElementById('modalLogout').classList.add('open'); }
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+function confirmLogout() { closeUserMenu(); document.getElementById('modalLogout').classList.add('open'); }
+function closeUserMenu() { const dd = document.getElementById('userDropdown'); if (dd) dd.style.display = 'none'; }
 
 async function doLogout() {
   try {
