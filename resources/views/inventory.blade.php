@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Inventory List</title>
+<title>RF Moto – Inventory List</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -55,9 +55,19 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s}
 #app{display:flex;height:100vh}
 
-/* -- SIDEBAR -- */
+/* ── SIDEBAR ── */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22)}
 .sidebar.collapsed{width:64px;min-width:64px}
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span{display:none!important}
+.sidebar.collapsed .nav-item{justify-content:center;padding:10px 0}
+.sidebar.collapsed .nav-item i{width:auto;font-size:16px}
+.sidebar.collapsed .sidebar-footer{align-items:center}
+.sidebar.collapsed .sidebar-footer-btn{justify-content:center}
 .sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),#7ee8fa,var(--cyan2));background-size:300% 100%;animation:stripeShift 3s linear infinite;z-index:1}
 @keyframes stripeShift{0%{background-position:0%}100%{background-position:300%}}
 .sidebar-header {
@@ -111,7 +121,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0}
 
-/* -- TOPBAR -- */
+/* ── TOPBAR ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);flex:1;transition:color .3s}
@@ -133,13 +143,13 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);transition:color .3s}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s}
 .content-area::-webkit-scrollbar{width:5px}
 .content-area::-webkit-scrollbar-track{background:transparent}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* -- FILTER BAR -- */
+/* ── FILTER BAR ── */
 .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-sm)}
 .filter-search{position:relative;flex:1;min-width:220px}
 .filter-search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s}
@@ -152,7 +162,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .filter-select:focus{border-color:var(--cyan)}
 .filter-count{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 
-/* -- TABLE CARD -- */
+/* ── TABLE CARD ── */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s}
 .tbl-scroll{overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
@@ -165,7 +175,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .tbl tr:hover td{background:rgba(23,184,220,.04)}
 .tbl tr{transition:background .15s}
 
-/* -- BADGES -- */
+/* ── BADGES ── */
 .badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2)}
 .badge-red{background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2)}
@@ -174,7 +184,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .badge-blue{background:rgba(37,99,235,.08);color:#2563eb;border:1px solid rgba(37,99,235,.18)}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
 
-/* -- BUTTONS -- */
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28)}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px)}
@@ -185,10 +195,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .btn-sm{padding:5px 10px;font-size:11px}
 .btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:7px;font-size:12px}
 
-/* -- SKU CHIP -- */
+/* ── SKU CHIP ── */
 .sku-chip{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.08em;background:rgba(23,184,220,.08);color:var(--cyan);padding:2px 8px;border-radius:5px;border:1px solid var(--cyan-border)}
 
-/* -- COLOR SWATCHES -- */
+/* ── COLOR SWATCHES ── */
 .swatches{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .swatch{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s,box-shadow .15s;flex-shrink:0;position:relative}
 .swatch:hover{transform:scale(1.25);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -196,17 +206,17 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .swatch:hover .swatch-tooltip{opacity:1}
 .swatch-more{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);margin-left:2px}
 
-/* -- SUBCATEGORY CHIP -- */
+/* ── SUBCATEGORY CHIP ── */
 .subcat-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;background:rgba(23,184,220,.06);border:1px solid var(--cyan-border);font-size:10px;font-weight:600;color:var(--cyan);font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em}
 
-/* -- ACTION BTNS -- */
+/* ── ACTION BTNS ── */
 .action-group{display:flex;align-items:center;gap:5px}
 .action-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:11px;transition:all .18s}
 .action-btn:hover.edit{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.08)}
 .action-btn:hover.view{border-color:var(--warn);color:var(--warn);background:rgba(217,119,6,.08)}
 .action-btn:hover.del{border-color:var(--danger);color:var(--danger);background:rgba(220,38,38,.08)}
 
-/* -- PAGINATION -- */
+/* ── PAGINATION ── */
 .pagination-wrap{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:13px 18px;border-top:1px solid var(--border);background:var(--surface2)}
 .pg-btn{min-width:30px;height:30px;padding:0 7px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif}
 .pg-btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan)}
@@ -214,7 +224,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .pg-btn:disabled{opacity:.35;cursor:not-allowed}
 .pg-ellipsis{font-size:12px;color:var(--muted);padding:0 3px}
 
-/* -- MODALS -- */
+/* ── MODALS ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-backdrop.open{display:flex}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .24s cubic-bezier(.2,0,.2,1) both;overflow:hidden;transition:background .3s}
@@ -240,33 +250,37 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .form-ctrl textarea{resize:vertical;min-height:72px}
 .form-ctrl select{cursor:pointer}
 
-/* -- COLOR VARIANT BUILDER -- */
+/* ── COLOR VARIANT BUILDER ── */
 .variant-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
-.variant-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
-.variant-row input[type="text"]{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
-.variant-row input[type="text"]:focus{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan-glow)}
-.variant-row input[type="color"]{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);cursor:pointer;background:none;padding:2px}
-.variant-row input[type="number"]{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
-.variant-row input[type="number"]:focus{border-color:var(--cyan)}
+.variant-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)}
+.variant-row-top{display:flex;align-items:center;gap:8px}
+.variant-row-top input[type="text"]{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
+.variant-row-top input[type="text"]:focus{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan-glow)}
+.variant-row-top input[type="color"]{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);cursor:pointer;background:none;padding:2px}
+.variant-row-top input[type="number"]{width:80px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none}
+.variant-row-top input[type="number"]:focus{border-color:var(--cyan)}
+.variant-row-img{display:flex;align-items:center;gap:8px;margin-top:2px}
+.variant-row-img label{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.variant-row-img input[type="file"]{font-size:11px;color:var(--muted);flex:1}
+.variant-img-preview{width:36px;height:36px;border-radius:6px;border:1px solid var(--border);object-fit:cover;display:none}
+
 .variant-remove{width:26px;height:26px;border-radius:6px;border:1px solid rgba(220,38,38,.3);background:rgba(220,38,38,.07);color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0}
 .variant-remove:hover{background:var(--danger);color:#fff}
 .variant-add-btn{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:10px;background:transparent;color:var(--muted);font-size:12px;font-family:'Barlow',sans-serif;cursor:pointer;transition:all .18s;width:100%;justify-content:center}
 .variant-add-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.04)}
-.variant-header{display:grid;grid-template-columns:1fr 32px 80px 26px;gap:8px;padding:0 12px;margin-bottom:4px}
-.variant-header span{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
-/* -- DELETE CONFIRM -- */
+/* ── DELETE CONFIRM ── */
 .delete-confirm-icon{text-align:center;padding:20px 0 10px}
 .delete-confirm-icon i{font-size:42px;color:var(--danger)}
 
-/* -- EMPTY STATE -- */
+/* ── EMPTY STATE ── */
 .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty-state i{font-size:40px;margin-bottom:14px;opacity:.3;display:block}
 .empty-state p{font-size:13px}
 
-/* -- RESPONSIVE -- */
+/* ── RESPONSIVE ── */
 
-/* -- RESPONSIVE -- */
+/* ── RESPONSIVE ── */
 @media(max-width:900px){.sidebar{width:64px;min-width:64px}.sidebar .sidebar-brand-wrap,.sidebar .sidebar-user-info,.sidebar .nav-item-label,.sidebar .nav-section,.sidebar .nav-badge,.sidebar-footer-btn span{display:none}}
 @media(max-width:600px){.content-area{padding:14px 14px}.form-row{grid-template-columns:1fr}}
 </style>
@@ -274,7 +288,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <body>
 
 <div id="app">
-  <!-- === SIDEBAR === -->
+  <!-- ═══ SIDEBAR ═══ -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo-pill">
@@ -316,23 +330,34 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     </div>
   </div>
 
-  <!-- === MAIN === -->
+  <!-- ═══ MAIN ═══ -->
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">Inventory <span style="color:var(--cyan)">List</span></div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search inventory..." id="globalSearch" oninput="applyFilters()">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user" onclick="openModal('modalLogout')">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          </div>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="openModal('modalLogout')" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -362,7 +387,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           <option value="">All Suppliers</option>
         </select>
         <div class="filter-sep"></div>
-        <span class="filter-count" id="filterCount">- items</span>
+        <span class="filter-count" id="filterCount">— items</span>
         <button class="btn btn-primary btn-sm" onclick="openAddItem()" id="addItemBtn" style="margin-left:auto">
           <i class="fa-solid fa-plus"></i> Add Item
         </button>
@@ -399,7 +424,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- === MODAL: ADD / EDIT ITEM === -->
+<!-- ═══ MODAL: ADD / EDIT ITEM ═══ -->
 <div class="modal-backdrop" id="modalItem">
   <div class="modal modal-lg">
     <div class="modal-header">
@@ -423,9 +448,8 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
         <div class="form-ctrl"><label>Supplier</label><select id="iSupplier"><option value="">Select supplier...</option></select></div>
       </div>
       <!-- Row 4 -->
-      <div class="form-row thirds">
+      <div class="form-row">
         <div class="form-ctrl"><label>Unit Price (₱) *</label><input type="number" id="iPrice" placeholder="0.00" step="0.01" min="0"></div>
-        <div class="form-ctrl"><label>Cost Price (₱) *</label><input type="number" id="iCost" placeholder="0.00" step="0.01" min="0"></div>
         <div class="form-ctrl"><label>Barcode</label><input type="text" id="iBarcode" placeholder="Auto-filled from SKU"></div>
       </div>
       <!-- Row 5 -->
@@ -445,14 +469,23 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           <div id="iPhotoPreview" style="display:none;margin-top:8px;"><img id="iPhotoImg" src="" alt="" style="max-height:100px;max-width:180px;border-radius:8px;border:1px solid var(--border);object-fit:cover;"></div>
         </div>
       </div>
-      <!-- Color Variants -->
-      <div style="margin-bottom:4px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <label style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Color Variants <span style="color:var(--muted);font-weight:400;font-size:.85em;">(optional)</span></label>
-          <span style="font-size:11px;color:var(--muted);">Name · Color · Stock</span>
+      <!-- Variations Section -->
+      <div style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);white-space:nowrap;"><i class="fa-solid fa-layer-group" style="margin-right:5px;font-size:10px;"></i>Variations</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:10px;">The product itself is the first variation. Add more rows for different sizes, colors, or types.</p>
+        <div style="display:grid;grid-template-columns:1fr 32px 90px 74px 26px;gap:6px;padding:0 2px;margin-bottom:4px;">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Variation Name</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Color</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Image</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Stock</span>
+          <span></span>
         </div>
         <div class="variant-list" id="variantList"></div>
-        <button class="variant-add-btn" onclick="addVariantRow()"><i class="fa-solid fa-plus"></i> Add Variant</button>
+        <button class="variant-add-btn" onclick="addVariantRow()" style="margin-top:6px;"><i class="fa-solid fa-plus"></i> Add Another Variation</button>
       </div>
     </div>
     <div class="modal-footer">
@@ -462,7 +495,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- === MODAL: DELETE CONFIRM === -->
+<!-- ═══ MODAL: DELETE CONFIRM ═══ -->
 <div class="modal-backdrop" id="modalDelete">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -472,7 +505,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     <div class="modal-body">
       <div class="delete-confirm-icon"><i class="fa-solid fa-trash-can"></i></div>
       <p style="text-align:center;font-size:14px;color:var(--text);margin-bottom:6px;">Remove this item from inventory?</p>
-      <p style="text-align:center;font-size:12px;color:var(--muted);" id="deleteItemName">-</p>
+      <p style="text-align:center;font-size:12px;color:var(--muted);" id="deleteItemName">—</p>
       <p style="text-align:center;font-size:11px;color:var(--danger);margin-top:10px;"><i class="fa-solid fa-triangle-exclamation"></i> This action cannot be undone.</p>
     </div>
     <div class="modal-footer" style="justify-content:center;">
@@ -482,7 +515,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- === MODAL: LOGOUT === -->
+<!-- ═══ MODAL: LOGOUT ═══ -->
 <div class="modal-backdrop" id="modalLogout">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -500,10 +533,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<script charset="utf-8">
-// ========================================
+<script>
+// ════════════════════════════════════════
 //  CONFIG
-// ========================================
+// ════════════════════════════════════════
 const API_URL = '/api';
 // TOKEN is read dynamically so it's never stale
 
@@ -512,13 +545,13 @@ function authHeaders() {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${sessionStorage.getItem('rfmoto_token') || ''}`,
+    'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`,
   };
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  STATE
-// ========================================
+// ════════════════════════════════════════
 let currentUser  = null;
 let ALL_PRODUCTS = [];
 let FILTERED     = [];
@@ -531,11 +564,11 @@ let SORT_DIR     = 'asc';
 let deletingId   = null;
 let editingId    = null;
 
-// ========================================
+// ════════════════════════════════════════
 //  INIT
-// ========================================
+// ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
-  const stored = sessionStorage.getItem('rfmoto_user');
+  const stored = localStorage.getItem('rfmoto_user');
   if (!stored) { window.location.replace('/login'); return; }
   try { currentUser = JSON.parse(stored); } catch(e) { window.location.replace('/login'); return; }
 
@@ -554,6 +587,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('topbarAvatar').textContent  = initials;
   document.getElementById('topbarName').textContent    = name;
   document.getElementById('topbarRole').textContent    = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
+  const dn = document.getElementById('dropdownName'); if (dn) dn.textContent = name;
+  const dr = document.getElementById('dropdownRole'); if (dr) dr.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
   const badge = document.getElementById('sidebarRoleBadge');
   badge.textContent = currentUser.role === 'admin' ? 'Admin' : 'Staff';
   badge.className   = 'sidebar-role-badge ' + (currentUser.role || 'staff');
@@ -582,6 +617,35 @@ window.addEventListener('DOMContentLoaded', async () => {
     this.dataset.manuallySet = this.value ? '1' : '';
   });
 
+  // Sync iName → first variation row label (Add mode only)
+  document.getElementById('iName').addEventListener('input', function() {
+    const firstRow = document.querySelector('#variantList .variant-row[data-is-product-row="1"]');
+    if (firstRow) {
+      const lbl = firstRow.querySelector('.var-label');
+      if (lbl && !lbl.dataset.userEdited) lbl.value = this.value;
+    }
+  });
+
+  // Sync iStock → first variation row stock (Add mode only)
+  document.getElementById('iStock').addEventListener('input', function() {
+    const firstRow = document.querySelector('#variantList .variant-row[data-is-product-row="1"]');
+    if (firstRow) {
+      const stk = firstRow.querySelector('.var-stock');
+      if (stk && !stk.dataset.userEdited) stk.value = this.value;
+    }
+  });
+
+  // Mark variant inputs as manually edited so auto-sync stops
+  document.getElementById('variantList').addEventListener('input', e => {
+    if (e.target.classList.contains('var-label') || e.target.classList.contains('var-stock')) {
+      e.target.dataset.userEdited = '1';
+    }
+    if (e.target.classList.contains('var-color')) {
+      const row = e.target.closest('.variant-row');
+      if (row) row.dataset.colorEdited = '1';
+    }
+  });
+
   await loadAll();
 });
 
@@ -597,32 +661,38 @@ async function loadAll() {
     CATEGORIES = catData.categories || [];
     SUPPLIERS  = supData.suppliers  || [];
 
-    ALL_PRODUCTS = (prodData.products || []).map(p => ({
-      id:          p.product_id,
-      sku:         p.sku,
-      barcode:     p.barcode || p.sku,
-      name:        p.product_name,
-      category:    p.category,
-      category_id: p.category_id,
-      supplier:    p.supplier_name || '',
-      supplier_id: p.supplier_id   || null,
-      brand:       p.brand,
-      price:       parseFloat(p.unit_price),
-      cost:        parseFloat(p.cost_price),
-      stock:       parseInt(p.stock),
-      reorder:     parseInt(p.reorder),
-      status:      parseInt(p.stock) === 0 ? 'out_of_stock' : parseInt(p.stock) <= parseInt(p.reorder) ? 'low_stock' : 'in_stock',
-      image_url:   p.image_url || null,
-      updated_at:  p.updated_at || '',
-      desc:        p.description || '',
-      subcategory: p.subcategory_name || '',
-      subcategory_id: p.subcategory_id || null,
-      variations:  (p.variations || []).map(v => ({
-        label: v.variation_name,
-        color: v.color || '#17b8dc',
-        stock: v.stock_qty ?? 0,
-      })),
-    }));
+    ALL_PRODUCTS = (prodData.products || []).map(p => {
+      const stockVal  = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
+      const reorderVal = parseInt(p.reorder ?? p.reorder_level ?? 0);
+      return {
+        id:             p.product_id,
+        sku:            p.sku         || '',
+        barcode:        p.barcode     || p.sku || '',
+        name:           p.product_name || '',
+        category:       p.category    || p.category_name || '',
+        category_id:    p.category_id  || null,
+        supplier:       p.supplier_name || '',
+        supplier_id:    p.supplier_id   || null,
+        brand:          p.brand         || '',
+        price:          parseFloat(p.unit_price  || 0),
+        cost:           parseFloat(p.cost_price  || 0),
+        stock:          stockVal,
+        reorder:        reorderVal,
+        status:         stockVal === 0 ? 'out_of_stock' : stockVal <= reorderVal ? 'low_stock' : 'in_stock',
+        image_url:      p.image_url   || null,
+        updated_at:     p.updated_at  || '',
+        color:          p.color       || '#17b8dc',
+        desc:           p.description || '',
+        subcategory:    p.subcategory_name || '',
+        subcategory_id: p.subcategory_id   || null,
+        variations:     (p.variations || []).map(v => ({
+          label:     v.variation_name || 'Standard',
+          color:     v.color          || p.color || '#17b8dc',
+          stock:     parseInt(v.stock_qty ?? 0),
+          image_url: v.image_url || null,
+        })),
+      };
+    });
 
     populateFilterDropdowns();
     applyFilters();
@@ -634,9 +704,9 @@ async function loadAll() {
   }
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  FILTER DROPDOWNS
-// ========================================
+// ════════════════════════════════════════
 function populateFilterDropdowns() {
   // Categories
   const catSel = document.getElementById('filterCategory');
@@ -688,11 +758,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filterCategory').setAttribute('onchange', 'onFilterCategoryChange()');
 });
 
-// ========================================
-//  FILTER + SORT + RENDER
-// ========================================
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+
+
 function applyFilters() {
-  const search  = (document.getElementById('tableSearch')?.value || document.getElementById('globalSearch')?.value || '').toLowerCase().trim();
+  const search = (document.getElementById('tableSearch')?.value || '').toLowerCase().trim();
   const status  = document.getElementById('filterStatus').value;
   const catId   = parseInt(document.getElementById('filterCategory').value) || 0;
   const subId   = parseInt(document.getElementById('filterSubcategory')?.value) || 0;
@@ -766,16 +842,16 @@ function renderTable() {
     const statusTxt = p.status === 'out_of_stock' ? 'Out of Stock' : p.status === 'low_stock' ? 'Low Stock' : 'In Stock';
     const qtyColor  = p.status === 'out_of_stock' ? 'var(--danger)' : p.status === 'low_stock' ? 'var(--warn)' : 'var(--text)';
 
-    // Color swatches
-    let swatchHtml = '<span style="font-size:11px;color:var(--muted);">-</span>';
+    // Color swatches — each variation's own color
+    let swatchHtml = '<span style="font-size:11px;color:var(--muted);">—</span>';
     if (p.variations && p.variations.length > 0) {
       const maxShow = 5;
       const shown   = p.variations.slice(0, maxShow);
       const extra   = p.variations.length - maxShow;
       swatchHtml = `<div class="swatches">` +
         shown.map(v => `
-          <span class="swatch" style="background:${v.color}">
-            <span class="swatch-tooltip">${v.label} (${v.stock})</span>
+          <span class="swatch" style="background:${v.color || p.color || '#17b8dc'}">
+            <span class="swatch-tooltip">${v.label}</span>
           </span>`).join('') +
         (extra > 0 ? `<span class="swatch-more">+${extra}</span>` : '') +
         `</div>`;
@@ -784,15 +860,15 @@ function renderTable() {
     // Subcategory
     const subcatHtml = p.subcategory
       ? `<span class="subcat-chip"><i class="fa-solid fa-folder-open" style="font-size:9px;"></i>${p.subcategory}</span>`
-      : `<span style="font-size:11px;color:var(--muted);">-</span>`;
+      : `<span style="font-size:11px;color:var(--muted);">—</span>`;
 
     // Supplier
     const supplierHtml = p.supplier
       ? `<span style="font-size:12px;color:var(--text2);">${p.supplier}</span>`
-      : `<span style="font-size:11px;color:var(--muted);">-</span>`;
+      : `<span style="font-size:11px;color:var(--muted);">—</span>`;
 
     // Updated date
-    const updDate = p.updated_at ? p.updated_at.substring(0,10) : '-';
+    const updDate = p.updated_at ? p.updated_at.substring(0,10) : '—';
 
     return `<tr>
       <td><span class="sku-chip">${p.barcode}</span></td>
@@ -842,7 +918,7 @@ function renderPagination(totalPages, start, end, total) {
 
   const sizes = [10,20,40,100].map(n => `<option value="${n}" ${PAGE_SIZE===n?'selected':''}>${n}</option>`).join('');
   bar.innerHTML = `
-    <span style="font-size:12px;color:var(--muted);">Showing <strong style="color:var(--text);">${start+1}-${end}</strong> of <strong style="color:var(--text);">${total}</strong> items</span>
+    <span style="font-size:12px;color:var(--muted);">Showing <strong style="color:var(--text);">${start+1}–${end}</strong> of <strong style="color:var(--text);">${total}</strong> items</span>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:9px;"></i></button>
       ${btns}
@@ -860,9 +936,9 @@ function goPage(p) {
   document.querySelector('.content-area').scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  VIEW IN PRODUCT OVERVIEW
-// ========================================
+// ════════════════════════════════════════
 function goToProductOverview(id) {
   // Navigate to Product Overview page with the product ID in sessionStorage
   // so that page can auto-open the product modal
@@ -870,16 +946,15 @@ function goToProductOverview(id) {
   window.location.href = '/products';
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  ADD / EDIT ITEM MODAL
-// ========================================
+// ════════════════════════════════════════
 function openAddItem() {
   if (currentUser?.role !== 'admin') return;
   editingId = null;
   document.getElementById('modalItemTitle').innerHTML = 'Add <span>Item</span>';
   ['iSku','iName','iBrand','iBarcode','iDesc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('iPrice').value   = '';
-  document.getElementById('iCost').value    = '';
   document.getElementById('iStock').value   = 0;
   document.getElementById('iReorder').value = 5;
   document.getElementById('iCategory').value = '';
@@ -888,7 +963,15 @@ function openAddItem() {
   document.getElementById('iPhoto').value   = '';
   document.getElementById('iPhotoPreview').style.display = 'none';
   document.getElementById('iBarcode').dataset.manuallySet = '';
+  // Seed first variation row — name mirrors iName as user types
   document.getElementById('variantList').innerHTML = '';
+  addVariantRow('', '#17b8dc', 0, '');
+  // Mark first row as the "product row" so it syncs with product fields
+  const firstRow = document.querySelector('#variantList .variant-row');
+  if (firstRow) {
+    firstRow.dataset.isProductRow = '1';
+    firstRow.querySelector('.var-label').placeholder = 'Auto-fills from Item Name';
+  }
   openModal('modalItem');
 }
 
@@ -904,7 +987,6 @@ function openEditItem(id) {
   document.getElementById('iBarcode').value = p.barcode;
   document.getElementById('iDesc').value    = p.desc;
   document.getElementById('iPrice').value   = p.price;
-  document.getElementById('iCost').value    = p.cost;
   document.getElementById('iStock').value   = p.stock;
   document.getElementById('iReorder').value = p.reorder;
   document.getElementById('iCategory').value = p.category_id || '';
@@ -917,38 +999,70 @@ function openEditItem(id) {
   const img  = document.getElementById('iPhotoImg');
   if (p.image_url) { img.src = p.image_url; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
   document.getElementById('iPhoto').value = '';
-  // Variants
+  // Variants — always show the product itself as first row
   const vl = document.getElementById('variantList');
   vl.innerHTML = '';
-  (p.variations || []).forEach(v => addVariantRow(v.label, v.color, v.stock));
+  const savedVars = p.variations || [];
+  if (savedVars.length === 0) {
+    addVariantRow(p.name, p.color || '#17b8dc', p.stock, p.image_url || '');
+  } else {
+    savedVars.forEach(v => addVariantRow(v.label, v.color || '#17b8dc', v.stock, v.image_url || ''));
+  }
   openModal('modalItem');
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  VARIANT ROWS
-// ========================================
-function addVariantRow(label = '', color = '#17b8dc', stock = 0) {
+// ════════════════════════════════════════
+function addVariantRow(label = '', color = '#17b8dc', stock = 0, imageUrl = '') {
   const row = document.createElement('div');
   row.className = 'variant-row';
   row.innerHTML = `
-    <input type="text" placeholder="Variant name (e.g. Red)" value="${label}" class="var-label">
-    <input type="color" value="${color}" class="var-color" title="Pick color">
-    <input type="number" placeholder="0" value="${stock}" min="0" class="var-stock">
-    <button class="variant-remove" onclick="this.parentElement.remove()" title="Remove"><i class="fa-solid fa-xmark"></i></button>`;
+    <div class="variant-row-top">
+      <div class="var-color-wrap" title="Click to change color" onclick="this.querySelector('.var-color').click()" style="display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;flex-shrink:0;transition:border-color .2s;">
+        <div class="var-color-swatch" style="width:22px;height:22px;border-radius:5px;border:2px solid rgba(255,255,255,.2);box-shadow:0 1px 4px rgba(0,0,0,.3);background:${color};flex-shrink:0;"></div>
+        <input type="color" value="${color}" class="var-color" style="position:absolute;opacity:0;width:0;height:0;" onchange="this.closest('.var-color-wrap').querySelector('.var-color-swatch').style.background=this.value;this.closest('.var-color-wrap').querySelector('.var-color-hex').textContent=this.value.toUpperCase();">
+        <span class="var-color-hex" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);white-space:nowrap;">${color.toUpperCase()}</span>
+      </div>
+      <input type="text" placeholder="Variant name (e.g. Red, XL, Type A)" value="${label}" class="var-label" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none;">
+      <input type="number" placeholder="Stock" value="${stock}" min="0" class="var-stock" style="width:74px;padding:6px 8px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:'Barlow',sans-serif;color:var(--text);background:var(--bg);outline:none;" title="Stock quantity">
+      <button class="variant-remove" onclick="this.closest('.variant-row').remove()" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="variant-row-img">
+      <label>Image</label>
+      <input type="file" accept="image/jpeg,image/png,image/webp" class="var-img-file" onchange="previewVarImg(this)">
+      ${imageUrl ? `<img src="${imageUrl}" class="variant-img-preview" style="display:block;">` : `<img class="variant-img-preview">`}
+    </div>`;
   document.getElementById('variantList').appendChild(row);
+}
+
+function previewVarImg(input) {
+  const img = input.closest('.variant-row-img').querySelector('.variant-img-preview');
+  if (input.files[0]) {
+    img.src = URL.createObjectURL(input.files[0]);
+    img.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+  }
 }
 
 function collectVariants() {
   return [...document.querySelectorAll('#variantList .variant-row')].map(row => ({
     variation_name: row.querySelector('.var-label').value.trim() || 'Standard',
-    color:          row.querySelector('.var-color').value,
+    color:          row.querySelector('.var-color').value || '#17b8dc',
     stock_qty:      parseInt(row.querySelector('.var-stock').value) || 0,
   })).filter(v => v.variation_name);
 }
 
-// ========================================
+function collectVariantFiles() {
+  return [...document.querySelectorAll('#variantList .variant-row')].map(row => {
+    const fileInput = row.querySelector('.var-img-file');
+    return fileInput && fileInput.files[0] ? fileInput.files[0] : null;
+  });
+}
+
 //  SAVE ITEM
-// ========================================
+// ════════════════════════════════════════
 async function saveItem() {
   const sku          = document.getElementById('iSku').value.trim();
   const product_name = document.getElementById('iName').value.trim();
@@ -965,7 +1079,7 @@ async function saveItem() {
   fd.append('category_id',    category_id);
   fd.append('brand',          document.getElementById('iBrand').value.trim());
   fd.append('unit_price',     parseFloat(document.getElementById('iPrice').value) || 0);
-  fd.append('cost_price',     parseFloat(document.getElementById('iCost').value)  || 0);
+  fd.append('cost_price',     0);
   fd.append('stock_qty',      parseInt(document.getElementById('iStock').value)   || 0);
   fd.append('reorder_level',  parseInt(document.getElementById('iReorder').value) || 5);
   fd.append('description',    document.getElementById('iDesc').value.trim());
@@ -981,11 +1095,17 @@ async function saveItem() {
   const variants = collectVariants();
   if (variants.length) fd.append('variations', JSON.stringify(variants));
 
+  // Variant images — append each as variation_photo_0, variation_photo_1, etc.
+  const varFiles = collectVariantFiles();
+  varFiles.forEach((file, i) => {
+    if (file) fd.append(`variation_photo_${i}`, file);
+  });
+
   const url = editingId ? `${API_URL}/products/${editingId}` : `${API_URL}/products`;
   try {
     const res  = await fetch(url, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${TOKEN}`, 'Accept': 'application/json' },
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`, 'Accept': 'application/json' },
       body: fd,
     });
     const data = await res.json();
@@ -1000,9 +1120,9 @@ async function saveItem() {
   } catch(e) { showToast('Save failed. Please try again.', 'danger'); }
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  DELETE
-// ========================================
+// ════════════════════════════════════════
 function openDeleteItem(id, name) {
   deletingId = id;
   document.getElementById('deleteItemName').textContent = name;
@@ -1025,9 +1145,9 @@ async function confirmDelete() {
   } catch(e) { showToast('Delete failed.', 'danger'); }
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  NAVIGATION
-// ========================================
+// ════════════════════════════════════════
 const PAGE_MAP = {
   'dashboard':'/dashboard','inventory':'/inventory','products':'/products',
   'barcode':'/barcode','categories':'/categories','suppliers':'/suppliers',
@@ -1050,6 +1170,18 @@ function showPage(page) {
     if (map[page]) window.location.href = map[page];
 }
 
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+
 function toggleSidebar() {
   const sb   = document.getElementById('sidebar');
   const icon = document.getElementById('collapseIcon');
@@ -1057,9 +1189,9 @@ function toggleSidebar() {
   icon.className = sb.classList.contains('collapsed') ? 'fa-solid fa-angles-right' : 'fa-solid fa-angles-left';
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  DARK MODE
-// ========================================
+// ════════════════════════════════════════
 function toggleDarkMode() {
   const html   = document.documentElement;
   const toggle = document.getElementById('darkToggle');
@@ -1071,25 +1203,25 @@ function toggleDarkMode() {
   localStorage.setItem('rfmoto_theme', isDark ? 'light' : 'dark');
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  MODAL HELPERS
-// ========================================
+// ════════════════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ========================================
+// ════════════════════════════════════════
 //  LOGOUT
-// ========================================
+// ════════════════════════════════════════
 async function doLogout() {
   try { await fetch('/logout', { method:'POST', headers: authHeaders() }); } catch(e) {}
-  sessionStorage.removeItem('rfmoto_token');
-  sessionStorage.removeItem('rfmoto_user');
+  localStorage.removeItem('rfmoto_token');
+  localStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
-// ========================================
+// ════════════════════════════════════════
 //  TOAST
-// ========================================
+// ════════════════════════════════════════
 function showToast(msg, type='success') {
   const old = document.getElementById('rfmoto-toast');
   if (old) old.remove();
@@ -1102,5 +1234,18 @@ function showToast(msg, type='success') {
   setTimeout(()=>t.remove(), 3000);
 }
 </script>
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
