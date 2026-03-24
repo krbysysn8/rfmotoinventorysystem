@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Returned Items</title>
+<title>RF Moto – Returned Items</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -15,6 +15,16 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 #app{display:flex;height:100vh;}
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span{display:none!important}
+.sidebar.collapsed .nav-item{justify-content:center;padding:10px 0}
+.sidebar.collapsed .nav-item i{width:auto;font-size:16px}
+.sidebar.collapsed .sidebar-footer{align-items:center}
+.sidebar.collapsed .sidebar-footer-btn{justify-content:center}
 .sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),#7ee8fa,var(--cyan2));background-size:300% 100%;animation:stripeShift 3s linear infinite;z-index:1;}
 @keyframes stripeShift{0%{background-position:0%}100%{background-position:300%}}
 .sidebar-header {
@@ -234,14 +244,25 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="main">
   <div class="topbar">
     <div class="topbar-title">Returned <span style="color:var(--cyan)">Items</span></div>
-    <div class="topbar-search"><i class="fa-solid fa-search"></i><input type="text" id="globalSearch" placeholder="Search product, platform, courier..." oninput="applyFilters()"></div>
+    <div class="topbar-search"><i class="fa-solid fa-search"></i><input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;"></div>
     <div class="topbar-actions">
       <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()"><div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div></div>
       <div class="topbar-btn" onclick="window.location.href='/barcode'" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-      <div class="topbar-user" onclick="confirmLogout()">
-        <div class="topbar-avatar" id="topbarAvatar">A</div>
-        <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-        <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+      <div style="position:relative;">
+        <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+          <div class="topbar-avatar" id="topbarAvatar">A</div>
+          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        </div>
+        <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+          </div>
+          <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -251,10 +272,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 
     <!-- STAT CARDS -->
     <div class="stat-grid">
-      <div class="stat-card"><div class="stat-icon cyan"><i class="fa-solid fa-rotate-left"></i></div><div><div class="stat-val" id="statTotal">-</div><div class="stat-lbl">Total Returned</div></div></div>
-      <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-val" id="statGood">-</div><div class="stat-lbl">Good Condition</div></div></div>
-      <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-circle-xmark"></i></div><div><div class="stat-val" id="statBad">-</div><div class="stat-lbl">Bad Condition</div></div></div>
-      <div class="stat-card"><div class="stat-icon warn"><i class="fa-solid fa-shop"></i></div><div><div class="stat-val" id="statPlatforms">-</div><div class="stat-lbl">Active Platforms</div></div></div>
+      <div class="stat-card"><div class="stat-icon cyan"><i class="fa-solid fa-rotate-left"></i></div><div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total Returned</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-val" id="statGood">—</div><div class="stat-lbl">Good Condition</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-circle-xmark"></i></div><div><div class="stat-val" id="statBad">—</div><div class="stat-lbl">Bad Condition</div></div></div>
+      <div class="stat-card"><div class="stat-icon warn"><i class="fa-solid fa-shop"></i></div><div><div class="stat-val" id="statPlatforms">—</div><div class="stat-lbl">Active Platforms</div></div></div>
     </div>
 
     <!-- LOG RETURN FORM -->
@@ -394,7 +415,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="modal-backdrop" id="modalDetail">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Return <span id="modalRetNum">-</span></div>
+      <div class="modal-title">Return <span id="modalRetNum">—</span></div>
       <button class="modal-close" onclick="closeModal('modalDetail')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -442,13 +463,13 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 
 <div class="toast" id="toast"></div>
 
-<script charset="utf-8">
-const API_BASE = '/api';
+<script>
+const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token', USER_KEY='rfmoto_user';
-function getToken(){return sessionStorage.getItem(TOKEN_KEY);}
-function getUser(){try{return JSON.parse(sessionStorage.getItem(USER_KEY));}catch(e){return null;}}
-function setUser(u){sessionStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth(){sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);}
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }catch(e){return null;}}
+function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -476,6 +497,8 @@ function bootUI(u){
   el('sidebarAvatar').textContent=ini; el('sidebarName').textContent=u.fullname||u.username;
   el('topbarAvatar').textContent=ini; el('topbarName').textContent=u.fullname||u.username;
   el('topbarRole').textContent=u.role==='admin'?'Administrator':'Staff';
+  const dn=document.getElementById('dropdownName');if(dn)dn.textContent=u.fullname||u.username;
+  const dr=document.getElementById('dropdownRole');if(dr)dr.textContent=u.role==='admin'?'Administrator':'Staff';
   const b=el('sidebarRoleBadge'); b.textContent=u.role==='admin'?'Admin':'Staff';
   b.className='sidebar-role-badge '+(u.role||'staff');
   document.querySelectorAll('.admin-only').forEach(e=>e.style.display=u.role==='admin'?'':'none');
@@ -543,12 +566,12 @@ function platformBadge(p){
   const map={shopee:'badge-shopee',tiktok:'badge-tiktok',lazada:'badge-lazada',other:'badge-other'};
   const icons={shopee:'fa-store',tiktok:'fa-music',lazada:'fa-box',other:'fa-ellipsis'};
   const labels={shopee:'Shopee',tiktok:'TikTok Shop',lazada:'Lazada',other:'Other'};
-  return`<span class="badge ${map[p]||'badge-other'}"><i class="fa-solid ${icons[p]||'fa-ellipsis'}"></i> ${labels[p]||p||'-'}</span>`;
+  return`<span class="badge ${map[p]||'badge-other'}"><i class="fa-solid ${icons[p]||'fa-ellipsis'}"></i> ${labels[p]||p||'—'}</span>`;
 }
 function courierBadge(c){
   const map={jnt:'badge-jnt',shopee_express:'badge-shopee',flash:'badge-flash',other:'badge-other'};
   const labels={jnt:'J&T Express',shopee_express:'Shopee Express',flash:'Flash Express',other:'Other'};
-  return`<span class="badge ${map[c]||'badge-other'}">${labels[c]||c||'-'}</span>`;
+  return`<span class="badge ${map[c]||'badge-other'}">${labels[c]||c||'—'}</span>`;
 }
 function statusBadge(s, badReason){
   const badLabels={defective:'Defective',damaged:'Damaged',no_item:'No Item',wrong_item:'Wrong Item'};
@@ -557,7 +580,7 @@ function statusBadge(s, badReason){
     const r=badReason?` · ${badLabels[badReason]||badReason}`:'';
     return`<span class="badge badge-bad"><i class="fa-solid fa-circle-xmark"></i> Bad${r}</span>`;
   }
-  return`<span class="badge badge-other">-</span>`;
+  return`<span class="badge badge-other">—</span>`;
 }
 
 function renderTable(){
@@ -567,8 +590,8 @@ function renderTable(){
   const isAdmin=currentUser?.role==='admin';
   tbody.innerHTML=rows.map(r=>{
     const prod=r.product_name?`<span style="font-weight:500;">${esc(r.product_name)}</span>`:`<span class="no-product"><i class="fa-solid fa-minus" style="font-size:9px;"></i> None</span>`;
-    const orderId=r.order_id?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--cyan);font-weight:700;">${esc(r.order_id)}</span>`:`<span style="color:var(--muted);font-size:11px;">-</span>`;
-    const prodId=r.product_id?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--text2);font-weight:700;">#${r.product_id}</span>`:`<span style="color:var(--muted);font-size:11px;">-</span>`;
+    const orderId=r.order_id?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--cyan);font-weight:700;">${esc(r.order_id)}</span>`:`<span style="color:var(--muted);font-size:11px;">—</span>`;
+    const prodId=r.product_id?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--text2);font-weight:700;">#${r.product_id}</span>`:`<span style="color:var(--muted);font-size:11px;">—</span>`;
     return`<tr>
       <td style="white-space:nowrap;font-size:12px;color:var(--text2);">${fmtDate(r.return_date)}</td>
       <td>${orderId}</td>
@@ -578,8 +601,8 @@ function renderTable(){
       <td>${courierBadge(r.courier)}</td>
       <td>${statusBadge(r.item_status, r.bad_reason)}</td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;text-align:center;">${r.quantity||1}</td>
-      <td style="font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.notes||'')}">${esc(r.notes||'-')}</td>
-      <td style="font-size:12px;color:var(--muted);">${esc(r.logged_by_name||'-')}</td>
+      <td style="font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.notes||'')}">${esc(r.notes||'—')}</td>
+      <td style="font-size:12px;color:var(--muted);">${esc(r.logged_by_name||'—')}</td>
       <td>
         <div style="display:flex;gap:4px;">
           <button class="action-btn" onclick="viewDetail(${r.id})" title="View"><i class="fa-regular fa-eye"></i></button>
@@ -608,11 +631,11 @@ function viewDetail(id){
     </div>
     <div class="dg">
       <div class="di"><div class="di-label">Return Date</div><div class="di-val">${fmtDate(r.return_date)}</div></div>
-      <div class="di"><div class="di-label">Logged By</div><div class="di-val">${esc(r.logged_by_name||'-')}</div></div>
+      <div class="di"><div class="di-label">Logged By</div><div class="di-val">${esc(r.logged_by_name||'—')}</div></div>
       <div class="di"><div class="di-label">Platform</div><div class="di-val">${platformBadge(r.platform)}</div></div>
       <div class="di"><div class="di-label">Courier</div><div class="di-val">${courierBadge(r.courier)}</div></div>
       ${r.item_status==='bad'&&r.bad_reason?`<div class="di"><div class="di-label">Bad Reason</div><div class="di-val">${esc(badLabels[r.bad_reason]||r.bad_reason)}</div></div>`:''}
-      <div class="di di-full"><div class="di-label">Notes</div><div class="di-val" style="color:var(--text2);line-height:1.5;">${esc(r.notes||'-')}</div></div>
+      <div class="di di-full"><div class="di-label">Notes</div><div class="di-val" style="color:var(--text2);line-height:1.5;">${esc(r.notes||'—')}</div></div>
     </div>`;
   openModal('modalDetail');
 }
@@ -699,11 +722,11 @@ function renderPag(){
   const s=(PAGE-1)*PAGE_SIZE+1,e=Math.min(PAGE*PAGE_SIZE,total);
   const range=pagR(PAGE,pages);
   const btns=range.map(p=>p==='…'?`<span class="pg-info" style="padding:0 4px;">…</span>`:`<button class="pg-btn ${p===PAGE?'active':''}" onclick="goPage(${p})">${p}</button>`).join('');
-  wrap.innerHTML=`<span class="pg-info">Showing ${s}-${e} of ${total}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
+  wrap.innerHTML=`<span class="pg-info">Showing ${s}–${e} of ${total}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
 }
 function pagR(cur,total){if(total<=7)return Array.from({length:total},(_,i)=>i+1);if(cur<=4)return[1,2,3,4,5,'…',total];if(cur>=total-3)return[1,'…',total-4,total-3,total-2,total-1,total];return[1,'…',cur-1,cur,cur+1,'…',total];}
 function goPage(p){const pages=Math.ceil(FILTERED.length/PAGE_SIZE);if(p<1||p>pages)return;PAGE=p;renderTable();document.querySelector('.content-area').scrollTop=0;}
-function fmtDate(d){if(!d)return'-';const dt=new Date(d+'T00:00:00');if(isNaN(dt))return String(d).substring(0,10);return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');if(isNaN(dt))return String(d).substring(0,10);return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,type='success'){const t=el('toast');const c={success:'#16a34a',warn:'#d97706',danger:'#dc2626',info:'#17b8dc'};t.style.background=c[type]||c.info;t.style.color='#fff';t.style.opacity='1';t.style.display='block';t.textContent=msg;setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.style.display='none',400);},2800);}
 
@@ -724,8 +747,36 @@ function restoreTheme(){const s=localStorage.getItem('rfmoto_theme');if(s==='dar
 function openModal(id){el(id).classList.add('open');}
 function closeModal(id){el(id).classList.remove('open');}
 document.addEventListener('click',e=>{['modalDetail','modalDelete','modalLogout'].forEach(id=>{if(e.target===el(id))closeModal(id);});});
-function confirmLogout(){openModal('modalLogout');}
+function toggleUserMenu(){const dd=document.getElementById('userDropdown');dd.style.display=dd.style.display==='none'?'block':'none';}
+function closeUserMenu(){const dd=document.getElementById('userDropdown');if(dd)dd.style.display='none';}
+document.addEventListener('click',function(e){const btn=document.getElementById('topbarUserBtn'),dd=document.getElementById('userDropdown');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))dd.style.display='none';});
+function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
