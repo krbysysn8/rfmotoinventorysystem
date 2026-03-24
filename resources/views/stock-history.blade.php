@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Stock History</title>
+<title>RF Moto – Stock History</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -57,9 +57,19 @@
 html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; transition: background .3s, color .3s; }
 #app { display: flex; height: 100vh; }
 
-/* -- SIDEBAR ---------------------------------------- */
+/* ── SIDEBAR ──────────────────────────────────────── */
 .sidebar { width: 236px; min-width: 236px; background: var(--sidebar-bg); display: flex; flex-direction: column; position: relative; z-index: 10; transition: width .28s cubic-bezier(.4,0,.2,1), min-width .28s; overflow: hidden; border-right: 1px solid rgba(23,184,220,.10); box-shadow: 2px 0 24px rgba(0,0,0,.22); }
 .sidebar.collapsed { width: 64px; min-width: 64px; }
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span { display: none !important; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .nav-item i { width: auto; font-size: 16px; }
+.sidebar.collapsed .sidebar-footer { align-items: center; }
+.sidebar.collapsed .sidebar-footer-btn { justify-content: center; }
 .sidebar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--cyan2), var(--cyan), #7ee8fa, var(--cyan2)); background-size: 300% 100%; animation: stripeShift 3s linear infinite; z-index: 1; }
 @keyframes stripeShift { 0% { background-position: 0% } 100% { background-position: 300% } }
 .sidebar-header { padding: 20px 16px 14px; border-bottom: 1px solid var(--sidebar-sep); display: flex; align-items: center; gap: 11px; margin-top: 3px; }
@@ -97,7 +107,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .sidebar-footer-btn.danger:hover { color: #f87171; }
 .sidebar-footer-btn i { width: 18px; text-align: center; font-size: 13px; flex-shrink: 0; }
 
-/* -- MAIN -- */
+/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
@@ -120,7 +130,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 
-/* -- NOTIF DRAWER -- */
+/* ── NOTIF DRAWER ── */
 .notif-drawer{position:absolute;top:56px;right:16px;width:300px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);z-index:200;display:none;overflow:hidden;}
 .notif-drawer.open{display:block;}
 .notif-drawer-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
@@ -137,7 +147,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .notif-text{font-size:12px;color:var(--text);line-height:1.4;}
 .notif-time{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:22px;background:var(--bg);transition:background .3s;position:relative;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -145,14 +155,14 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .section-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
 .section-actions{display:flex;gap:8px;align-items:center;}
 
-/* -- SEARCH BAR -- */
+/* ── SEARCH BAR ── */
 .bar-search{position:relative;max-width:320px;}
 .bar-search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
 .bar-search input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow);}
 .bar-search input::placeholder{color:var(--muted);}
 .bar-search i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;}
 
-/* -- STAT CARDS ------------------------------------ */
+/* ── STAT CARDS ──────────────────────────────────── */
 .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
 .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-sm); transition: background .3s, border-color .3s; }
 .stat-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
@@ -165,14 +175,14 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; line-height: 1; color: var(--text); }
 .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; }
 
-/* -- CHART ROW ------------------------------------- */
+/* ── CHART ROW ───────────────────────────────────── */
 .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
 .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--shadow-sm); transition: background .3s, border-color .3s; }
 .chart-card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 800; letter-spacing: .04em; color: var(--text); margin-bottom: 4px; }
 .chart-card-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
 .chart-wrap { position: relative; height: 200px; }
 
-/* -- FILTER BAR ------------------------------------ */
+/* ── FILTER BAR ──────────────────────────────────── */
 .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow-sm); }
 .filter-search { position: relative; flex: 1; min-width: 200px; }
 .filter-search input { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border); border-radius: 9px; font-size: 13px; font-family: 'Barlow', sans-serif; color: var(--text); background: var(--bg); outline: none; transition: border-color .2s, box-shadow .2s; }
@@ -189,7 +199,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .filter-count { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
 .filter-icon { color: var(--muted); font-size: 13px; flex-shrink: 0; }
 
-/* -- TABLE ----------------------------------------- */
+/* ── TABLE ───────────────────────────────────────── */
 .table-card { background: var(--surface); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; transition: background .3s, border-color .3s; }
 .tbl-scroll { overflow-x: auto; }
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -202,7 +212,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tr:hover td { background: rgba(23,184,220,.04); }
 
-/* -- BADGES ---------------------------------------- */
+/* ── BADGES ──────────────────────────────────────── */
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
 .badge-in     { background: rgba(22,163,74,.10);   color: #16a34a; border: 1px solid rgba(22,163,74,.2); }
 .badge-out    { background: rgba(220,38,38,.08);   color: #dc2626; border: 1px solid rgba(220,38,38,.2); }
@@ -212,10 +222,10 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .badge-verify { background: rgba(23,184,220,.10);  color: var(--cyan); border: 1px solid var(--cyan-border); }
 .badge-gray   { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 
-/* -- SKU CHIP ---------------------------------------- */
+/* ── SKU CHIP ──────────────────────────────────────── */
 .sku-chip { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .08em; background: rgba(23,184,220,.08); color: var(--cyan); padding: 2px 8px; border-radius: 5px; border: 1px solid var(--cyan-border); }
 
-/* -- QTY DELTA ---------------------------------------- */
+/* ── QTY DELTA ──────────────────────────────────────── */
 .delta { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 800; }
 .delta.in     { color: var(--success); }
 .delta.out    { color: var(--danger); }
@@ -223,21 +233,21 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .delta.sale   { color: var(--blue); }
 .delta.return { color: #7c3aed; }
 
-/* -- BEFORE/AFTER FLOW -------------------------------- */
+/* ── BEFORE/AFTER FLOW ──────────────────────────────── */
 .flow { display: flex; align-items: center; gap: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; }
 .flow .before { color: var(--muted); }
 .flow .arr { color: var(--muted); font-size: 9px; }
 .flow .after { color: var(--text); font-weight: 800; }
 
-/* -- VERIFY FLAG ------------------------------------ */
+/* ── VERIFY FLAG ──────────────────────────────────── */
 .verify-flag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--cyan); font-weight: 600; }
 
-/* -- ACTION BTNS ------------------------------------ */
+/* ── ACTION BTNS ──────────────────────────────────── */
 .action-btn { width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface2); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 11px; transition: all .18s; }
 .action-btn:hover.view { border-color: var(--cyan); color: var(--cyan); background: rgba(23,184,220,.08); }
 .action-btn:hover.hist { border-color: var(--warn); color: var(--warn); background: rgba(217,119,6,.08); }
 
-/* -- PAGINATION ------------------------------------ */
+/* ── PAGINATION ──────────────────────────────────── */
 .pag-wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 13px 18px; border-top: 1px solid var(--border); background: var(--surface2); }
 .pg-btn { min-width: 30px; height: 30px; padding: 0 7px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; }
 .pg-btn:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
@@ -245,7 +255,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .pg-btn:disabled { opacity: .35; cursor: not-allowed; }
 .pg-info { font-size: 12px; color: var(--muted); }
 
-/* -- BUTTONS ---------------------------------------- */
+/* ── BUTTONS ──────────────────────────────────────── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 9px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: all .18s; border: 1px solid transparent; white-space: nowrap; }
 .btn-primary { background: linear-gradient(90deg, var(--cyan2), var(--cyan)); color: #fff; border-color: var(--cyan); box-shadow: 0 3px 10px rgba(23,184,220,.28); }
 .btn-primary:hover { box-shadow: 0 5px 18px rgba(23,184,220,.42); transform: translateY(-1px); }
@@ -254,12 +264,12 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
 .btn-sm { padding: 5px 10px; font-size: 11px; }
 
-/* -- EMPTY STATE ------------------------------------ */
+/* ── EMPTY STATE ──────────────────────────────────── */
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state i { font-size: 40px; margin-bottom: 14px; opacity: .3; display: block; }
 .empty-state p { font-size: 13px; }
 
-/* -- MODALS ---------------------------------------- */
+/* ── MODALS ──────────────────────────────────────── */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(13,27,38,.65); backdrop-filter: blur(3px); z-index: 900; display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-backdrop.open { display: flex; }
 .modal { background: var(--surface); border-radius: 20px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.22), 0 0 0 1px var(--border); animation: modalIn .24s cubic-bezier(.2,0,.2,1) both; overflow: hidden; transition: background .3s; }
@@ -274,7 +284,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
 .modal-footer { padding: 13px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; background: var(--surface2); }
 
-/* -- DETAIL GRID ------------------------------------ */
+/* ── DETAIL GRID ──────────────────────────────────── */
 .dg { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
 .di { display: flex; flex-direction: column; gap: 3px; }
 .di-label { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
@@ -282,7 +292,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .di-val.mono { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; }
 .di-full { grid-column: 1/-1; }
 
-/* -- TIMELINE ---------------------------------------- */
+/* ── TIMELINE ──────────────────────────────────────── */
 .timeline { display: flex; flex-direction: column; }
 .tl-item { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
 .tl-item:last-child { border-bottom: none; }
@@ -301,7 +311,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .tl-flow .b { color: var(--muted); }
 .tl-flow .a { color: var(--text); font-weight: 800; }
 
-/* -- NOTIF DRAWER ------------------------------------ */
+/* ── NOTIF DRAWER ──────────────────────────────────── */
 .notif-drawer { position: fixed; top: 56px; right: 0; width: 316px; max-height: 72vh; background: var(--surface); border-left: 1px solid var(--border); border-bottom-left-radius: 16px; box-shadow: -4px 4px 24px rgba(0,0,0,.12); z-index: 500; display: none; flex-direction: column; overflow: hidden; }
 .notif-drawer.open { display: flex; }
 .notif-drawer-header { padding: 13px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
@@ -317,7 +327,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .notif-text { font-size: 12px; color: var(--text); line-height: 1.45; }
 .notif-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
 
-/* -- RESPONSIVE ------------------------------------ */
+/* ── RESPONSIVE ──────────────────────────────────── */
 @media(max-width:1200px){ .stat-grid{grid-template-columns:repeat(3,1fr);} }
 @media(max-width:900px){
   .sidebar{width:64px;min-width:64px;}
@@ -331,7 +341,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 <body>
 <div id="app">
 
-<!-- =============== SIDEBAR =============== -->
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo-pill">
@@ -373,7 +383,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
   </div>
 </div>
 
-<!-- =============== MAIN =============== -->
+<!-- ═══════════════ MAIN ═══════════════ -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title">Stock <span style="color:var(--cyan)">History</span></div>
@@ -386,10 +396,21 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
         <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
       </div>
       <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-      <div class="topbar-user" onclick="confirmLogout()">
-        <div class="topbar-avatar" id="topbarAvatar">A</div>
-        <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-        <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+      <div style="position:relative;">
+        <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+          <div class="topbar-avatar" id="topbarAvatar">A</div>
+          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        </div>
+        <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+          </div>
+          <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -397,36 +418,39 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
   <div class="content-area">
 
     <!-- STAT CARDS -->
-    <div class="stat-grid">
+    <div class="stat-grid" style="grid-template-columns:repeat(5,1fr);">
       <div class="stat-card">
         <div class="stat-icon cyan"><i class="fa-solid fa-clock-rotate-left"></i></div>
-        <div><div class="stat-val" id="statTotal">-</div><div class="stat-lbl">Total Movements</div></div>
+        <div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total Today</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon green"><i class="fa-solid fa-circle-arrow-up"></i></div>
-        <div><div class="stat-val" id="statIn">-</div><div class="stat-lbl">Stock In</div></div>
+        <div><div class="stat-val" id="statIn">—</div><div class="stat-lbl">Stock In Today</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon red"><i class="fa-solid fa-circle-arrow-down"></i></div>
-        <div><div class="stat-val" id="statOut">-</div><div class="stat-lbl">Stock Out</div></div>
+        <div><div class="stat-val" id="statOut">—</div><div class="stat-lbl">Stock Out (Damage) Today</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon blue"><i class="fa-solid fa-receipt"></i></div>
-        <div><div class="stat-val" id="statSale">-</div><div class="stat-lbl">Sales</div></div>
+        <div><div class="stat-val" id="statSale">—</div><div class="stat-lbl">Sales Today</div></div>
       </div>
-
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-rotate-left"></i></div>
+        <div><div class="stat-val" id="statReturn">—</div><div class="stat-lbl">Returns Today</div></div>
+      </div>
     </div>
 
     <!-- CHARTS -->
     <div class="chart-row">
       <div class="chart-card">
         <div class="chart-card-title">Movement Trend</div>
-        <div class="chart-card-sub">Stock in vs out - last 6 months</div>
+        <div class="chart-card-sub">Stock in vs out — last 6 months</div>
         <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
       </div>
       <div class="chart-card">
         <div class="chart-card-title">Movement Breakdown</div>
-        <div class="chart-card-sub">Distribution by movement type</div>
+        <div class="chart-card-sub" id="breakdownSub">Distribution by movement type — today</div>
         <div class="chart-wrap"><canvas id="chartBreakdown"></canvas></div>
       </div>
     </div>
@@ -442,11 +466,10 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
       <select class="filter-select" id="filterType" onchange="applyFilters()">
         <option value="">All Types</option>
         <option value="in">Stock In</option>
-        <option value="out">Stock Out</option>
-        <option value="out-sales">Stock Out - Sales</option>
-        <option value="out-damaged">Stock Out - Damaged</option>
-        <option value="sale">Sale</option>
-        <option value="return">Return</option>
+        <option value="out">Stock Out (Damage)</option>
+        <option value="sale">Sales</option>
+        <option value="return">Returns</option>
+        <option value="out-damaged">Damaged</option>
       </select>
       <select class="filter-select" id="filterProduct" onchange="applyFilters()" style="min-width:160px;">
         <option value="">All Products</option>
@@ -455,7 +478,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
       <i class="filter-icon fa-solid fa-calendar" style="font-size:12px;"></i>
       <div class="date-wrap">
         <input type="date" id="dateFrom" onchange="applyFilters()" title="From">
-        <span>-</span>
+        <span>–</span>
         <input type="date" id="dateTo" onchange="applyFilters()" title="To">
       </div>
       <div class="filter-sep"></div>
@@ -496,7 +519,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 </div><!-- /main -->
 </div><!-- /app -->
 
-<!-- === DETAIL MODAL === -->
+<!-- ═══ DETAIL MODAL ═══ -->
 <div class="modal-backdrop" id="modalDetail">
   <div class="modal">
     <div class="modal-header">
@@ -510,7 +533,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
   </div>
 </div>
 
-<!-- === PRODUCT HISTORY MODAL === -->
+<!-- ═══ PRODUCT HISTORY MODAL ═══ -->
 <div class="modal-backdrop" id="modalHistory">
   <div class="modal modal-lg">
     <div class="modal-header">
@@ -524,7 +547,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
   </div>
 </div>
 
-<!-- === LOGOUT MODAL === -->
+<!-- ═══ LOGOUT MODAL ═══ -->
 <div class="modal-backdrop" id="modalLogout">
   <div class="modal" style="max-width:380px;">
     <div class="modal-header">
@@ -542,18 +565,18 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
   </div>
 </div>
 
-<script charset="utf-8">
-// ===================================================
+<script>
+// ═══════════════════════════════════════════════════
 //  CONFIG & AUTH
-// ===================================================
-const API_BASE = '/api';
+// ═══════════════════════════════════════════════════
+const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } } catch(e) { return null; } }
+function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 function el(id)      { return document.getElementById(id); }
 
 async function apiFetch(path, opts = {}) {
@@ -572,9 +595,9 @@ async function apiFetch(path, opts = {}) {
     return res.json();
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  STATE
-// ===================================================
+// ═══════════════════════════════════════════════════
 let currentUser    = null;
 let ALL_MOVEMENTS  = [];
 let FILTERED       = [];
@@ -585,9 +608,9 @@ const PAGE_SIZE    = 20;
 let SORT_KEY       = 'movement_date';
 let SORT_DIR       = 'desc';
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  INIT
-// ===================================================
+// ═══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', async () => {
     const user  = getUser();
     const token = getToken();
@@ -627,6 +650,8 @@ function bootUI(user) {
     el('topbarAvatar').textContent  = initials;
     el('topbarName').textContent    = user.fullname || user.username;
     el('topbarRole').textContent    = user.role === 'admin' ? 'Administrator' : (user.role === 'manager' ? 'Manager' : 'Staff');
+    const dn = document.getElementById('dropdownName'); if (dn) dn.textContent = user.fullname || user.username;
+    const dr = document.getElementById('dropdownRole'); if (dr) dr.textContent = user.role === 'admin' ? 'Administrator' : (user.role === 'manager' ? 'Manager' : 'Staff');
     const badge = el('sidebarRoleBadge');
     badge.textContent = user.role === 'admin' ? 'Admin' : (user.role === 'manager' ? 'Manager' : 'Staff');
     badge.className   = 'sidebar-role-badge ' + (user.role || 'staff');
@@ -635,10 +660,10 @@ function bootUI(user) {
     });
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  DATA LOAD
-// ===================================================
-// Local date - avoids UTC "yesterday" bug before 8AM PH time
+// ═══════════════════════════════════════════════════
+// Local date — avoids UTC "yesterday" bug before 8AM PH time
 function localDate(d = new Date()) {
     const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
     return `${y}-${m}-${day}`;
@@ -682,24 +707,29 @@ async function loadMovements() {
     applyFilters();
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  STAT CARDS
-// ===================================================
+// ═══════════════════════════════════════════════════
 function updateStats() {
-    const total    = ALL_MOVEMENTS.length;
-    const stockIn  = ALL_MOVEMENTS.filter(m => m.movement_type === 'in').length;
-    const sales    = ALL_MOVEMENTS.filter(m => m.movement_type === 'out' && m.movement_reason === 'sales').length;
-    const stockOut = ALL_MOVEMENTS.filter(m => m.movement_type === 'out' && m.movement_reason !== 'sales').length;
+    const today = localDate();
+    const todayMovements = ALL_MOVEMENTS.filter(m => (m.movement_date || '').substring(0,10) === today);
 
-    el('statTotal').textContent = total.toLocaleString();
-    el('statIn').textContent    = stockIn.toLocaleString();
-    el('statOut').textContent   = stockOut.toLocaleString();
-    el('statSale').textContent  = sales.toLocaleString();
+    const total    = todayMovements.length;
+    const returns  = todayMovements.filter(m => isReturn(m)).length;
+    const stockIn  = todayMovements.filter(m => m.movement_type === 'in' && !isReturn(m)).length;
+    const sales    = todayMovements.filter(m => isSale(m)).length;
+    const stockOut = todayMovements.filter(m => m.movement_type === 'out' && !isSale(m)).length;
+
+    el('statTotal').textContent  = total.toLocaleString();
+    el('statIn').textContent     = stockIn.toLocaleString();
+    el('statOut').textContent    = stockOut.toLocaleString();
+    el('statSale').textContent   = sales.toLocaleString();
+    el('statReturn').textContent = returns.toLocaleString();
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  CHARTS
-// ===================================================
+// ═══════════════════════════════════════════════════
 function getChartColors() {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark';
     return { grid: dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)', tick: dark ? '#9bb5c7' : '#7f99ab' };
@@ -711,14 +741,14 @@ function renderCharts() {
 
     const c = getChartColors();
 
-    // -- Trend chart: last 6 months stock in vs out --
+    // ── Trend chart: last 6 months stock in vs out ──
     const months = [];
     for (let i = 5; i >= 0; i--) {
         const d = new Date(); d.setMonth(d.getMonth() - i);
         months.push({ key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`, label: d.toLocaleString('default',{month:'short'}) });
     }
     const inData  = months.map(m => ALL_MOVEMENTS.filter(x => x.movement_type === 'in'  && (x.movement_date||'').startsWith(m.key)).reduce((s,x) => s+(x.quantity||0), 0));
-    const outData = months.map(m => ALL_MOVEMENTS.filter(x => (x.movement_type === 'out'||x.movement_type === 'sale') && (x.movement_date||'').startsWith(m.key)).reduce((s,x) => s+(x.quantity||0), 0));
+    const outData = months.map(m => ALL_MOVEMENTS.filter(x => x.movement_type === 'out' && (x.movement_date||'').startsWith(m.key)).reduce((s,x) => s+(x.quantity||0), 0));
 
     CHART_TREND = new Chart(el('chartTrend'), {
         type: 'bar',
@@ -732,24 +762,38 @@ function renderCharts() {
         }
     });
 
-    // -- Breakdown doughnut --
-    const types = ['in','out','sale','return'];
-    const typeLabels = ['Stock In','Stock Out','Sale','Return'];
-    const typeColors = ['rgba(22,163,74,.8)','rgba(220,38,38,.75)','rgba(37,99,235,.75)','rgba(124,58,237,.75)'];
-    const typeCounts = types.map(t => ALL_MOVEMENTS.filter(m => m.movement_type === t).length);
+    // ── Breakdown doughnut — TODAY only ──
+    const today = localDate();
+    const todayMov = ALL_MOVEMENTS.filter(m => (m.movement_date||'').substring(0,10) === today);
+
+    const countStockIn  = todayMov.filter(m => m.movement_type === 'in'  && !isReturn(m)).length;
+    const countSales    = todayMov.filter(m => isSale(m)).length;
+    const countStockOut = todayMov.filter(m => m.movement_type === 'out' && !isSale(m)).length;
+    const countReturn   = todayMov.filter(m => isReturn(m)).length;
+
+    const typeLabels = ['Stock In', 'Stock Out', 'Sales', 'Returns'];
+    const typeColors = ['rgba(22,163,74,.8)', 'rgba(220,38,38,.75)', 'rgba(37,99,235,.75)', 'rgba(124,58,237,.75)'];
+    const typeCounts = [countStockIn, countStockOut, countSales, countReturn];
+
+    const todayLabel = new Date().toLocaleDateString('en-PH', {month:'short', day:'numeric', year:'numeric'});
+    const sub = el('breakdownSub');
+    if (sub) sub.textContent = `Distribution by movement type — ${todayLabel}`;
 
     CHART_BREAK = new Chart(el('chartBreakdown'), {
         type: 'doughnut',
         data: { labels: typeLabels, datasets: [{ data: typeCounts, backgroundColor: typeColors, borderWidth: 0, hoverOffset: 6 }]},
         options: { responsive: true, maintainAspectRatio: false, cutout: '65%',
-            plugins: { legend: { position: 'right', labels: { color: c.tick, font: {family:'Barlow',size:11}, boxWidth: 12, padding: 10 }}}
+            plugins: {
+                legend: { position: 'right', labels: { color: c.tick, font: {family:'Barlow',size:11}, boxWidth: 12, padding: 10 }},
+                tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` }}
+            }
         }
     });
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  FILTER + SORT
-// ===================================================
+// ═══════════════════════════════════════════════════
 function applyFilters() {
     const q       = (el('globalSearch').value || el('tableSearch').value || '').toLowerCase().trim();
     const type    = el('filterType').value;
@@ -764,9 +808,12 @@ function applyFilters() {
             if (!haystack.includes(q)) return false;
         }
         if (type) {
-            if (type === 'out-sales')   { if (!(m.movement_type === 'out' && m.movement_reason === 'sales'))   return false; }
+            if (type === 'in')          { if (m.movement_type !== 'in'  || isReturn(m)) return false; }
+            else if (type === 'out')    { if (m.movement_type !== 'out' || isSale(m)) return false; }
+            else if (type === 'return') { if (!isReturn(m)) return false; }
+            else if (type === 'sale')   { if (!(isSale(m))) return false; }
+            else if (type === 'out-sales')   { if (!(isSale(m)))   return false; }
             else if (type === 'out-damaged') { if (!(m.movement_type === 'out' && m.movement_reason === 'damaged')) return false; }
-            else if (m.movement_type !== type) return false;
         }
         if (prodId && String(m.product_id) !== String(prodId)) return false;
         const d = (m.movement_date || '').substring(0,10);
@@ -813,9 +860,9 @@ function clearFilters() {
     applyFilters();
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  RENDER TABLE
-// ===================================================
+// ═══════════════════════════════════════════════════
 function renderTable() {
     const tbody   = el('tbody');
     const start   = (PAGE - 1) * PAGE_SIZE;
@@ -828,22 +875,22 @@ function renderTable() {
     }
 
     tbody.innerHTML = pageRows.map(m => {
-        const typeB   = typeBadge(m.movement_type);
-        const dCls    = deltaClass(m.movement_type);
-        const sign    = deltaSign(m.movement_type);
-        const before  = m.qty_before ?? '-';
-        const after   = m.qty_after  ?? '-';
+        const typeB   = typeBadge(m);
+        const dCls    = deltaClass(m);
+        const sign    = deltaSign(m);
+        const before  = m.qty_before ?? '—';
+        const after   = m.qty_after  ?? '—';
         const verFlag = m.requires_verify ? `<span class="verify-flag" title="Admin-verified"><i class="fa-solid fa-shield-check"></i></span>` : '';
 
         return `<tr>
           <td style="white-space:nowrap;font-size:12px;color:var(--text2);">${fmtDate(m.movement_date)}</td>
           <td>
-            <div style="font-weight:600;font-size:13px;">${esc(m.product_name||'-')}</div>
+            <div style="font-weight:600;font-size:13px;">${esc(m.product_name||'—')}</div>
             ${m.category_name ? `<div style="font-size:10px;color:var(--muted);">${esc(m.category_name)}</div>` : ''}
           </td>
-          <td><span class="sku-chip">${esc(m.sku||'-')}</span></td>
+          <td><span class="sku-chip">${esc(m.sku||'—')}</span></td>
           <td>${typeB} ${verFlag}</td>
-          <td>${reasonBadge(m.movement_reason, m.movement_type)}</td>
+          <td>${reasonBadge(m)}</td>
           <td><span class="delta ${dCls}">${sign}${m.quantity||0}</span></td>
           <td>
             <div class="flow">
@@ -852,9 +899,9 @@ function renderTable() {
               <span class="after">${after}</span>
             </div>
           </td>
-          <td style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--text2);">${esc(m.reference_no||'-')}</td>
-          <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted);" title="${esc(m.notes||'')}">${esc(m.notes||'-')}</td>
-          <td style="font-size:12px;color:var(--text2);">${esc(m.username||m.performed_by_name||'-')}</td>
+          <td style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--text2);">${esc(m.reference_no||'—')}</td>
+          <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted);" title="${esc(m.notes||'')}">${esc(m.notes||'—')}</td>
+          <td style="font-size:12px;color:var(--text2);">${esc(m.username||m.performed_by_name||'—')}</td>
           <td>
             <div style="display:flex;gap:4px;">
               <button class="action-btn view" onclick="viewDetail(${m.movement_id})" title="View detail"><i class="fa-regular fa-eye"></i></button>
@@ -882,7 +929,7 @@ function renderPagination() {
         : `<button class="pg-btn ${p===PAGE?'active':''}" onclick="goPage(${p})">${p}</button>`
     ).join('');
     wrap.innerHTML = `
-      <span class="pg-info">Showing ${start}-${end} of ${total.toLocaleString()}</span>
+      <span class="pg-info">Showing ${start}–${end} of ${total.toLocaleString()}</span>
       <div style="display:flex;align-items:center;gap:4px;">
         <button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>
         ${btns}
@@ -904,29 +951,29 @@ function goPage(p) {
     document.querySelector('.content-area').scrollTop = 0;
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  DETAIL MODAL
-// ===================================================
+// ═══════════════════════════════════════════════════
 function viewDetail(id) {
     const m = ALL_MOVEMENTS.find(x => x.movement_id === id);
     if (!m) return;
-    const before = m.qty_before ?? '-', after = m.qty_after ?? '-';
+    const before = m.qty_before ?? '—', after = m.qty_after ?? '—';
     el('detailBody').innerHTML = `
       <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface2);border-radius:12px;border:1px solid var(--border);margin-bottom:18px;">
         <div style="flex:1;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text);">${esc(m.product_name||'-')}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text);">${esc(m.product_name||'—')}</div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
-            <span class="sku-chip">${esc(m.sku||'-')}</span>
+            <span class="sku-chip">${esc(m.sku||'—')}</span>
             ${m.category_name ? `<span style="font-size:11px;color:var(--muted);">${esc(m.category_name)}</span>` : ''}
           </div>
         </div>
-        <div>${typeBadge(m.movement_type)} ${m.requires_verify ? `<span class="verify-flag" style="margin-left:6px;"><i class="fa-solid fa-shield-check"></i> Verified</span>` : ''}</div>
+        <div>${typeBadge(m)} ${m.requires_verify ? `<span class="verify-flag" style="margin-left:6px;"><i class="fa-solid fa-shield-check"></i> Verified</span>` : ''}</div>
       </div>
       <div class="dg">
         <div class="di">
           <div class="di-label">Quantity</div>
-          <div class="di-val mono" style="color:${m.movement_type==='in'||m.movement_type==='return'?'var(--success)':m.movement_type==='adjustment'?'var(--warn)':'var(--danger)'};">
-            ${deltaSign(m.movement_type)}${m.quantity||0} units
+          <div class="di-val mono" style="color:${isReturn(m)?'var(--success)':m.movement_type==='in'?'var(--success)':m.movement_type==='out'&&m.movement_reason==='sales'?'var(--blue)':'var(--danger)'};">
+            ${deltaSign(m)}${m.quantity||0} units
           </div>
         </div>
         <div class="di">
@@ -943,15 +990,15 @@ function viewDetail(id) {
         </div>
         <div class="di">
           <div class="di-label">Performed By</div>
-          <div class="di-val">${esc(m.username || m.performed_by_name || 'User #' + (m.performed_by||'-'))}</div>
+          <div class="di-val">${esc(m.username || m.performed_by_name || 'User #' + (m.performed_by||'—'))}</div>
         </div>
         <div class="di">
           <div class="di-label">Reference No.</div>
-          <div class="di-val mono">${esc(m.reference_no||'-')}</div>
+          <div class="di-val mono">${esc(m.reference_no||'—')}</div>
         </div>
         <div class="di">
           <div class="di-label">Reason</div>
-          <div class="di-val">${reasonBadge(m.movement_reason, m.movement_type)}</div>
+          <div class="di-val">${reasonBadge(m)}</div>
         </div>
         <div class="di">
           <div class="di-label">Movement ID</div>
@@ -960,7 +1007,7 @@ function viewDetail(id) {
         ${m.requires_verify ? `
         <div class="di di-full">
           <div class="di-label">Verification</div>
-          <div class="di-val"><i class="fa-solid fa-shield-check" style="color:var(--cyan);margin-right:5px;"></i>Admin-verified - Verified by user #${m.verified_by||'?'}</div>
+          <div class="di-val"><i class="fa-solid fa-shield-check" style="color:var(--cyan);margin-right:5px;"></i>Admin-verified — Verified by user #${m.verified_by||'?'}</div>
         </div>` : ''}
         ${m.notes ? `
         <div class="di di-full">
@@ -971,9 +1018,9 @@ function viewDetail(id) {
     openModal('modalDetail');
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  PRODUCT HISTORY MODAL
-// ===================================================
+// ═══════════════════════════════════════════════════
 function viewProductHistory(productId, productName) {
     const history = ALL_MOVEMENTS
         .filter(m => m.product_id === productId)
@@ -988,7 +1035,7 @@ function viewProductHistory(productId, productName) {
 
     const totalIn  = history.filter(m => m.movement_type === 'in' || m.movement_type === 'return').reduce((s,m) => s+(m.quantity||0), 0);
     const totalOut = history.filter(m => m.movement_type !== 'in' && m.movement_type !== 'return').reduce((s,m) => s+(m.quantity||0), 0);
-    const latestQty= history[0]?.qty_after ?? '-';
+    const latestQty= history[0]?.qty_after ?? '—';
 
     el('histBody').innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;">
@@ -1008,12 +1055,12 @@ function viewProductHistory(productId, productName) {
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Movement Timeline</div>
       <div class="timeline">
         ${history.map(m => {
-          const before = m.qty_before ?? '-', after = m.qty_after ?? '-';
-          const dotC = m.movement_type === 'in' ? 'in' : m.movement_type === 'adjustment' ? 'adj' : m.movement_type === 'sale' ? 'sale' : m.movement_type === 'return' ? 'return' : 'out';
+          const before = m.qty_before ?? '—', after = m.qty_after ?? '—';
+          const dotC = isReturn(m) ? 'return' : m.movement_type === 'in' ? 'in' : isSale(m) ? 'sale' : 'out';
           return `<div class="tl-item">
-            <div class="tl-dot ${dotC}">${typeIcon(m.movement_type)}</div>
+            <div class="tl-dot ${dotC}">${typeIcon(m)}</div>
             <div class="tl-meta">
-              <div class="tl-title">${deltaSign(m.movement_type)}${m.quantity||0} units - ${typeText(m.movement_type)}</div>
+              <div class="tl-title">${deltaSign(m)}${m.quantity||0} units — ${typeText(m)}</div>
               <div class="tl-sub">
                 ${m.reference_no ? `<i class="fa-solid fa-hashtag" style="font-size:9px;margin-right:3px;"></i>${esc(m.reference_no)} &nbsp;` : ''}
                 ${m.notes ? esc(m.notes.substring(0,60))+(m.notes.length>60?'…':'') : ''}
@@ -1034,38 +1081,62 @@ function viewProductHistory(productId, productName) {
     openModal('modalHistory');
 }
 
-// ===================================================
+// ═══════════════════════════════════════════════════
 //  HELPERS
-// ===================================================
-function typeBadge(t) {
+// ═══════════════════════════════════════════════════
+// ── isReturn: movement_type='in' with reference_no starting RETURN- ──
+function isReturn(m) {
+    return m.movement_type === 'in' && (m.reference_no||'').toUpperCase().startsWith('RETURN-');
+}
+// ── isSale: movement_type='out' with reason='sales' OR notes starting 'Sale —' ──
+function isSale(m) {
+    return m.movement_type === 'out' && (
+        m.movement_reason === 'sales' ||
+        (m.movement_reason == null && (m.notes||'').startsWith('Sale —'))
+    );
+}
+
+function typeBadge(m) {
+    if (isReturn(m)) return `<span class="badge badge-return"><i class="fa-solid fa-rotate-left"></i> Return</span>`;
     const map = {
-        in:         `<span class="badge badge-in"><i class="fa-solid fa-arrow-up"></i> Stock In</span>`,
-        out:        `<span class="badge badge-out"><i class="fa-solid fa-arrow-down"></i> Stock Out</span>`,
-        sale:       `<span class="badge badge-sale"><i class="fa-solid fa-receipt"></i> Sale</span>`,
-        return:     `<span class="badge badge-return"><i class="fa-solid fa-rotate-left"></i> Return</span>`,
+        in:  `<span class="badge badge-in"><i class="fa-solid fa-arrow-up"></i> Stock In</span>`,
+        out: `<span class="badge badge-out"><i class="fa-solid fa-arrow-down"></i> Stock Out</span>`,
     };
-    return map[t] || `<span class="badge badge-gray">${esc(t||'-')}</span>`;
+    return map[m.movement_type] || `<span class="badge badge-gray">${esc(m.movement_type||'—')}</span>`;
 }
-function reasonBadge(r, movType) {
-    if (movType !== 'out') return '<span style="color:var(--muted);font-size:12px;">-</span>';
-    if (r === 'sales')   return `<span class="badge badge-cyan"><i class="fa-solid fa-receipt"></i> Sales</span>`;
-    if (r === 'damaged') return `<span class="badge badge-out"><i class="fa-solid fa-triangle-exclamation"></i> Damaged</span>`;
-    return '<span style="color:var(--muted);font-size:12px;">-</span>';
+function reasonBadge(m) {
+    if (m.movement_type !== 'out') return '<span style="color:var(--muted);font-size:12px;">—</span>';
+    if (isSale(m))                 return `<span class="badge badge-sale"><i class="fa-solid fa-receipt"></i> Sales</span>`;
+    if (m.movement_reason === 'damaged') return `<span class="badge badge-out"><i class="fa-solid fa-triangle-exclamation"></i> Damaged</span>`;
+    if (m.movement_reason === 'restock') return `<span class="badge badge-in"><i class="fa-solid fa-boxes-stacked"></i> Restock</span>`;
+    return m.movement_reason ? `<span class="badge badge-gray">${esc(m.movement_reason)}</span>` : '<span style="color:var(--muted);font-size:12px;">—</span>';
 }
-function deltaClass(t) { return t === 'in' || t === 'return' ? 'in' : t === 'adjustment' ? 'adj' : t === 'sale' ? 'sale' : 'out'; }
-function deltaSign(t)  { return t === 'in' || t === 'return' ? '+' : '−'; }
-function typeText(t)   { return {in:'Stock In',out:'Stock Out',sale:'Sale',return:'Return'}[t] || t || '-'; }
-function typeIcon(t)   {
-    return {in:'<i class="fa-solid fa-arrow-up"></i>',out:'<i class="fa-solid fa-arrow-down"></i>',sale:'<i class="fa-solid fa-receipt"></i>',return:'<i class="fa-solid fa-rotate-left"></i>',adjustment:'<i class="fa-solid fa-sliders"></i>'}[t] || '<i class="fa-solid fa-circle"></i>';
+function deltaClass(m) {
+    if (isReturn(m))              return 'return';
+    if (m.movement_type === 'in') return 'in';
+    if (isSale(m)) return 'sale';
+    return 'out';
+}
+function deltaSign(m) { return (m.movement_type === 'in') ? '+' : '−'; }
+function typeText(m) {
+    if (isReturn(m)) return 'Return';
+    return {in:'Stock In', out:'Stock Out'}[m.movement_type] || m.movement_type || '—';
+}
+function typeIcon(m) {
+    if (isReturn(m)) return '<i class="fa-solid fa-rotate-left"></i>';
+    return {
+        in:  '<i class="fa-solid fa-arrow-up"></i>',
+        out: '<i class="fa-solid fa-arrow-down"></i>',
+    }[m.movement_type] || '<i class="fa-solid fa-circle"></i>';
 }
 function fmtDate(d) {
-    if (!d) return '-';
+    if (!d) return '—';
     const dt = new Date(d);
     if (isNaN(dt)) return String(d).substring(0,10);
     return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
 }
 function fmtDateFull(d) {
-    if (!d) return '-';
+    if (!d) return '—';
     const dt = new Date(d);
     if (isNaN(dt)) return String(d);
     return dt.toLocaleDateString('en-PH',{weekday:'short',month:'long',day:'numeric',year:'numeric'})+' '+dt.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
@@ -1123,7 +1194,17 @@ document.addEventListener('click', e => {
     ['modalDetail','modalHistory','modalLogout'].forEach(id => { if (e.target === el(id)) closeModal(id); });
 });
 
-function confirmLogout() { openModal('modalLogout'); }
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function closeUserMenu() { const dd = document.getElementById('userDropdown'); if (dd) dd.style.display = 'none'; }
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) dd.style.display = 'none';
+});
+function confirmLogout() { closeUserMenu(); openModal('modalLogout'); }
 async function doLogout() {
     try { await apiFetch('/logout', { method: 'POST' }); } catch(e) {}
     clearAuth();
