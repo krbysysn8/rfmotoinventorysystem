@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Reports</title>
+<title>RF Moto – Reports</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -34,7 +34,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 #app{display:flex;height:100vh;}
 
-/* -- SIDEBAR -- */
+/* ── SIDEBAR ── */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed { width: 64px; min-width: 64px; }
 .sidebar.collapsed .sidebar-brand-wrap,
@@ -98,7 +98,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171;}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
 
-/* -- MAIN / TOPBAR -- */
+/* ── MAIN / TOPBAR ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
@@ -135,12 +135,12 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .notif-text{font-size:12px;color:var(--text);line-height:1.4;}
 .notif-time{font-size:10px;color:var(--muted);margin-top:2px;}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s;position:relative;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-/* -- FILTERS BAR -- */
+/* ── FILTERS BAR ── */
 .filters-bar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s;flex-wrap:wrap;gap:10px;}
 .filters-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .filter-label{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;}
@@ -149,13 +149,13 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .date-input{padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-family:'Barlow',sans-serif;font-size:12px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
 .date-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan-glow);}
 
-/* -- TABS -- */
+/* ── TABS ── */
 .report-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
 .report-tab{padding:7px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap;}
 .report-tab:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(23,184,220,.04);}
 .report-tab.active{background:var(--cyan);border-color:var(--cyan);color:#fff;box-shadow:0 3px 10px rgba(23,184,220,.30);}
 
-/* -- BUTTONS -- */
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap;}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28);}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px);}
@@ -164,11 +164,11 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .btn-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
 .btn-sm{padding:5px 11px;font-size:11px;}
 
-/* -- REPORT PAGES -- */
+/* ── REPORT PAGES ── */
 .report-page{display:none;}
 .report-page.active{display:block;}
 
-/* -- STAT SUMMARY ROW -- */
+/* ── STAT SUMMARY ROW ── */
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
 .stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s;display:flex;align-items:center;gap:12px;}
 .stat-mini:hover{border-color:var(--cyan-border);}
@@ -176,7 +176,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .stat-mini-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--text);line-height:1;}
 .stat-mini-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.10em;margin-top:2px;}
 
-/* -- CHART GRID -- */
+/* ── CHART GRID ── */
 .chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
 @media(max-width:900px){.chart-grid-2{grid-template-columns:1fr;}.stat-row{grid-template-columns:1fr 1fr;}}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);transition:background .3s,border-color .3s;position:relative;overflow:hidden;}
@@ -188,7 +188,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .chart-wrap{position:relative;}
 canvas{max-width:100%;}
 
-/* -- TABLE CARD -- */
+/* ── TABLE CARD ── */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:18px;transition:background .3s,border-color .3s;}
 .table-card-header{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between;}
 .table-card-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--text);}
@@ -201,7 +201,7 @@ canvas{max-width:100%;}
 .tbl tr:hover td{background:rgba(23,184,220,.04);}
 .tbl tfoot td{background:var(--surface2);font-weight:700;border-top:2px solid var(--border);}
 
-/* -- BADGES -- */
+/* ── BADGES ── */
 .badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2);}
 .badge-red{background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2);}
@@ -209,18 +209,18 @@ canvas{max-width:100%;}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
 .badge-cyan{background:rgba(23,184,220,.10);color:var(--cyan);border:1px solid var(--cyan-border);}
 
-/* -- COLORS -- */
+/* ── COLORS ── */
 .c-cyan{color:var(--cyan);}
 .c-green{color:var(--success);}
 .c-red{color:var(--danger);}
 .c-warn{color:var(--warn);}
 .c-muted{color:var(--muted);}
 
-/* -- LOADING SKELETON -- */
+/* ── LOADING SKELETON ── */
 .skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--surface2) 50%,var(--border) 75%);background-size:400% 100%;animation:shimmer 1.4s infinite;border-radius:6px;}
 @keyframes shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
 
-/* -- MODAL -- */
+/* ── MODAL ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:360px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .22s cubic-bezier(.2,0,.2,1) both;overflow:hidden;}
@@ -240,7 +240,7 @@ canvas{max-width:100%;}
 <body>
 <div id="app">
 
-  <!-- -- SIDEBAR -- -->
+  <!-- ── SIDEBAR ── -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo-pill">
@@ -286,29 +286,40 @@ canvas{max-width:100%;}
     </div>
   </div>
 
-  <!-- -- MAIN -- -->
+  <!-- ── MAIN ── -->
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">Reports</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search products, SKU..." id="globalSearch">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user" onclick="confirmLogout()">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          </div>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
     <div class="content-area" id="contentArea">
 
-      <!-- -- FILTERS BAR -- -->
+      <!-- ── FILTERS BAR ── -->
       <div class="filters-bar">
         <div class="filters-left">
           <span class="filter-label"><i class="fa-solid fa-filter"></i> Filters:</span>
@@ -325,7 +336,7 @@ canvas{max-width:100%;}
         </button>
       </div>
 
-      <!-- -- TABS -- -->
+      <!-- ── TABS ── -->
       <div class="report-tabs">
         <div class="report-tab active" onclick="switchTab('inventory-summary',this)"><i class="fa-solid fa-chart-pie" style="margin-right:5px;"></i>Inventory Summary</div>
         <div class="report-tab" onclick="switchTab('stock-movement',this)"><i class="fa-solid fa-chart-bar" style="margin-right:5px;"></i>Stock Movement</div>
@@ -334,15 +345,15 @@ canvas{max-width:100%;}
         <div class="report-tab" onclick="switchTab('supplier-report',this)"><i class="fa-solid fa-truck" style="margin-right:5px;"></i>Supplier Report</div>
       </div>
 
-      <!-- ==========================================
-           TAB 1 - INVENTORY SUMMARY
-      ========================================== -->
+      <!-- ══════════════════════════════════════════
+           TAB 1 — INVENTORY SUMMARY
+      ══════════════════════════════════════════ -->
       <div class="report-page active" id="tab-inventory-summary">
         <div class="stat-row" id="summaryStatRow">
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(23,184,220,.12);color:var(--cyan);"><i class="fa-solid fa-boxes-stacked"></i></div><div><div class="stat-mini-val" id="statTotalItems">-</div><div class="stat-mini-lbl">Total Items</div></div></div>
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(22,163,74,.12);color:var(--success);"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-mini-val c-green" id="statInStock">-</div><div class="stat-mini-lbl">In Stock</div></div></div>
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(217,119,6,.12);color:var(--warn);"><i class="fa-solid fa-triangle-exclamation"></i></div><div><div class="stat-mini-val c-warn" id="statLowStock">-</div><div class="stat-mini-lbl">Low Stock</div></div></div>
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(220,38,38,.12);color:var(--danger);"><i class="fa-solid fa-circle-xmark"></i></div><div><div class="stat-mini-val c-red" id="statOutStock">-</div><div class="stat-mini-lbl">Out of Stock</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(23,184,220,.12);color:var(--cyan);"><i class="fa-solid fa-boxes-stacked"></i></div><div><div class="stat-mini-val" id="statTotalItems">—</div><div class="stat-mini-lbl">Total Items</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(22,163,74,.12);color:var(--success);"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-mini-val c-green" id="statInStock">—</div><div class="stat-mini-lbl">In Stock</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(217,119,6,.12);color:var(--warn);"><i class="fa-solid fa-triangle-exclamation"></i></div><div><div class="stat-mini-val c-warn" id="statLowStock">—</div><div class="stat-mini-lbl">Low Stock</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(220,38,38,.12);color:var(--danger);"><i class="fa-solid fa-circle-xmark"></i></div><div><div class="stat-mini-val c-red" id="statOutStock">—</div><div class="stat-mini-lbl">Out of Stock</div></div></div>
         </div>
         <div class="chart-grid-2">
           <div class="chart-card">
@@ -376,11 +387,11 @@ canvas{max-width:100%;}
               <tfoot id="summaryFoot" style="display:none;">
                 <tr>
                   <td>TOTAL</td>
-                  <td id="ftTotal">-</td>
-                  <td id="ftIn">-</td>
-                  <td id="ftLow">-</td>
-                  <td id="ftOut">-</td>
-                  <td id="ftVal">-</td>
+                  <td id="ftTotal">—</td>
+                  <td id="ftIn">—</td>
+                  <td id="ftLow">—</td>
+                  <td id="ftOut">—</td>
+                  <td id="ftVal">—</td>
                 </tr>
               </tfoot>
             </table>
@@ -388,28 +399,27 @@ canvas{max-width:100%;}
         </div>
       </div>
 
-      <!-- ==========================================
-           TAB 2 - STOCK MOVEMENT
-      ========================================== -->
+      <!-- ══════════════════════════════════════════
+           TAB 2 — STOCK MOVEMENT
+      ══════════════════════════════════════════ -->
       <div class="report-page" id="tab-stock-movement">
-        <div class="stat-row">
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(23,184,220,.12);color:var(--cyan);"><i class="fa-solid fa-arrow-down-to-line"></i></div><div><div class="stat-mini-val c-cyan" id="mvTotalIn">-</div><div class="stat-mini-lbl">Total Stock In</div></div></div>
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6;"><i class="fa-solid fa-arrow-up-from-line"></i></div><div><div class="stat-mini-val" style="color:#8b5cf6;" id="mvTotalOut">-</div><div class="stat-mini-lbl">Total Stock Out</div></div></div>
-          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(22,163,74,.12);color:var(--success);"><i class="fa-solid fa-arrow-trend-up"></i></div><div><div class="stat-mini-val c-green" id="mvNet">-</div><div class="stat-mini-lbl">Net Movement</div></div></div>
+        <div class="stat-row" style="grid-template-columns:repeat(3,1fr);">
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(23,184,220,.12);color:var(--cyan);"><i class="fa-solid fa-arrow-up"></i></div><div><div class="stat-mini-val c-cyan" id="mvTotalIn">—</div><div class="stat-mini-lbl">Total Stock In</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6;"><i class="fa-solid fa-arrow-down"></i></div><div><div class="stat-mini-val" style="color:#8b5cf6;" id="mvTotalOut">—</div><div class="stat-mini-lbl">Total Stock Out</div></div></div>
           <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(217,119,6,.12);color:var(--warn);"><i class="fa-solid fa-calendar-days"></i></div><div><div class="stat-mini-val" id="mvMonths">6</div><div class="stat-mini-lbl">Months Shown</div></div></div>
         </div>
         <div class="chart-card" style="margin-bottom:18px;">
           <div class="chart-card-title">Stock Movement History</div>
-          <div class="chart-card-sub">Monthly stock in vs. stock out - last 6 months</div>
+          <div class="chart-card-sub">Monthly stock in vs. stock out — last 6 months</div>
           <div class="chart-wrap" style="height:300px;">
             <canvas id="movementChart"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- ==========================================
-           TAB 3 - LOW STOCK
-      ========================================== -->
+      <!-- ══════════════════════════════════════════
+           TAB 3 — LOW STOCK
+      ══════════════════════════════════════════ -->
       <div class="report-page" id="tab-low-stock">
         <div class="table-card">
           <div class="table-card-header">
@@ -433,9 +443,9 @@ canvas{max-width:100%;}
         </div>
       </div>
 
-      <!-- ==========================================
-           TAB 4 - OUT OF STOCK
-      ========================================== -->
+      <!-- ══════════════════════════════════════════
+           TAB 4 — OUT OF STOCK
+      ══════════════════════════════════════════ -->
       <div class="report-page" id="tab-out-of-stock">
         <div class="table-card">
           <div class="table-card-header">
@@ -459,9 +469,9 @@ canvas{max-width:100%;}
         </div>
       </div>
 
-      <!-- ==========================================
-           TAB 5 - SUPPLIER REPORT
-      ========================================== -->
+      <!-- ══════════════════════════════════════════
+           TAB 5 — SUPPLIER REPORT
+      ══════════════════════════════════════════ -->
       <div class="report-page" id="tab-supplier-report">
         <div class="chart-grid-2">
           <div class="chart-card">
@@ -491,7 +501,7 @@ canvas{max-width:100%;}
   </div><!-- end main -->
 </div><!-- end app -->
 
-<!-- -- MODAL: LOGOUT -- -->
+<!-- ── MODAL: LOGOUT ── -->
 <div class="modal-backdrop" id="modalLogout">
   <div class="modal">
     <div class="modal-header"><div class="modal-title">Log <span>Out</span></div><button class="modal-close" onclick="closeModal('modalLogout')">&#x2715;</button></div>
@@ -500,32 +510,34 @@ canvas{max-width:100%;}
   </div>
 </div>
 
-<script charset="utf-8">
-// ============================================
+<script>
+// ════════════════════════════════════════════
 //  CONFIG
-// ============================================
+// ════════════════════════════════════════════
 const API_URL = '/api';
-const TOKEN   = sessionStorage.getItem('rfmoto_token') || '';
+// Always check both storages (fix: was static localStorage read at parse time)
+function getToken() { return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || ''; }
+const TOKEN = getToken(); // kept for backward compat with authHeaders below
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
     'Accept':       'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${TOKEN}`,
+    'Authorization': `Bearer ${getToken()}`,
   };
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  STATE
-// ============================================
+// ════════════════════════════════════════════
 let currentUser   = null;
 let _charts       = {};       // keyed by chart id
 let _loadedTabs   = new Set();
 
-// ============================================
+// ════════════════════════════════════════════
 //  CHART.JS HELPERS
-// ============================================
+// ════════════════════════════════════════════
 function chartColors() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   return {
@@ -560,11 +572,11 @@ function destroyChart(id) {
   if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  INIT
-// ============================================
+// ════════════════════════════════════════════
 async function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user');
+  const stored = sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user');
   if (stored) { try { currentUser = JSON.parse(stored); } catch(e){} }
   if (!currentUser) currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
   launchApp();
@@ -583,6 +595,8 @@ function launchApp() {
   document.getElementById('topbarAvatar').textContent  = initials;
   document.getElementById('topbarName').textContent    = currentUser.fullname;
   document.getElementById('topbarRole').textContent    = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
+  const dn = document.getElementById('dropdownName'); if (dn) dn.textContent = currentUser.fullname;
+  const dr = document.getElementById('dropdownRole'); if (dr) dr.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Staff';
   const badge = document.getElementById('sidebarRoleBadge');
   badge.textContent = currentUser.role === 'admin' ? 'Admin' : 'Staff';
   badge.className   = 'sidebar-role-badge ' + currentUser.role;
@@ -597,9 +611,9 @@ function launchApp() {
   }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  LOAD ALL DATA IN PARALLEL
-// ============================================
+// ════════════════════════════════════════════
 async function loadAllReports() {
   await Promise.all([
     loadInventorySummary(),
@@ -611,14 +625,20 @@ async function loadAllReports() {
 }
 
 async function apiFetch(endpoint) {
-  const res = await fetch(`${API_URL}/reports/${endpoint}`, { headers: authHeaders() });
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const params = new URLSearchParams();
+  if (from) params.set('from', from);
+  if (to)   params.set('to',   to);
+  const qs  = params.toString() ? '?' + params.toString() : '';
+  const res = await fetch(`${API_URL}/reports/${endpoint}${qs}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json();
 }
 
-// ============================================
-//  TAB 1 - INVENTORY SUMMARY
-// ============================================
+// ════════════════════════════════════════════
+//  TAB 1 — INVENTORY SUMMARY
+// ════════════════════════════════════════════
 async function loadInventorySummary() {
   try {
     const data = await apiFetch('inventory-summary');
@@ -708,9 +728,9 @@ function renderBarValueChart(rows) {
   });
 }
 
-// ============================================
-//  TAB 2 - STOCK MOVEMENT
-// ============================================
+// ════════════════════════════════════════════
+//  TAB 2 — STOCK MOVEMENT
+// ════════════════════════════════════════════
 async function loadStockMovement() {
   try {
     const data = await apiFetch('stock-movement');
@@ -718,10 +738,6 @@ async function loadStockMovement() {
     const outTotals = (data.stock_out || []).reduce((a,b)=>a+b,0);
     document.getElementById('mvTotalIn').textContent  = inTotals;
     document.getElementById('mvTotalOut').textContent = outTotals;
-    const net = inTotals - outTotals;
-    const netEl = document.getElementById('mvNet');
-    netEl.textContent = (net >= 0 ? '+' : '') + net;
-    netEl.className   = 'stat-mini-val ' + (net >= 0 ? 'c-green' : 'c-red');
     renderMovementChart(data);
   } catch(e) {
     document.getElementById('movementChart')?.parentElement?.insertAdjacentHTML('beforeend','<p style="color:var(--danger);font-size:12px;text-align:center;padding:20px;">Failed to load movement data.</p>');
@@ -756,9 +772,9 @@ function renderMovementChart(data) {
   });
 }
 
-// ============================================
-//  TAB 3 - LOW STOCK
-// ============================================
+// ════════════════════════════════════════════
+//  TAB 3 — LOW STOCK
+// ════════════════════════════════════════════
 async function loadLowStock() {
   try {
     const data  = await apiFetch('low-stock');
@@ -784,9 +800,9 @@ async function loadLowStock() {
   }
 }
 
-// ============================================
-//  TAB 4 - OUT OF STOCK
-// ============================================
+// ════════════════════════════════════════════
+//  TAB 4 — OUT OF STOCK
+// ════════════════════════════════════════════
 async function loadOutOfStock() {
   try {
     const data  = await apiFetch('out-of-stock');
@@ -798,7 +814,7 @@ async function loadOutOfStock() {
 
     document.getElementById('outStockTbl').innerHTML = items.length
       ? items.map(r => {
-          const updated = r.updated_at ? new Date(r.updated_at).toLocaleDateString('en-PH') : '-';
+          const updated = r.updated_at ? new Date(r.updated_at).toLocaleDateString('en-PH') : '—';
           return `<tr>
             <td style="font-size:11px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;color:var(--muted);">${r.barcode || r.sku}</td>
             <td><strong>${r.product_name}</strong></td>
@@ -815,9 +831,9 @@ async function loadOutOfStock() {
   }
 }
 
-// ============================================
-//  TAB 5 - SUPPLIER REPORT
-// ============================================
+// ════════════════════════════════════════════
+//  TAB 5 — SUPPLIER REPORT
+// ════════════════════════════════════════════
 async function loadSupplierReport() {
   try {
     const data      = await apiFetch('supplier-report');
@@ -865,24 +881,57 @@ function renderSupplierChart(suppliers) {
   });
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  TAB SWITCHING
-// ============================================
+// ════════════════════════════════════════════
+function filterReportTable(val) {
+  const q = val.toLowerCase().trim();
+  // Filter all visible tbody rows in the active report page
+  const activePage = document.querySelector('.report-page.active');
+  if (!activePage) return;
+  activePage.querySelectorAll('tbody tr').forEach(row => {
+    if (!q) { row.style.display = ''; return; }
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+let _activeReportTab = 'inventory-summary';
+
 function switchTab(tab, el) {
+  _activeReportTab = tab;
   document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.report-page').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
+  // Clear search and show all rows on tab switch
+  const gs = document.getElementById('globalSearch');
+  if (gs) gs.value = '';
+  document.querySelectorAll('tbody tr').forEach(r => r.style.display = '');
+  // Reload data for the newly active tab with current date filters
+  _reloadActiveTab();
+}
+
+function _reloadActiveTab() {
+  const loaders = {
+    'inventory-summary': loadInventorySummary,
+    'stock-movement':    loadStockMovement,
+    'low-stock':         loadLowStock,
+    'out-of-stock':      loadOutOfStock,
+    'supplier-report':   loadSupplierReport,
+  };
+  const fn = loaders[_activeReportTab];
+  if (fn) fn();
 }
 
 function applyFilters() {
-  loadAllReports();
+  _reloadActiveTab();
   showToast('Report refreshed!', 'cyan');
 }
 
-// ============================================
-//  DARK MODE - rebuild all charts
-// ============================================
+// ════════════════════════════════════════════
+//  DARK MODE — rebuild all charts
+// ════════════════════════════════════════════
 function toggleDarkMode() {
   const html   = document.documentElement;
   const toggle = document.getElementById('darkToggle');
@@ -896,9 +945,9 @@ function toggleDarkMode() {
   setTimeout(() => loadAllReports(), 80);
 }
 
-// ============================================
-//  EXPORT (stub - wire to jsPDF or server)
-// ============================================
+// ════════════════════════════════════════════
+//  EXPORT (stub — wire to jsPDF or server)
+// ════════════════════════════════════════════
 async function exportPDF() {
   const { jsPDF } = window.jspdf;
   if (!jsPDF) { showToast('PDF library not loaded. Try refreshing.', 'danger'); return; }
@@ -907,8 +956,8 @@ async function exportPDF() {
 
   const doc       = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const pageW     = doc.internal.pageSize.getWidth();
-  const dateFrom  = document.getElementById('dateFrom').value || '-';
-  const dateTo    = document.getElementById('dateTo').value   || '-';
+  const dateFrom  = document.getElementById('dateFrom').value || '—';
+  const dateTo    = document.getElementById('dateTo').value   || '—';
   const generated = new Date().toLocaleString('en-PH', { dateStyle:'medium', timeStyle:'short' });
 
   // Header helper
@@ -1050,9 +1099,9 @@ async function exportPDF() {
   showToast('PDF exported successfully!', 'success');
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  SHARED HELPERS
-// ============================================
+// ════════════════════════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.modal-backdrop').forEach(bd =>
@@ -1086,10 +1135,28 @@ function showPage(page) {
 }
 
 
-function confirmLogout() { openModal('modalLogout'); }
+function confirmLogout() { closeUserMenu(); openModal('modalLogout'); }
+
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
 async function doLogout() {
   try { await fetch('/logout', { method:'POST', headers: authHeaders() }); } catch(e) {}
-  sessionStorage.removeItem('rfmoto_token'); sessionStorage.removeItem('rfmoto_user');
+  localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user'); sessionStorage.removeItem('rfmoto_token'); sessionStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
@@ -1110,12 +1177,38 @@ document.addEventListener('click', e => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  const _u = (() => { try { return JSON.parse(sessionStorage.getItem('rfmoto_user')); } catch(e){return null;} })();
-  const _t = sessionStorage.getItem('rfmoto_token');
+  const _u = (() => { try { return JSON.parse(sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user')); } catch(e){return null;} })();
+  const _t = getToken();
   if (!_t || !_u) { window.location.replace('/login'); return; }
   if (_u.role !== 'admin') { window.location.replace('/dashboard'); return; }
   initFromSession();
 });
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
