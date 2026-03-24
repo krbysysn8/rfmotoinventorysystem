@@ -538,14 +538,18 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 //  CONFIG
 // ════════════════════════════════════════
 const API_URL = '/api';
-// TOKEN is read dynamically so it's never stale
+
+// Always check both storages — sessionStorage first, then localStorage
+function getToken() {
+  return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || '';
+}
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`,
+    'Authorization': `Bearer ${getToken()}`,
   };
 }
 
