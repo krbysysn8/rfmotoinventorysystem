@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Activity Logs</title>
+<title>RF Moto – Activity Logs</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -28,7 +28,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 #app{display:flex;height:100vh;}
 
-/* -- SIDEBAR -- */
+/* ── SIDEBAR ── */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed{width:64px;min-width:64px;}
 .sidebar.collapsed .sidebar-brand-wrap,.sidebar.collapsed .sidebar-user-info,.sidebar.collapsed .nav-item-label,.sidebar.collapsed .nav-section,.sidebar.collapsed .nav-badge,.sidebar.collapsed .sidebar-footer-btn span{display:none!important;}
@@ -87,7 +87,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171;}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
 
-/* -- MAIN -- */
+/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);flex:1;}
@@ -105,12 +105,12 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg);transition:background .3s;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-/* -- FILTER BAR -- */
+/* ── FILTER BAR ── */
 .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
 .search-bar{position:relative;flex:1;min-width:200px;max-width:340px;}
 .search-bar input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
@@ -124,7 +124,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .filter-sel-chevron{position:absolute;right:9px;color:var(--muted);font-size:10px;pointer-events:none;}
 .log-count{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);white-space:nowrap;}
 
-/* -- TABLE -- */
+/* ── TABLE ── */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s;}
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .tbl th{text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;}
@@ -137,7 +137,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .empty-state{padding:40px;text-align:center;color:var(--muted);}
 .empty-state i{font-size:28px;margin-bottom:10px;display:block;opacity:.4;}
 
-/* -- ACTION BADGES -- */
+/* ── ACTION BADGES ── */
 .action-badge{display:inline-flex;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap;}
 .ab-stock_in     {background:rgba(22,163,74,.12);  color:#16a34a;}
 .ab-stock_out    {background:rgba(220,38,38,.10);  color:#ef4444;}
@@ -150,10 +150,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .ab-deleted      {background:rgba(220,38,38,.10);  color:#ef4444;}
 .ab-default      {background:var(--surface2);      color:var(--muted);}
 
-/* -- TOAST -- */
+/* ── TOAST ── */
 #rfToast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:11px 20px;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;box-shadow:0 8px 40px rgba(0,0,0,.3);display:none;align-items:center;gap:8px;}
 
-/* -- MODAL -- */
+/* ── MODAL ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:420px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .24s cubic-bezier(.2,0,.2,1) both;overflow:hidden;}
@@ -226,18 +226,33 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">Activity Logs</div>
+      <div class="topbar-search" style="position:relative;flex:1;max-width:360px;">
+        <i class="fa-solid fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;"></i>
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
+      </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div>
-            <div class="topbar-user-name" id="topbarName">Administrator</div>
-            <div class="topbar-user-role" id="topbarRole">Admin</div>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div>
+              <div class="topbar-user-name" id="topbarName">Administrator</div>
+              <div class="topbar-user-role" id="topbarRole">Admin</div>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
           </div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -271,7 +286,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           </select>
           <i class="fa-solid fa-chevron-down filter-sel-chevron"></i>
         </div>
-        <span class="log-count" id="logCount">- logs</span>
+        <span class="log-count" id="logCount">— logs</span>
       </div>
 
       <div class="table-card">
@@ -305,16 +320,16 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 
 <div id="rfToast"></div>
 
-<script charset="utf-8">
-// ===============================================================
-const API_BASE = '/api';
+<script>
+// ═══════════════════════════════════════════════════════════════
+const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY)); } catch(e) { return null; } }
-function setUser(u)  { sessionStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -335,7 +350,7 @@ async function apiFetch(path, opts = {}) {
 let currentUser = null;
 let ALL_LOGS    = [];
 
-// -- Boot --------------------------------------------------------
+// ── Boot ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     const user  = getUser();
     const token = getToken();
@@ -346,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     bootUI(currentUser);
     restoreTheme();
 
-    const mePromise = fetch('/api/me', {
+    const mePromise = fetch('{{ config("app.url") }}/api/me', {
         headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` },
     }).then(r => r.json()).catch(() => null);
 
@@ -375,7 +390,7 @@ function bootUI(user) {
     document.querySelectorAll('.admin-only').forEach(e => e.style.display = user.role === 'admin' ? '' : 'none');
 }
 
-// -- Load Logs ---------------------------------------------------
+// ── Load Logs ───────────────────────────────────────────────────
 async function loadLogs() {
     const res = await apiFetch('/activity-logs');
     if (!res || res.status !== 'success') {
@@ -394,7 +409,7 @@ function populateUserFilter() {
         users.map(u => `<option value="${u}">${u}</option>`).join('');
 }
 
-// -- Render ------------------------------------------------------
+// ── Render ──────────────────────────────────────────────────────
 const AVATAR_COLORS = ['#0ea5c9','#8b5cf6','#f97316','#22c55e','#ef4444','#06b6d4','#a855f7','#eab308'];
 function avatarColor(name) {
     let h = 0;
@@ -420,18 +435,18 @@ function renderLogs(rows) {
         const badgeCls  = `ab-${actionKey}` in document.styleSheets[0] ? `ab-${actionKey}` : 'ab-default';
         const label     = ACTION_LABELS[actionKey] || l.action;
         return `<tr>
-          <td><div class="user-cell"><div class="user-initial" style="background:${avatarColor(l.user)};">${(l.user||'?').charAt(0).toUpperCase()}</div><span style="font-weight:600;">${l.user||'-'}</span></div></td>
+          <td><div class="user-cell"><div class="user-initial" style="background:${avatarColor(l.user)};">${(l.user||'?').charAt(0).toUpperCase()}</div><span style="font-weight:600;">${l.user||'—'}</span></div></td>
           <td><span class="action-badge ab-${actionKey}">${label}</span></td>
-          <td style="color:var(--text2);">${l.subject || '-'}</td>
-          <td style="color:var(--muted);font-size:12px;white-space:nowrap;">${l.created_at || '-'}</td>
-          <td style="font-size:12px;color:var(--text2);">${l.description || '-'}</td>
+          <td style="color:var(--text2);">${l.subject || '—'}</td>
+          <td style="color:var(--muted);font-size:12px;white-space:nowrap;">${l.created_at || '—'}</td>
+          <td style="font-size:12px;color:var(--text2);">${l.description || '—'}</td>
         </tr>`;
     }).join('');
 }
 
-// -- Filters -----------------------------------------------------
+// ── Filters ─────────────────────────────────────────────────────
 function applyFilters() {
-    const q      = el('logSearch').value.toLowerCase();
+    const q      = (el('logSearch').value || (document.getElementById('globalSearch')?.value || '')).toLowerCase();
     const action = el('filterAction').value;
     const user   = el('filterUser').value;
 
@@ -445,7 +460,7 @@ function applyFilters() {
     renderLogs(filtered);
 }
 
-// -- Utilities ----------------------------------------------------
+// ── Utilities ────────────────────────────────────────────────────
 function el(id) { return document.getElementById(id); }
 function openModal(id)  { const m = el(id); if(m) m.classList.add('open'); }
 function closeModal(id) { const m = el(id); if(m) m.classList.remove('open'); }
@@ -498,12 +513,52 @@ function showPage(page) {
     if (map[page]) window.location.href = map[page];
 }
 
-function confirmLogout() { openModal('modalLogout'); }
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function closeUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+function confirmLogout() { closeUserMenu(); openModal('modalLogout'); }
 async function doLogout() {
     try { await apiFetch('/logout', { method: 'POST' }); } catch(e) {}
     clearAuth();
     window.location.replace('/login');
 }
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
