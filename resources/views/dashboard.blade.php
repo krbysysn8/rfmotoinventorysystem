@@ -83,6 +83,16 @@ html, body {
   box-shadow: 2px 0 24px rgba(0,0,0,.22);
 }
 .sidebar.collapsed { width: 64px; min-width: 64px; }
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span { display: none !important; }
+.sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+.sidebar.collapsed .nav-item i { width: auto; font-size: 16px; }
+.sidebar.collapsed .sidebar-footer { align-items: center; }
+.sidebar.collapsed .sidebar-footer-btn { justify-content: center; }
 
 .sidebar::before {
   content: '';
@@ -801,17 +811,28 @@ html, body {
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchFn(this.value)">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user" onclick="confirmLogout()">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          </div>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1096,6 +1117,8 @@ let qsActionCurrent   = 'add-existing';
 let _chartSM = null, _chartInv = null;
 let _chartsLoaded = false;
 let invCatFilter = 'All';
+let _notifPollTimer = null;
+let _lastPollStats = {};
 
 const CATEGORIES_LIST = ['All','Engine Parts','Electrical','Brake System','Suspension',
     'Body & Frame','Transmission','Cooling System','Exhaust','Filters','Oils & Fluids'];
@@ -1157,6 +1180,8 @@ function bootUI(user) {
     el('topbarAvatar').textContent   = initials;
     el('topbarName').textContent     = user.fullname || user.username;
     el('topbarRole').textContent     = user.role === 'admin' ? 'Administrator' : 'Staff';
+    const dn = document.getElementById('dropdownName'); if (dn) dn.textContent = user.fullname || user.username;
+    const dr = document.getElementById('dropdownRole'); if (dr) dr.textContent = user.role === 'admin' ? 'Administrator' : 'Staff';
     const badge = el('sidebarRoleBadge');
     badge.textContent  = user.role === 'admin' ? 'Admin' : 'Staff';
     badge.className    = 'sidebar-role-badge ' + user.role;
@@ -1372,10 +1397,7 @@ function showPage(page) {
     if (map[page]) window.location.href = map[page];
 }
 
-function globalSearchFn(v) {
-    if (!v) return;
-    // Search across products list
-}
+
 
 // ── Sidebar collapse ─────────────────────────────────────────────
 function toggleSidebar() {
@@ -1442,7 +1464,22 @@ function openModal(id)  { const m = el(id); if(m) m.classList.add('open'); }
 function closeModal(id) { const m = el(id); if(m) m.classList.remove('open'); }
 
 // ── Logout ────────────────────────────────────────────────────────
-function confirmLogout() { openModal('modalLogout'); }
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function closeUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+function confirmLogout() { closeUserMenu(); openModal('modalLogout'); }
 async function doLogout() {
     if (_notifPollTimer) { clearInterval(_notifPollTimer); _notifPollTimer = null; }
     try {
@@ -1725,5 +1762,17 @@ async function saveProduct() {
     }
 }
 </script>
+
+<script>
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
