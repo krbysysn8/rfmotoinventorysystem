@@ -466,10 +466,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <script>
 const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token', USER_KEY='rfmoto_user';
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }catch(e){return null;}}
+function getToken(){ return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser(){ try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
 function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function clearAuth(){ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
