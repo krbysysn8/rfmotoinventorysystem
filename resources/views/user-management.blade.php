@@ -238,18 +238,33 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">User Management</div>
+      <div class="topbar-search" style="position:relative;flex:1;max-width:360px;">
+        <i class="fa-solid fa-search" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;"></i>
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
+      </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()">
           <div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div>
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
-        <div class="topbar-user">
-          <div class="topbar-avatar" id="topbarAvatar">A</div>
-          <div>
-            <div class="topbar-user-name" id="topbarName">Administrator</div>
-            <div class="topbar-user-role" id="topbarRole">Admin</div>
+        <div style="position:relative;">
+          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+            <div class="topbar-avatar" id="topbarAvatar">A</div>
+            <div>
+              <div class="topbar-user-name" id="topbarName">Administrator</div>
+              <div class="topbar-user-role" id="topbarRole">Admin</div>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
           </div>
-          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+          <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+            <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+              <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+            </div>
+            <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -447,10 +462,10 @@ const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return localStorage.getItem(TOKEN_KEY); }
-function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } } catch(e) { return null; } }
 function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 
 async function apiFetch(path, opts = {}) {
     const token = getToken();
@@ -834,12 +849,52 @@ function showPage(page) {
     if (map[page]) window.location.href = map[page];
 }
 
-function confirmLogout() { openModal('modalLogout'); }
+function toggleUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+function closeUserMenu() {
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  const btn = document.getElementById('topbarUserBtn');
+  const dd  = document.getElementById('userDropdown');
+  if (dd && btn && !btn.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
+function confirmLogout() { closeUserMenu(); openModal('modalLogout'); }
 async function doLogout() {
     try { await apiFetch('/logout', { method: 'POST' }); } catch(e) {}
     clearAuth();
     window.location.replace('/login');
 }
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
