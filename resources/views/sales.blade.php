@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Sales Record</title>
+<title>RF Moto – Sales Record</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -16,6 +16,16 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 #app{display:flex;height:100vh;}
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed{width:64px;min-width:64px;}
+.sidebar.collapsed .sidebar-brand-wrap,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .nav-item-label,
+.sidebar.collapsed .nav-section,
+.sidebar.collapsed .nav-badge,
+.sidebar.collapsed .sidebar-footer-btn span{display:none!important}
+.sidebar.collapsed .nav-item{justify-content:center;padding:10px 0}
+.sidebar.collapsed .nav-item i{width:auto;font-size:16px}
+.sidebar.collapsed .sidebar-footer{align-items:center}
+.sidebar.collapsed .sidebar-footer-btn{justify-content:center}
 .sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan2),var(--cyan),#7ee8fa,var(--cyan2));background-size:300% 100%;animation:stripeShift 3s linear infinite;z-index:1;}
 @keyframes stripeShift{0%{background-position:0%}100%{background-position:300%}}
 .sidebar-header{padding:20px 16px 14px;border-bottom:1px solid var(--sidebar-sep);display:flex;align-items:center;gap:11px;margin-top:3px;}
@@ -98,10 +108,6 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .chart-sub{font-size:11px;color:var(--muted);margin-bottom:14px;}
 .chart-wrap{position:relative;height:210px;}
 /* FORECAST BADGE */
-.forecast-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(23,184,220,.06);border:1px solid var(--cyan-border);border-radius:10px;margin-bottom:16px;}
-.forecast-row i{color:var(--cyan);font-size:14px;flex-shrink:0;}
-.forecast-row span{font-size:13px;color:var(--text2);}
-.forecast-row strong{color:var(--cyan);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;}
 /* FILTER */
 .filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-sm);}
 .filter-search{position:relative;flex:1;min-width:200px;}
@@ -224,15 +230,26 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="main">
   <div class="topbar">
     <div class="topbar-title">Sales <span style="color:var(--cyan)">Stock Out</span></div>
-    <div class="topbar-search"><i class="fa-solid fa-search"></i><input type="text" id="globalSearch" placeholder="Search product, category..." oninput="applyFilters()"></div>
+    <div class="topbar-search"><i class="fa-solid fa-search"></i><input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;"></div>
     <div class="topbar-actions">
       <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()"><div class="dark-toggle-knob" id="darkKnob"><i class="fa-solid fa-moon"></i></div></div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
 
-      <div class="topbar-user" onclick="confirmLogout()">
-        <div class="topbar-avatar" id="topbarAvatar">A</div>
-        <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
-        <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+      <div style="position:relative;">
+        <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+          <div class="topbar-avatar" id="topbarAvatar">A</div>
+          <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
+        </div>
+        <div id="userDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);min-width:160px;z-index:999;overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border);">
+            <div style="font-size:13px;font-weight:600;color:var(--text);" id="dropdownName">Administrator</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;" id="dropdownRole">Admin</div>
+          </div>
+          <div onclick="confirmLogout()" style="display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;font-size:13px;color:var(--danger);transition:background .15s;" onmouseover="this.style.background='rgba(220,38,38,.06)'" onmouseout="this.style.background='transparent'">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size:12px;"></i> Log Out
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -249,46 +266,40 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-icon cyan"><i class="fa-solid fa-receipt"></i></div>
-        <div><div class="stat-val" id="statOrders">-</div><div class="stat-lbl">Total Orders</div></div>
+        <div><div class="stat-val" id="statOrders">—</div><div class="stat-lbl">Total Orders</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon green"><i class="fa-solid fa-peso-sign"></i></div>
-        <div><div class="stat-val" id="statRevenue">-</div><div class="stat-lbl">Total Revenue</div></div>
+        <div><div class="stat-val" id="statRevenue">—</div><div class="stat-lbl">Total Revenue</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon blue"><i class="fa-solid fa-calendar-day"></i></div>
-        <div><div class="stat-val" id="statToday">-</div><div class="stat-lbl" id="statTodayLbl">Today's Sales</div></div>
+        <div><div class="stat-val" id="statToday">—</div><div class="stat-lbl" id="statTodayLbl">Today's Sales</div></div>
       </div>
       <div class="stat-card">
         <div class="stat-icon warn"><i class="fa-solid fa-boxes-stacked"></i></div>
-        <div><div class="stat-val" id="statAvg">-</div><div class="stat-lbl">Total Units Out</div></div>
+        <div><div class="stat-val" id="statAvg">—</div><div class="stat-lbl">Total Units Out</div></div>
       </div>
     </div>
 
     <!-- CHARTS -->
     <div class="chart-row">
       <div class="chart-card">
-        <div class="chart-title">Daily Sales + Forecast</div>
-        <div class="chart-sub">Last 14 days actual + 7-day simple moving average forecast</div>
+        <div class="chart-title">Daily Sales</div>
+        <div class="chart-sub">Revenue per day — last 14 days</div>
         <div class="chart-wrap"><canvas id="chartSales"></canvas></div>
       </div>
 
     </div>
 
-    <!-- FORECAST STRIP -->
-    <div class="forecast-row" id="forecastRow" style="display:none;">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
-      <span>Tomorrow's forecast: <strong id="forecastVal">-</strong> &nbsp;·&nbsp; Based on 7-day moving average of daily sales</span>
-    </div>
-
     <!-- FILTER BAR -->
     <div class="filter-bar">
-      <div class="filter-search"><i class="fa-solid fa-search"></i><input type="text" id="tableSearch" placeholder="Search order no., customer, product..." oninput="applyFilters()"></div>
+      <div class="filter-search"><i class="fa-solid fa-search"></i><input type="text" id="tableSearch" placeholder="Search order no., product..." oninput="applyFilters()"></div>
       <div class="filter-sep"></div>
       <div class="date-wrap">
         <i class="fa-solid fa-calendar" style="color:var(--muted);font-size:12px;"></i>
         <input type="date" id="dateFrom" onchange="applyFilters()">
-        <span>-</span>
+        <span>–</span>
         <input type="date" id="dateTo" onchange="applyFilters()">
       </div>
       <div class="filter-sep"></div>
@@ -330,7 +341,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="modal-backdrop" id="modalDetail">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Order <span id="modalOrderNum">-</span></div>
+      <div class="modal-title">Order <span id="modalOrderNum">—</span></div>
       <button class="modal-close" onclick="closeModal('modalDetail')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -358,14 +369,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<script charset="utf-8">
-const API_BASE = '/api';
+<script>
+const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token';
 const USER_KEY='rfmoto_user';
-function getToken(){return sessionStorage.getItem(TOKEN_KEY);}
-function getUser(){try{return JSON.parse(sessionStorage.getItem(USER_KEY));}catch(e){return null;}}
-function setUser(u){sessionStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth(){sessionStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(USER_KEY);}
+function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
+function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }catch(e){return null;}}
+function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -401,12 +412,14 @@ function bootUI(u){
   el('sidebarAvatar').textContent=ini; el('sidebarName').textContent=u.fullname||u.username;
   el('topbarAvatar').textContent=ini; el('topbarName').textContent=u.fullname||u.username;
   el('topbarRole').textContent=u.role==='admin'?'Administrator':(u.role==='manager'?'Manager':'Staff');
+  const dn=document.getElementById('dropdownName');if(dn)dn.textContent=u.fullname||u.username;
+  const dr=document.getElementById('dropdownRole');if(dr)dr.textContent=u.role==='admin'?'Administrator':(u.role==='manager'?'Manager':'Staff');
   const b=el('sidebarRoleBadge'); b.textContent=u.role==='admin'?'Admin':(u.role==='manager'?'Manager':'Staff');
   b.className='sidebar-role-badge '+(u.role||'staff');
   document.querySelectorAll('.admin-only').forEach(e=>e.style.display=u.role==='admin'?'':'none');
 }
 
-// -- Local date helper (avoids UTC "yesterday" bug before 8AM PH) --
+// ── Local date helper (avoids UTC "yesterday" bug before 8AM PH) ──
 function localDate(d = new Date()) {
   const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
@@ -473,35 +486,34 @@ function renderCharts(){
   if(CHART_SALES){CHART_SALES.destroy();CHART_SALES=null;}
   const c=getCC();
 
-  // -- Daily sales last 14 days + 7-day SMA forecast --
+  // ── Daily sales — last 14 days bar chart ──
   const days14=[];
   for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days14.push(localDate(d));}
   const actual=days14.map(d=>ALL_SALES.filter(o=>(o.order_date||'').startsWith(d)).reduce((s,o)=>s+parseFloat(o.total_amount||0),0));
 
-  // 7-day SMA on the actual data to project next 7 days
-  const window7=actual.slice(-7);
-  const sma=window7.reduce((a,b)=>a+b,0)/7;
-  const forecastDays=[];
-  for(let i=1;i<=7;i++){const d=new Date();d.setDate(d.getDate()+i);forecastDays.push(localDate(d));}
-  const forecastLabels=[...days14.map(d=>fmtDay(d)),...forecastDays.map(d=>fmtDay(d))];
-  const actualData=[...actual,...new Array(7).fill(null)];
-  const forecastData=[...new Array(14).fill(null),...new Array(7).fill(Math.round(sma))];
-  // show forecast strip
-  el('forecastRow').style.display='flex';
-  el('forecastVal').textContent=fmtPeso(Math.round(sma));
-
   CHART_SALES=new Chart(el('chartSales'),{
-    type:'line',
-    data:{labels:forecastLabels,datasets:[
-      {label:'Actual Sales',data:actualData,borderColor:'rgba(23,184,220,1)',backgroundColor:'rgba(23,184,220,.12)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'rgba(23,184,220,1)',borderWidth:2,spanGaps:false},
-      {label:'Forecast (SMA-7)',data:forecastData,borderColor:'rgba(217,119,6,.85)',backgroundColor:'rgba(217,119,6,.06)',fill:true,tension:.35,pointRadius:3,pointBackgroundColor:'rgba(217,119,6,.85)',borderWidth:2,borderDash:[5,4],spanGaps:false},
-    ]},
+    type:'bar',
+    data:{
+      labels:days14.map(d=>fmtDay(d)),
+      datasets:[{
+        label:'Daily Sales',
+        data:actual,
+        backgroundColor:'rgba(23,184,220,.8)',
+        borderRadius:5,
+        borderSkipped:false,
+      }]
+    },
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{color:c.tick,font:{family:'Barlow',size:11},boxWidth:12,padding:14}},tooltip:{mode:'index',callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtPeso(ctx.raw||0)}`}}},
-      scales:{x:{grid:{color:c.grid},ticks:{color:c.tick,maxRotation:45,font:{size:10}}},y:{grid:{color:c.grid},ticks:{color:c.tick,callback:v=>'₱'+fmt(v)},beginAtZero:true}}
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`Sales: ${fmtPeso(ctx.raw||0)}`}}
+      },
+      scales:{
+        x:{grid:{color:c.grid},ticks:{color:c.tick,maxRotation:45,font:{size:10}}},
+        y:{grid:{color:c.grid},ticks:{color:c.tick,callback:v=>'₱'+fmt(v)},beginAtZero:true}
+      }
     }
   });
-
 }
 
 function fmtDay(d){
@@ -509,7 +521,7 @@ function fmtDay(d){
   return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
 }
 
-// -- FILTER + SORT --
+// ── FILTER + SORT ──
 function applyFilters(){
   const q=(el('globalSearch').value||el('tableSearch').value||'').toLowerCase().trim();
   const from=el('dateFrom').value, to=el('dateTo').value;
@@ -564,26 +576,20 @@ function renderTable(){
     const saleAmt=(parseFloat(m.unit_price||0)*parseInt(m.quantity||0));
     return`<tr>
       <td style="white-space:nowrap;font-size:12px;color:var(--text2);">${fmtDate(m.movement_date)}</td>
-      <td><span class="order-chip">${esc(m.sku||'-')}</span></td>
-      <td style="font-weight:500;">${esc(m.product_name||'-')}</td>
-      <td><span class="badge badge-gray">${esc(m.category_name||'-')}</span></td>
+      <td><span class="order-chip">${esc(m.sku||'—')}</span></td>
+      <td style="font-weight:500;">${esc(m.product_name||'—')}</td>
+      <td><span class="badge badge-gray">${esc(m.category_name||'—')}</span></td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--danger);">−${m.quantity??0}</td>
-      <td style="font-size:13px;color:var(--text2);">${m.qty_before??'-'}</td>
+      <td style="font-size:13px;color:var(--text2);">${m.qty_before??'—'}</td>
       <td>${stockBadge}</td>
-      <td style="font-size:12px;color:var(--muted);">${esc(m.reference_no||'-')}</td>
+      <td style="font-size:12px;color:var(--muted);">${esc(m.reference_no||'—')}</td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--success);">${fmtPeso(saleAmt)}</td>
-      <td style="font-size:12px;color:var(--text2);">${esc(m.performed_by_name||m.username||'-')}</td>
+      <td style="font-size:12px;color:var(--text2);">${esc(m.performed_by_name||m.username||'—')}</td>
     </tr>`;
   }).join('');
   renderPag();
 }
 
-function payBadge(p){
-  const map={cash:'badge-green',gcash:'badge-cyan',card:'badge-blue',bank_transfer:'badge-warn',credit:'badge-purple'};
-  const cls=map[p]||'badge-gray';
-  const label=p?p.charAt(0).toUpperCase()+p.slice(1).replace('_',' '):'-';
-  return`<span class="badge ${cls}">${label}</span>`;
-}
 
 function viewOrder(orderNum){
   const o=ALL_SALES.find(s=>s.order_number===orderNum);
@@ -593,10 +599,8 @@ function viewOrder(orderNum){
   const subtotal=items.reduce((s,i)=>s+parseFloat(i.subtotal||i.unit_price*i.quantity||0),0);
   el('modalBody').innerHTML=`
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:18px;display:flex;gap:20px;flex-wrap:wrap;">
-      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Customer</div><div style="font-size:14px;font-weight:600;margin-top:2px;">${esc(o.customer_name||'Walk-in')}</div></div>
       <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Date</div><div style="font-size:14px;font-weight:600;margin-top:2px;">${fmtDate(o.order_date)}</div></div>
-      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Payment</div><div style="margin-top:4px;">${payBadge(o.payment_method)}</div></div>
-      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Served By</div><div style="font-size:13px;font-weight:500;margin-top:2px;">${esc(o.served_by||'-')}</div></div>
+      <div><div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Served By</div><div style="font-size:13px;font-weight:500;margin-top:2px;">${esc(o.served_by||'—')}</div></div>
     </div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Items Ordered</div>
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;">
@@ -608,7 +612,7 @@ function viewOrder(orderNum){
       </tr></thead>
       <tbody>
         ${items.map(i=>`<tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:9px 12px;font-weight:500;">${esc(i.product_name||'-')}</td>
+          <td style="padding:9px 12px;font-weight:500;">${esc(i.product_name||'—')}</td>
           <td style="padding:9px 12px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;">${i.quantity}</td>
           <td style="padding:9px 12px;text-align:right;">${fmtPeso(i.unit_price||0)}</td>
           <td style="padding:9px 12px;text-align:right;font-weight:600;">${fmtPeso(i.subtotal||i.unit_price*i.quantity||0)}</td>
@@ -617,7 +621,6 @@ function viewOrder(orderNum){
     </table>
     <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
       <div style="display:flex;gap:20px;font-size:13px;color:var(--text2);"><span>Subtotal</span><span>${fmtPeso(o.subtotal||subtotal)}</span></div>
-      ${parseFloat(o.discount||0)>0?`<div style="display:flex;gap:20px;font-size:13px;color:var(--danger);"><span>Discount</span><span>−${fmtPeso(o.discount)}</span></div>`:''}
       <div style="display:flex;gap:20px;font-size:16px;font-family:'Barlow Condensed',sans-serif;font-weight:900;color:var(--success);border-top:1px solid var(--border);padding-top:8px;margin-top:4px;"><span>TOTAL</span><span>${fmtPeso(o.total_amount||0)}</span></div>
     </div>`;
   openModal('modalDetail');
@@ -629,11 +632,11 @@ function renderPag(){
   const s=(PAGE-1)*PAGE_SIZE+1, e=Math.min(PAGE*PAGE_SIZE,total);
   const range=pagR(PAGE,pages);
   const btns=range.map(p=>p==='…'?`<span class="pg-info" style="padding:0 4px;">…</span>`:`<button class="pg-btn ${p===PAGE?'active':''}" onclick="goPage(${p})">${p}</button>`).join('');
-  wrap.innerHTML=`<span class="pg-info">Showing ${s}-${e} of ${total.toLocaleString()}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
+  wrap.innerHTML=`<span class="pg-info">Showing ${s}–${e} of ${total.toLocaleString()}</span><div style="display:flex;align-items:center;gap:4px;"><button class="pg-btn" onclick="goPage(${PAGE-1})" ${PAGE===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></button>${btns}<button class="pg-btn" onclick="goPage(${PAGE+1})" ${PAGE===pages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></button></div>`;
 }
 function pagR(cur,total){if(total<=7)return Array.from({length:total},(_,i)=>i+1);if(cur<=4)return[1,2,3,4,5,'…',total];if(cur>=total-3)return[1,'…',total-4,total-3,total-2,total-1,total];return[1,'…',cur-1,cur,cur+1,'…',total];}
 function goPage(p){const pages=Math.ceil(FILTERED.length/PAGE_SIZE);if(p<1||p>pages)return;PAGE=p;renderTable();document.querySelector('.content-area').scrollTop=0;}
-function fmtDate(d){if(!d)return'-';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function showPage(page) {
@@ -653,8 +656,36 @@ function restoreTheme(){const s=localStorage.getItem('rfmoto_theme');if(s==='dar
 function openModal(id){el(id).classList.add('open');}
 function closeModal(id){el(id).classList.remove('open');}
 document.addEventListener('click',e=>{['modalDetail','modalLogout'].forEach(id=>{if(e.target===el(id))closeModal(id);});});
-function confirmLogout(){openModal('modalLogout');}
+function toggleUserMenu(){const dd=document.getElementById('userDropdown');dd.style.display=dd.style.display==='none'?'block':'none';}
+function closeUserMenu(){const dd=document.getElementById('userDropdown');if(dd)dd.style.display='none';}
+document.addEventListener('click',function(e){const btn=document.getElementById('topbarUserBtn'),dd=document.getElementById('userDropdown');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))dd.style.display='none';});
+function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
