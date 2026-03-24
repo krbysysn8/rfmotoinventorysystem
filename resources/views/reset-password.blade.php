@@ -169,7 +169,9 @@
 
 <script>
   const TOKEN   = '{{ $token ?? "" }}';
-  const API_URL = '/api';
+  {{-- ⚠️ RENDER DEPLOY: Ensure APP_URL in your .env is set to your live domain --}}
+  {{-- e.g. APP_URL=https://rfmoto.onrender.com — affects this API call AND reset email links --}}
+  const API_URL = '{{ config("app.url") }}/api';
 
   function togglePw(id, btn) {
     const inp  = document.getElementById(id);
@@ -224,9 +226,9 @@
     }
   }
 
-  // Allow Enter key to submit
+  // Allow Enter key to submit — guard against invalid/expired token view (fix #7)
   document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') doReset();
+    if (e.key === 'Enter' && document.getElementById('pw1')) doReset();
   });
 </script>
 </body>
