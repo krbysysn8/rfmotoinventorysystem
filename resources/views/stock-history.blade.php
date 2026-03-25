@@ -569,7 +569,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 // ═══════════════════════════════════════════════════
 //  CONFIG & AUTH
 // ═══════════════════════════════════════════════════
-const API_BASE  = '{{ config("app.url") }}/api';
+const API_BASE  = window.location.origin + '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
