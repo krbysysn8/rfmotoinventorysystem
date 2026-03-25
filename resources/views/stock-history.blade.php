@@ -573,10 +573,10 @@ const API_BASE  = '{{ config("app.url") }}/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
-function getToken()  { return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
-function getUser()   { try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function getToken()  { return localStorage.getItem(TOKEN_KEY); }
+function getUser()   { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
 function setUser(u)  { localStorage.setItem(USER_KEY, JSON.stringify(u)); }
-function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function clearAuth() { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
 function el(id)      { return document.getElementById(id); }
 
 async function apiFetch(path, opts = {}) {
@@ -803,7 +803,7 @@ function applyFilters() {
 
     FILTERED = ALL_MOVEMENTS.filter(m => {
         if (q) {
-            const haystack = [m.product_name, m.sku, m.reference_no, m.notes, m.username, m.performed_by]
+            const haystack = [m.product_name, m.sku, m.reference_no, m.notes, m.username, m.performed_by_name, m.category_name, m.movement_reason]
                 .map(v => (v||'').toLowerCase()).join(' ');
             if (!haystack.includes(q)) return false;
         }
