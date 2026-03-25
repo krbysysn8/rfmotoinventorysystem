@@ -294,6 +294,12 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
           <label class="form-label">Product Name <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
           <input class="form-input" type="text" id="fProduct" placeholder="Auto-filled or type manually" autocomplete="off">
         </div>
+        <div class="form-group" id="variationGroup" style="display:none;">
+          <label class="form-label">Variation <span style="color:var(--muted);font-size:9px;">(if applicable)</span></label>
+          <select class="form-input" id="fVariation">
+            <option value="">Select variation…</option>
+          </select>
+        </div>
         <div class="form-group">
           <label class="form-label">Online Platform *</label>
           <select class="form-input" id="fPlatform">
@@ -466,10 +472,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <script>
 const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token', USER_KEY='rfmoto_user';
-function getToken(){ return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
-function getUser(){ try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function getToken(){return localStorage.getItem(TOKEN_KEY);}
+function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
 function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth(){ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function clearAuth(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);}
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -656,12 +662,17 @@ function toggleBadReason(){
   if(s!=='bad')el('fBadReason').value='';
 }
 
-// Auto-resolve product name from product ID
+// Auto-resolve product name + variations from product ID
 let _resolveTimer=null;
 function onProductIdInput(){
   clearTimeout(_resolveTimer);
   const pid=el('fProductId').value.trim();
-  if(!pid){el('fProduct').value='';return;}
+  if(!pid){
+    el('fProduct').value='';
+    el('fVariation').innerHTML='<option value="">Select variation…</option>';
+    el('variationGroup').style.display='none';
+    return;
+  }
   _resolveTimer=setTimeout(async()=>{
     try{
       const data=await apiFetch('/products/'+parseInt(pid));
@@ -669,6 +680,18 @@ function onProductIdInput(){
         el('fProduct').value=data.product.product_name||'';
         el('fProduct').style.borderColor='var(--success)';
         setTimeout(()=>{el('fProduct').style.borderColor='';},1600);
+        // Populate variation dropdown if product has variations
+        const vars=(data.product.variations||[]).filter(v=>v.is_active!==false);
+        const varSel=el('fVariation');
+        const varGroup=el('variationGroup');
+        if(vars.length>0){
+          varSel.innerHTML='<option value="">No specific variation</option>'+
+            vars.map(v=>`<option value="${v.variation_id}">${esc(v.variation_name)} (Stock: ${v.stock_qty??0})</option>`).join('');
+          varGroup.style.display='';
+        } else {
+          varSel.innerHTML='<option value="">Select variation…</option>';
+          varGroup.style.display='none';
+        }
       }
     }catch(e){}
   },500);
@@ -684,9 +707,11 @@ async function submitReturn(){
   if(!date){showToast('Please select a return date.','warn');return;}
   if(status==='bad'&&!badReason){showToast('Please select a reason for bad status.','warn');return;}
   const rawPid=el('fProductId').value.trim();
+  const rawVid=el('fVariation').value;
   const payload={
     order_id:     el('fOrderId').value.trim()||null,
     product_id:   rawPid?parseInt(rawPid):null,
+    variation_id: rawVid?parseInt(rawVid):null,
     product_name: el('fProduct').value.trim()||null,
     platform,
     courier,
@@ -714,6 +739,8 @@ function clearForm(){
   el('fDate').value=new Date().toISOString().split('T')[0];
   el('badReasonGroup').style.display='none';
   if(el('fBadReason'))el('fBadReason').value='';
+  el('fVariation').innerHTML='<option value="">Select variation…</option>';
+  el('variationGroup').style.display='none';
 }
 
 function renderPag(){
@@ -752,7 +779,10 @@ function closeUserMenu(){const dd=document.getElementById('userDropdown');if(dd)
 document.addEventListener('click',function(e){const btn=document.getElementById('topbarUserBtn'),dd=document.getElementById('userDropdown');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))dd.style.display='none';});
 function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
+</script>
 
+<script>
+// ── Global product search ─────────────────────────────────────
 function globalSearchFn(val) {
   val = (val || '').trim();
   if (!val) return;
@@ -764,5 +794,4 @@ function globalSearchDebounce(val) {
   window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
 }
 </script>
-
 </body>
