@@ -819,7 +819,7 @@ html, body {
         </div>
         <div class="topbar-btn" onclick="showPage('barcode')" title="Barcode Scanner"><i class="fa-solid fa-barcode"></i></div>
         <div style="position:relative;">
-          <div class="topbar-user" onclick="toggleUserMenu()" id="topbarUserBtn">
+          <div class="topbar-user" onclick="toggleUserMenu(event)" id="topbarUserBtn">
             <div class="topbar-avatar" id="topbarAvatar">A</div>
             <div><div class="topbar-user-name" id="topbarName">Administrator</div><div class="topbar-user-role" id="topbarRole">Admin</div></div>
             <i class="fa-solid fa-chevron-down" style="font-size:10px;color:var(--muted);margin-left:4px;"></i>
@@ -1073,7 +1073,7 @@ html, body {
 //  All data fetched from Laravel API via Sanctum token auth
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE  = '/api';
+const API_BASE  = window.location.origin + '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
@@ -1116,9 +1116,9 @@ let scanActionCurrent = 'add-existing';
 let qsActionCurrent   = 'add-existing';
 let _chartSM = null, _chartInv = null;
 let _chartsLoaded = false;
-let invCatFilter = 'All';
 let _notifPollTimer = null;
 let _lastPollStats = {};
+let invCatFilter = 'All';
 
 const CATEGORIES_LIST = ['All','Engine Parts','Electrical','Brake System','Suspension',
     'Body & Frame','Transmission','Cooling System','Exhaust','Filters','Oils & Fluids'];
@@ -1142,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     restoreTheme();
 
     // Fire token validation AND dashboard data at the same time
-    const mePromise = fetch('/api/me', {
+    const mePromise = fetch(window.location.origin + '/api/me', {
         headers: {
             'Accept':        'application/json',
             'Authorization': `Bearer ${token}`,
@@ -1214,9 +1214,14 @@ async function loadDashboard() {
     setVal('statCategories',  dashStats.total_categories);
     setVal('statSuppliers',   dashStats.total_suppliers);
 
-    // Stock health %
-    const health = dashStats.total_products > 0
-        ? Math.round(((dashStats.total_products - dashStats.low_stock_count) / dashStats.total_products) * 100)
+    // Stock health % — weighted: out-of-stock = 2x penalty, low-stock = 1x
+    const _lowStock   = dashStats.low_stock_count || 0;
+    const _outOfStock = dashStats.out_of_stock    || 0;
+    const _totalProd  = dashStats.total_products  || 0;
+    const _penalty    = (_lowStock * 1) + (_outOfStock * 2);
+    const _maxPenalty = _totalProd * 2;
+    const health      = _totalProd > 0
+        ? Math.max(0, Math.round(((_maxPenalty - _penalty) / _maxPenalty) * 100))
         : 100;
     setVal('statStockHealth', health + '%');
 
@@ -1231,7 +1236,7 @@ async function loadDashboard() {
     // Charts only load once on first visit — don't reload on data refresh
     if (!_chartsLoaded) {
         _chartsLoaded = true;
-        await loadCharts();
+        loadCharts(); // fire and forget — charts load in background
     }
 }
 
@@ -1464,7 +1469,8 @@ function openModal(id)  { const m = el(id); if(m) m.classList.add('open'); }
 function closeModal(id) { const m = el(id); if(m) m.classList.remove('open'); }
 
 // ── Logout ────────────────────────────────────────────────────────
-function toggleUserMenu() {
+function toggleUserMenu(e) {
+  if (e) e.stopPropagation();
   const dd = document.getElementById('userDropdown');
   dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
 }
@@ -1761,9 +1767,8 @@ async function saveProduct() {
         alert(errs);
     }
 }
-</script>
 
-<script>
+// ── Global product search ─────────────────────────────────────
 function globalSearchFn(val) {
   val = (val || '').trim();
   if (!val) return;
