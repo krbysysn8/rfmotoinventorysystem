@@ -470,7 +470,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="toast" id="toast"></div>
 
 <script>
-const API_BASE='{{ config("app.url") }}/api';
+const API_BASE = window.location.origin + '/api';
 const TOKEN_KEY='rfmoto_token', USER_KEY='rfmoto_user';
 function getToken(){return localStorage.getItem(TOKEN_KEY);}
 function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
