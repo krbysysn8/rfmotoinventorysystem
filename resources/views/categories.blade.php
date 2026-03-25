@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>RF Moto - Categories</title>
+<title>RF Moto – Categories</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -31,7 +31,7 @@
 html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;transition:background .3s,color .3s;}
 #app{display:flex;height:100vh;}
 
-/* -- SIDEBAR -- */
+/* ── SIDEBAR ── */
 .sidebar{width:236px;min-width:236px;background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;z-index:10;transition:width .28s cubic-bezier(.4,0,.2,1),min-width .28s;overflow:hidden;border-right:1px solid rgba(23,184,220,.10);box-shadow:2px 0 24px rgba(0,0,0,.22);}
 .sidebar.collapsed { width: 64px; min-width: 64px; }
 .sidebar.collapsed .sidebar-brand-wrap,
@@ -95,7 +95,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sidebar-footer-btn.danger:hover{color:#f87171;}
 .sidebar-footer-btn i{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
 
-/* -- MAIN -- */
+/* ── MAIN ── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;box-shadow:var(--shadow-sm);transition:background .3s;}
 .topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
@@ -117,7 +117,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .topbar-user-name{font-size:13px;font-weight:600;color:var(--text);}
 .topbar-user-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
 
-/* -- CONTENT -- */
+/* ── CONTENT ── */
 .content-area{flex:1;overflow-y:auto;padding:22px;background:var(--bg);transition:background .3s;position:relative;}
 .content-area::-webkit-scrollbar{width:5px;}
 .content-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -125,14 +125,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .section-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text);}
 .section-actions{display:flex;gap:8px;align-items:center;}
 
-/* -- SEARCH BAR -- */
+/* ── SEARCH BAR ── */
 .bar-search{position:relative;max-width:320px;}
 .bar-search input{width:100%;padding:8px 12px 8px 32px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
 .bar-search input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-glow);}
 .bar-search input::placeholder{color:var(--muted);}
 .bar-search i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;}
 
-/* -- TABLE CARD -- */
+/* ── TABLE CARD ── */
 .table-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;transition:background .3s,border-color .3s;}
 .tbl-scroll{overflow-x:auto;}
 .tbl{width:100%;border-collapse:collapse;font-size:13px;}
@@ -150,17 +150,17 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .sub-item-name{font-size:12px;font-weight:500;color:var(--text2);}
 .sub-item-actions{display:flex;gap:4px;}
 
-/* -- BADGES -- */
+/* ── BADGES ── */
 .badge{display:inline-flex;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
 .badge-green{background:rgba(22,163,74,.10);color:#16a34a;border:1px solid rgba(22,163,74,.2);}
 .badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
 .badge-cyan{background:rgba(23,184,220,.10);color:var(--cyan);border:1px solid var(--cyan-border);}
 .badge-pill{background:rgba(23,184,220,.12);color:var(--cyan);border:1px solid var(--cyan-border);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;}
 
-/* -- CAT ICON CHIP -- */
+/* ── CAT ICON CHIP ── */
 .cat-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 
-/* -- BUTTONS -- */
+/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;border:1px solid transparent;white-space:nowrap;}
 .btn-primary{background:linear-gradient(90deg,var(--cyan2),var(--cyan));color:#fff;border-color:var(--cyan);box-shadow:0 3px 10px rgba(23,184,220,.28);}
 .btn-primary:hover{box-shadow:0 5px 18px rgba(23,184,220,.42);transform:translateY(-1px);}
@@ -174,7 +174,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 .action-btn.edit:hover{border-color:#60a5fa;color:#60a5fa;background:rgba(37,99,235,.06);}
 .action-btn.del:hover{border-color:var(--danger);color:var(--danger);background:rgba(220,38,38,.06);}
 
-/* -- MODAL -- */
+/* ── MODAL ── */
 .modal-backdrop{position:fixed;inset:0;background:rgba(13,27,38,.65);backdrop-filter:blur(3px);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;}
 .modal-backdrop.open{display:flex;}
 .modal{background:var(--surface);border-radius:20px;width:100%;max-width:480px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22),0 0 0 1px var(--border);animation:modalIn .22s cubic-bezier(.2,0,.2,1) both;overflow:hidden;}
@@ -212,7 +212,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 </head>
 <body>
 <div id="app">
-  <!-- -- SIDEBAR -- -->
+  <!-- ── SIDEBAR ── -->
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo-pill">
@@ -258,13 +258,13 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
     </div>
   </div>
 
-  <!-- -- MAIN -- -->
+  <!-- ── MAIN ── -->
   <div class="main">
     <div class="topbar">
       <div class="topbar-title">Categories</div>
       <div class="topbar-search">
         <i class="fa-solid fa-search"></i>
-        <input type="text" placeholder="Search products, SKU..." id="globalSearch">
+        <input type="text" placeholder="Search products, SKU..." id="globalSearch" oninput="globalSearchDebounce(this.value)" onkeydown="if(event.key==='Enter'){clearTimeout(window._gsTimer);globalSearchFn(this.value);}" style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:10px;font-family:'Barlow',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s,box-shadow .2s;">
       </div>
       <div class="topbar-actions">
         <div class="dark-toggle" id="darkToggle" onclick="toggleDarkMode()" title="Toggle dark mode">
@@ -316,7 +316,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- -- MODAL: ADD/EDIT CATEGORY -- -->
+<!-- ── MODAL: ADD/EDIT CATEGORY ── -->
 <div class="modal-backdrop" id="modalCategory">
   <div class="modal">
     <div class="modal-header">
@@ -374,7 +374,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- -- MODAL: ADD/EDIT SUBCATEGORY -- -->
+<!-- ── MODAL: ADD/EDIT SUBCATEGORY ── -->
 <div class="modal-backdrop" id="modalSubcat">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -398,7 +398,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- -- MODAL: DELETE CONFIRM -- -->
+<!-- ── MODAL: DELETE CONFIRM ── -->
 <div class="modal-backdrop" id="modalDelete">
   <div class="modal modal-sm">
     <div class="modal-header">
@@ -418,7 +418,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<!-- -- MODAL: LOGOUT -- -->
+<!-- ── MODAL: LOGOUT ── -->
 <div class="modal-backdrop" id="modalLogout">
   <div class="modal modal-sm">
     <div class="modal-header"><div class="modal-title">Log <span>Out</span></div><button class="modal-close" onclick="closeModal('modalLogout')">&#x2715;</button></div>
@@ -427,37 +427,37 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
   </div>
 </div>
 
-<script charset="utf-8">
-// ============================================
+<script>
+// ════════════════════════════════════════════
 //  CONFIG
-// ============================================
-const API_URL = '/api';
-const TOKEN      = sessionStorage.getItem('rfmoto_token') || '';
-const ACTIVE_PAGE= 'categories';
-
+// ════════════════════════════════════════════
+const API_URL    = '/api';
+const ACTIVE_PAGE = 'categories';
+function getToken() { return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || ''; }
 function authHeaders() {
   return {
-    'Content-Type': 'application/json',
-    'Accept':       'application/json',
-    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${TOKEN}`,
+    'Content-Type':  'application/json',
+    'Accept':        'application/json',
+    'X-CSRF-TOKEN':  document.querySelector('meta[name="csrf-token"]').content,
+    'Authorization': `Bearer ${getToken()}`,
   };
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  STATE
-// ============================================
+// ════════════════════════════════════════════
 let CATEGORIES   = [];
 let currentUser  = null;
 let expandedRows = new Set();   // track which category_ids are expanded
 
-// ============================================
+// ════════════════════════════════════════════
 //  INIT
-// ============================================
+// ════════════════════════════════════════════
 async function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user');
+  if (!getToken()) { window.location.href = '/login'; return; }
+  const stored = sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user');
   if (stored) { try { currentUser = JSON.parse(stored); } catch(e){} }
-  if (!currentUser) currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
+  if (!currentUser) { window.location.href = '/login'; return; }
   launchApp();
   await loadCategories();
 }
@@ -483,9 +483,9 @@ function launchApp() {
   }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  LOAD CATEGORIES FROM API
-// ============================================
+// ════════════════════════════════════════════
 async function loadCategories() {
   try {
     const res  = await fetch(`${API_URL}/categories`, { headers: authHeaders() });
@@ -501,9 +501,9 @@ async function loadCategories() {
   }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  RENDER TABLE
-// ============================================
+// ════════════════════════════════════════════
 function renderCategories(cats) {
   const tbody = document.getElementById('catTbody');
   if (!cats.length) {
@@ -548,7 +548,7 @@ function buildCatRows(c) {
       <td>
         <span class="badge-pill">${subCount} sub-cat${subCount !== 1 ? 's' : ''}</span>
       </td>
-      <td style="color:var(--text2);font-size:12px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.description || '-'}</td>
+      <td style="color:var(--text2);font-size:12px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${c.description || '—'}</td>
       <td><span class="badge badge-green">Active</span></td>
       <td>
         <button class="action-btn add"  onclick="openAddSubcat(${c.category_id},'${escQ(c.category_name)}')" title="Add Sub-category"><i class="fa-solid fa-layer-group"></i></button>
@@ -606,9 +606,9 @@ function filterCategories(q) {
   renderCategories(filtered);
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  ADD / EDIT CATEGORY
-// ============================================
+// ════════════════════════════════════════════
 function openAddCategory() {
   document.getElementById('editCatId').value = '';
   document.getElementById('cName').value     = '';
@@ -697,14 +697,14 @@ async function deleteCategory(id) {
   } catch(e) { showToast('Delete failed.', 'danger'); }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  ADD / EDIT SUBCATEGORY
-// ============================================
+// ════════════════════════════════════════════
 function openAddSubcat(catId, catName) {
   document.getElementById('editSubcatId').value    = '';
   document.getElementById('editSubcatCatId').value = catId;
   document.getElementById('scName').value          = '';
-  document.getElementById('subcatModalTitle').innerHTML = `Add <span>Sub-category</span> <small style="font-size:11px;color:var(--muted);"> - ${catName}</small>`;
+  document.getElementById('subcatModalTitle').innerHTML = `Add <span>Sub-category</span> <small style="font-size:11px;color:var(--muted);"> — ${catName}</small>`;
   openModal('modalSubcat');
 }
 
@@ -766,9 +766,9 @@ async function deleteSubcat(id) {
   } catch(e) { showToast('Delete failed.', 'danger'); }
 }
 
-// ============================================
+// ════════════════════════════════════════════
 //  HELPERS
-// ============================================
+// ════════════════════════════════════════════
 function escQ(s) { return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
@@ -840,5 +840,18 @@ window.addEventListener('DOMContentLoaded', () => {
   initFromSession();
 });
 </script>
+
+<script>
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  window.location.href = '/products?q=' + encodeURIComponent(val);
+}
+function globalSearchDebounce(val) {
+  clearTimeout(window._gsTimer);
+  if (!val.trim()) return;
+  window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
+}
+</script>
 </body>
-</html>
