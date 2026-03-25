@@ -16,9 +16,11 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'is_active'  => 'boolean',
-        'unit_price' => 'decimal:2',
-        'cost_price' => 'decimal:2',
+        'is_active'     => 'boolean',
+        'unit_price'    => 'decimal:2',
+        'cost_price'    => 'decimal:2',
+        'stock_qty'     => 'integer',
+        'reorder_level' => 'integer',
     ];
 
     public function category()
