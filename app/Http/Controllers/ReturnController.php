@@ -35,6 +35,7 @@ class ReturnController extends Controller
         $request->validate([
             'order_id'     => 'nullable|string|max:100',
             'product_id'   => 'nullable|integer|exists:products,product_id',
+            'variation_id' => 'nullable|integer|exists:product_variations,variation_id',
             'product_name' => 'nullable|string|max:255',
             'platform'     => 'required|in:shopee,tiktok,lazada,other',
             'courier'      => 'required|in:jnt,shopee_express,flash,other',
@@ -53,10 +54,11 @@ class ReturnController extends Controller
             ], 422);
         }
 
-        $qty       = (int) $request->quantity;
-        $isGood    = $request->item_status === 'good';
-        $user      = $request->user();
-        $productId = $request->product_id ? (int) $request->product_id : null;
+        $qty         = (int) $request->quantity;
+        $isGood      = $request->item_status === 'good';
+        $user        = $request->user();
+        $productId   = $request->product_id   ? (int) $request->product_id   : null;
+        $variationId = $request->variation_id ? (int) $request->variation_id : null;
 
         $productName = $request->product_name;
         if (!$productName && $productId) {
@@ -70,6 +72,7 @@ class ReturnController extends Controller
         $ret = ReturnRequest::create([
             'order_id'     => $request->order_id ?: null,
             'product_id'   => $productId,
+            'variation_id' => $variationId,
             'product_name' => $productName,
             'platform'     => $request->platform,
             'courier'      => $request->courier,
@@ -83,26 +86,63 @@ class ReturnController extends Controller
 
         // 2. Stock adjustment — only for good items with a linked product
         if ($productId && $isGood) {
-            $before = (int) DB::table('products')
-                ->where('product_id', $productId)
-                ->value('stock_qty');
+            if ($variationId) {
+                // Restore stock to the specific variation
+                $variation = DB::table('product_variations')
+                    ->where('variation_id', $variationId)
+                    ->first();
+                $before = $variation ? (int) $variation->stock_qty : 0;
 
-            DB::table('products')
-                ->where('product_id', $productId)
-                ->increment('stock_qty', $qty);
+                DB::table('product_variations')
+                    ->where('variation_id', $variationId)
+                    ->increment('stock_qty', $qty);
 
-            DB::table('stock_movements')->insert([
-                'product_id'    => $productId,
-                'movement_type' => 'in',
-                'quantity'      => $qty,
-                'qty_before'    => $before,
-                'qty_after'     => $before + $qty,
-                'reference_no'  => "RETURN-{$ret->id}",
-                'notes'         => "Return #{$ret->id} — item returned in good condition. Stock restored.",
-                'performed_by'  => $user->user_id,
-                'movement_date' => now()->toDateString(),
-                'created_at'    => now(),
-            ]);
+                // Keep products.stock_qty in sync (sum of all variations)
+                $newProductStock = (int) DB::table('product_variations')
+                    ->where('product_id', $productId)
+                    ->where('is_active', true)
+                    ->sum('stock_qty');
+                DB::table('products')
+                    ->where('product_id', $productId)
+                    ->update(['stock_qty' => $newProductStock, 'updated_at' => now()]);
+
+                DB::table('stock_movements')->insert([
+                    'product_id'    => $productId,
+                    'variation_id'  => $variationId,
+                    'movement_type' => 'in',
+                    'quantity'      => $qty,
+                    'qty_before'    => $before,
+                    'qty_after'     => $before + $qty,
+                    'reference_no'  => "RETURN-{$ret->id}",
+                    'notes'         => "Return #{$ret->id} — item returned in good condition. Stock restored.",
+                    'performed_by'  => $user->user_id,
+                    'movement_date' => now()->toDateString(),
+                    'created_at'    => now(),
+                ]);
+            } else {
+                // No variation — restore directly to product
+                $before = (int) DB::table('products')
+                    ->where('product_id', $productId)
+                    ->value('stock_qty');
+
+                DB::table('products')
+                    ->where('product_id', $productId)
+                    ->increment('stock_qty', $qty);
+
+                DB::table('stock_movements')->insert([
+                    'product_id'    => $productId,
+                    'variation_id'  => null,
+                    'movement_type' => 'in',
+                    'quantity'      => $qty,
+                    'qty_before'    => $before,
+                    'qty_after'     => $before + $qty,
+                    'reference_no'  => "RETURN-{$ret->id}",
+                    'notes'         => "Return #{$ret->id} — item returned in good condition. Stock restored.",
+                    'performed_by'  => $user->user_id,
+                    'movement_date' => now()->toDateString(),
+                    'created_at'    => now(),
+                ]);
+            }
         }
 
         // 3. Activity log
