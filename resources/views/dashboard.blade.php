@@ -1084,6 +1084,29 @@ function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); localStorage.setIte
 function setUser(u)  { const s = JSON.stringify(u); sessionStorage.setItem(USER_KEY, s); localStorage.setItem(USER_KEY, s); }
 function clearAuth() { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); }
 
+// ── Dashboard stats client cache (instant reload) ──────────────
+const STATS_CACHE_KEY = 'rfmoto_dash_stats';
+const CATS_CACHE_KEY  = 'rfmoto_dash_cats';
+function saveStatsCache(data) {
+    try { localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
+function loadStatsCache() {
+    try {
+        const raw = localStorage.getItem(STATS_CACHE_KEY);
+        if (!raw) return null;
+        const obj = JSON.parse(raw);
+        // Use cache if < 5 minutes old
+        if (Date.now() - obj.ts < 5 * 60 * 1000) return obj.data;
+    } catch(e) {}
+    return null;
+}
+function saveCatsCache(cats) {
+    try { localStorage.setItem(CATS_CACHE_KEY, JSON.stringify(cats)); } catch(e) {}
+}
+function loadCatsCache() {
+    try { const r = localStorage.getItem(CATS_CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+}
+
 async function apiFetch(path, opts = {}) {
     const token = getToken();
     const res = await fetch(API_BASE + path, {
@@ -1141,30 +1164,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     bootUI(currentUser);
     restoreTheme();
 
-    // Fire token validation AND dashboard data at the same time
-    const mePromise = fetch(window.location.origin + '/api/me', {
-        headers: {
-            'Accept':        'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
+    // ── Instant render from localStorage cache ──────────────────
+    // Show last-known stats RIGHT NOW before any network request
+    const cachedStats = loadStatsCache();
+    const cachedCats  = loadCatsCache();
+    if (cachedStats) {
+        renderDashStats(cachedStats);
+    }
+    if (cachedCats) {
+        CATEGORIES_API = cachedCats;
+    }
+
+    // ── Fire ALL network requests in parallel ───────────────────
+    const mePromise   = fetch(window.location.origin + '/api/me', {
+        headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` },
     }).then(r => r.json()).catch(() => null);
 
-    // Dashboard starts loading immediately — no waiting for /api/me
-    const dashPromise = loadDashboard();
+    const dashPromise = loadDashboard(); // refreshes stats from server in background
 
-    // Wait for token validation in the background
+    // Validate token
     const meData = await mePromise;
-
     if (meData === null) {
-        // Network error — already loaded with cached user, that's fine
         console.warn('Token validation skipped (network error)');
     } else if (!meData || meData.status !== 'success') {
-        // Token invalid/expired — abort and redirect
         clearAuth();
         window.location.replace('/login');
         return;
     } else {
-        // Refresh UI with latest server-side user data
         currentUser = meData.user;
         setUser(meData.user);
         bootUI(currentUser);
@@ -1202,41 +1228,42 @@ async function loadDashboard() {
 
     if (catRes && catRes.status === 'success') {
         CATEGORIES_API = catRes.categories || [];
+        saveCatsCache(CATEGORIES_API);
     }
 
     if (!res || res.status !== 'success') return;
-    dashStats = res.data;
+    saveStatsCache(res.data); // persist for instant next load
+    renderDashStats(res.data);
+}
 
-    // Stat cards
-    setVal('statTotalItems',  dashStats.total_products);
-    setVal('statLowStockNew', dashStats.low_stock_count);
-    setVal('statOutOfStock',  dashStats.out_of_stock);
-    setVal('statCategories',  dashStats.total_categories);
-    setVal('statSuppliers',   dashStats.total_suppliers);
+// Render stats — called from cache (instant on open) AND from fresh API response
+function renderDashStats(data) {
+    dashStats = data;
 
-    // Stock health % — weighted: out-of-stock = 2x penalty, low-stock = 1x
-    const _lowStock   = dashStats.low_stock_count || 0;
-    const _outOfStock = dashStats.out_of_stock    || 0;
-    const _totalProd  = dashStats.total_products  || 0;
-    const _penalty    = (_lowStock * 1) + (_outOfStock * 2);
-    const _maxPenalty = _totalProd * 2;
-    const health      = _totalProd > 0
-        ? Math.max(0, Math.round(((_maxPenalty - _penalty) / _maxPenalty) * 100))
-        : 100;
+    setVal('statTotalItems',  data.total_products);
+    setVal('statLowStockNew', data.low_stock_count);
+    setVal('statOutOfStock',  data.out_of_stock);
+    setVal('statCategories',  data.total_categories);
+    setVal('statSuppliers',   data.total_suppliers);
+
+    // Weighted health: out-of-stock = 2x penalty, low-stock = 1x
+    const _low  = data.low_stock_count || 0;
+    const _out  = data.out_of_stock    || 0;
+    const _tot  = data.total_products  || 0;
+    const _pen  = (_low * 1) + (_out * 2);
+    const _max  = _tot * 2;
+    const health = _tot > 0 ? Math.max(0, Math.round(((_max - _pen) / _max) * 100)) : 100;
     setVal('statStockHealth', health + '%');
 
-    // Tables render immediately — data already in dashStats
-    renderStockActivity(dashStats.recent_movements || []);
-    renderLowStockAlerts(dashStats.low_stock_alerts || []);
-    renderRecentSales(dashStats.recent_sales || []);
+    renderStockActivity(data.recent_movements || []);
+    renderLowStockAlerts(data.low_stock_alerts || []);
+    renderRecentSales(data.recent_sales || []);
 
-    // Store latest stats for other uses
-    _lastPollStats = dashStats;
+    _lastPollStats = data;
 
-    // Charts only load once on first visit — don't reload on data refresh
     if (!_chartsLoaded) {
         _chartsLoaded = true;
-        loadCharts(); // fire and forget — charts load in background
+        loadCharts(); // fire and forget
     }
 }
 
