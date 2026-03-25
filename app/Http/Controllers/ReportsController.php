@@ -25,20 +25,74 @@ class ReportsController extends Controller
         $from = $request->query('from');
         $to   = $request->query('to');
 
-        $rows = DB::table('products as p')
+        // Get all active products with their variations
+        $query = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
             ->select(
+                'p.product_id',
+                'c.category_id',
                 'c.category_name',
-                DB::raw('COUNT(p.product_id) as total_items'),
-                DB::raw('SUM(CASE WHEN p.stock_qty = 0 THEN 1 ELSE 0 END) as out_of_stock'),
-                DB::raw('SUM(CASE WHEN p.stock_qty > 0 AND p.stock_qty <= p.reorder_level THEN 1 ELSE 0 END) as low_stock'),
-                DB::raw('SUM(CASE WHEN p.stock_qty > p.reorder_level THEN 1 ELSE 0 END) as in_stock'),
-                DB::raw('SUM(p.stock_qty * p.unit_price) as total_value')
+                'p.stock_qty',
+                'p.reorder_level',
+                'p.unit_price',
+                'p.updated_at'
             )
-            ->where('p.is_active', true)
-            ->groupBy('c.category_name', 'c.category_id')
-            ->orderBy('c.category_name')
-            ->get();
+            ->where('p.is_active', true);
+
+        if ($from) $query->whereDate('p.updated_at', '>=', $from);
+        if ($to)   $query->whereDate('p.updated_at', '<=', $to);
+
+        $products = $query->get();
+
+        // Get all active variations for these products
+        $productIds = $products->pluck('product_id');
+        $variations = DB::table('product_variations')
+            ->whereIn('product_id', $productIds)
+            ->where('is_active', true)
+            ->select('product_id', 'stock_qty')
+            ->get()
+            ->groupBy('product_id');
+
+        // Build per-category rows using effective stock
+        $catMap = [];
+        foreach ($products as $p) {
+            $catId   = $p->category_id;
+            $catName = $p->category_name;
+            $vars    = $variations->get($p->product_id, collect());
+
+            if (!isset($catMap[$catId])) {
+                $catMap[$catId] = [
+                    'category_name' => $catName,
+                    'total_items'   => 0,
+                    'in_stock'      => 0,
+                    'low_stock'     => 0,
+                    'out_of_stock'  => 0,
+                    'total_value'   => 0,
+                ];
+            }
+
+            if ($vars->isNotEmpty()) {
+                // Count each variation as a separate item
+                foreach ($vars as $v) {
+                    $catMap[$catId]['total_items']++;
+                    $stock = (int)$v->stock_qty;
+                    if ($stock === 0)                          $catMap[$catId]['out_of_stock']++;
+                    elseif ($stock <= $p->reorder_level)      $catMap[$catId]['low_stock']++;
+                    else                                       $catMap[$catId]['in_stock']++;
+                    $catMap[$catId]['total_value'] += $stock * (float)$p->unit_price;
+                }
+            } else {
+                // No variations — count product itself
+                $catMap[$catId]['total_items']++;
+                $stock = (int)$p->stock_qty;
+                if ($stock === 0)                          $catMap[$catId]['out_of_stock']++;
+                elseif ($stock <= $p->reorder_level)      $catMap[$catId]['low_stock']++;
+                else                                       $catMap[$catId]['in_stock']++;
+                $catMap[$catId]['total_value'] += $stock * (float)$p->unit_price;
+            }
+        }
+
+        $rows = collect(array_values($catMap))->sortBy('category_name')->values();
 
         // Totals row
         $totals = [
@@ -63,9 +117,23 @@ class ReportsController extends Controller
     // ─────────────────────────────────────────────────────────
     public function stockMovement(Request $request): JsonResponse
     {
+        $from = $request->query('from');
+        $to   = $request->query('to');
+
+        // Build month list between from and to (max 12 months, default last 6)
+        $dateFrom = $from ? \Carbon\Carbon::parse($from)->startOfMonth() : now()->subMonths(5)->startOfMonth();
+        $dateTo   = $to   ? \Carbon\Carbon::parse($to)->startOfMonth()   : now()->startOfMonth();
+
+        // Cap at 12 months to avoid huge ranges
+        if ($dateFrom->diffInMonths($dateTo) > 11) {
+            $dateFrom = $dateTo->copy()->subMonths(11);
+        }
+
         $months = collect();
-        for ($i = 5; $i >= 0; $i--) {
-            $months->push(now()->subMonths($i)->format('Y-m'));
+        $cursor = $dateFrom->copy();
+        while ($cursor->lte($dateTo)) {
+            $months->push($cursor->format('Y-m'));
+            $cursor->addMonth();
         }
 
         $rows = DB::table('stock_movements')
@@ -91,79 +159,174 @@ class ReportsController extends Controller
         }
 
         return response()->json([
-            'status'   => 'success',
-            'labels'   => $months->map(fn($m) => now()->createFromFormat('Y-m', $m)->format('M'))->toArray(),
-            'stock_in' => $stockIn,
-            'stock_out'=> $stockOut,
+            'status'    => 'success',
+            'labels'    => $months->map(fn($m) => \Carbon\Carbon::createFromFormat('Y-m', $m)->format('M Y'))->toArray(),
+            'stock_in'  => $stockIn,
+            'stock_out' => $stockOut,
         ]);
     }
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/low-stock
-    //  Items at or below reorder level
+    //  Items at or below reorder level — variation-aware
     // ─────────────────────────────────────────────────────────
     public function lowStock(Request $request): JsonResponse
     {
-        $items = DB::table('products as p')
+        $from = $request->query('from');
+        $to   = $request->query('to');
+
+        $query = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
             ->leftJoin('suppliers as s', 'p.supplier_id', '=', 's.supplier_id')
             ->select(
-                'p.product_id',
-                'p.sku',
-                'p.barcode',
-                'p.product_name',
-                'p.stock_qty',
-                'p.reorder_level',
-                DB::raw('(p.reorder_level - p.stock_qty) as shortage'),
+                'p.product_id', 'p.sku', 'p.barcode', 'p.product_name',
+                'p.stock_qty', 'p.reorder_level', 'p.unit_price', 'p.updated_at',
                 'c.category_name',
                 DB::raw("COALESCE(s.supplier_name, '—') as supplier_name")
             )
-            ->where('p.is_active', true)
-            ->where('p.stock_qty', '>', 0)
-            ->whereColumn('p.stock_qty', '<=', 'p.reorder_level')
-            ->orderBy('p.stock_qty')
-            ->get();
+            ->where('p.is_active', true);
+
+        if ($from) $query->whereDate('p.updated_at', '>=', $from);
+        if ($to)   $query->whereDate('p.updated_at', '<=', $to);
+
+        $products = $query->get();
+
+        $productIds = $products->pluck('product_id');
+        $variations = DB::table('product_variations')
+            ->whereIn('product_id', $productIds)
+            ->where('is_active', true)
+            ->select('product_id', 'variation_name', 'sku', 'barcode', 'stock_qty')
+            ->get()
+            ->groupBy('product_id');
+
+        $items = collect();
+        foreach ($products as $p) {
+            $reorderLevel = (int)$p->reorder_level > 0 ? (int)$p->reorder_level : 5;
+            $vars = $variations->get($p->product_id, collect());
+
+            if ($vars->isNotEmpty()) {
+                foreach ($vars as $v) {
+                    $stock = (int)$v->stock_qty;
+                    if ($stock > 0 && $stock <= $reorderLevel) {
+                        $items->push((object)[
+                            'product_id'    => $p->product_id,
+                            'sku'           => $v->sku ?: $p->sku,
+                            'barcode'       => $v->barcode ?: $p->barcode,
+                            'product_name'  => $p->product_name . ' — ' . $v->variation_name,
+                            'stock_qty'     => $stock,
+                            'reorder_level' => $reorderLevel,
+                            'shortage'      => $reorderLevel - $stock,
+                            'category_name' => $p->category_name,
+                            'supplier_name' => $p->supplier_name,
+                        ]);
+                    }
+                }
+            } else {
+                $stock = (int)$p->stock_qty;
+                if ($stock > 0 && $stock <= $reorderLevel) {
+                    $items->push((object)[
+                        'product_id'    => $p->product_id,
+                        'sku'           => $p->sku,
+                        'barcode'       => $p->barcode,
+                        'product_name'  => $p->product_name,
+                        'stock_qty'     => $stock,
+                        'reorder_level' => $reorderLevel,
+                        'shortage'      => $reorderLevel - $stock,
+                        'category_name' => $p->category_name,
+                        'supplier_name' => $p->supplier_name,
+                    ]);
+                }
+            }
+        }
+
+        $sorted = $items->sortBy('stock_qty')->values();
 
         return response()->json([
             'status' => 'success',
-            'items'  => $items,
-            'count'  => $items->count(),
+            'items'  => $sorted,
+            'count'  => $sorted->count(),
         ]);
     }
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/out-of-stock
-    //  Items with zero stock
+    //  Items with zero stock — variation-aware
     // ─────────────────────────────────────────────────────────
     public function outOfStock(Request $request): JsonResponse
     {
-        $items = DB::table('products as p')
+        $from = $request->query('from');
+        $to   = $request->query('to');
+
+        $query = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
             ->leftJoin('suppliers as s', 'p.supplier_id', '=', 's.supplier_id')
             ->select(
-                'p.product_id',
-                'p.sku',
-                'p.barcode',
-                'p.product_name',
-                'p.unit_price',
-                'p.reorder_level',
-                'p.updated_at',
+                'p.product_id', 'p.sku', 'p.barcode', 'p.product_name',
+                'p.unit_price', 'p.reorder_level', 'p.updated_at',
                 'c.category_name',
                 DB::raw("COALESCE(s.supplier_name, '—') as supplier_name")
             )
-            ->where('p.is_active', true)
-            ->where('p.stock_qty', 0)
-            ->orderBy('p.updated_at', 'desc')
-            ->get();
+            ->where('p.is_active', true);
+
+        if ($from) $query->whereDate('p.updated_at', '>=', $from);
+        if ($to)   $query->whereDate('p.updated_at', '<=', $to);
+
+        $products = $query->get();
+
+        $productIds = $products->pluck('product_id');
+        $variations = DB::table('product_variations')
+            ->whereIn('product_id', $productIds)
+            ->where('is_active', true)
+            ->select('product_id', 'variation_name', 'sku', 'barcode', 'stock_qty')
+            ->get()
+            ->groupBy('product_id');
+
+        $items = collect();
+        foreach ($products as $p) {
+            $vars = $variations->get($p->product_id, collect());
+
+            if ($vars->isNotEmpty()) {
+                foreach ($vars as $v) {
+                    if ((int)$v->stock_qty === 0) {
+                        $items->push((object)[
+                            'product_id'    => $p->product_id,
+                            'sku'           => $v->sku ?: $p->sku,
+                            'barcode'       => $v->barcode ?: $p->barcode,
+                            'product_name'  => $p->product_name . ' — ' . $v->variation_name,
+                            'unit_price'    => $p->unit_price,
+                            'reorder_level' => $p->reorder_level,
+                            'updated_at'    => $p->updated_at,
+                            'category_name' => $p->category_name,
+                            'supplier_name' => $p->supplier_name,
+                        ]);
+                    }
+                }
+            } else {
+                if ((int)$p->stock_qty === 0) {
+                    $items->push((object)[
+                        'product_id'    => $p->product_id,
+                        'sku'           => $p->sku,
+                        'barcode'       => $p->barcode,
+                        'product_name'  => $p->product_name,
+                        'unit_price'    => $p->unit_price,
+                        'reorder_level' => $p->reorder_level,
+                        'updated_at'    => $p->updated_at,
+                        'category_name' => $p->category_name,
+                        'supplier_name' => $p->supplier_name,
+                    ]);
+                }
+            }
+        }
+
+        $sorted = $items->sortByDesc('updated_at')->values();
 
         return response()->json([
             'status' => 'success',
-            'items'  => $items,
-            'count'  => $items->count(),
+            'items'  => $sorted,
+            'count'  => $sorted->count(),
         ]);
     }
 
-    // ─────────────────────────────────────────────────────────
     //  GET /api/reports/supplier-report
     //  Items per supplier + supplier status
     // ─────────────────────────────────────────────────────────
