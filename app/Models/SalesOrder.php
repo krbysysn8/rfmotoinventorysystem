@@ -12,16 +12,15 @@ class SalesOrder extends Model
     const UPDATED_AT = null;
 
     protected $fillable = [
-        'order_number', 'customer_name',
-        'subtotal', 'discount', 'total_amount',
-        'payment_method', 'status', 'order_date', 'served_by',
+        'order_number',
+        'subtotal', 'total_amount',
+        'status', 'order_date', 'served_by',
     ];
 
     protected $casts = [
         'order_date'   => 'datetime',
         'total_amount' => 'decimal:2',
         'subtotal'     => 'decimal:2',
-        'discount'     => 'decimal:2',
     ];
 
     public function items()
