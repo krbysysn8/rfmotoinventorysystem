@@ -50,7 +50,7 @@ class BarcodeController extends Controller
         $product = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
             ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
-                     'p.unit_price','p.cost_price','p.stock_qty','p.reorder_level',
+                     'p.unit_price','p.stock_qty','p.reorder_level',
                      'p.is_active','c.category_name')
             ->where('p.is_active', true)
             ->where(function ($q) use ($code) {
@@ -68,9 +68,10 @@ class BarcodeController extends Controller
                     $q->where('pv.barcode', $code)->orWhere('pv.sku', $code);
                 })
                 ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
-                         'p.unit_price','p.cost_price','p.reorder_level','p.is_active',
+                         'p.unit_price','p.reorder_level','p.is_active',
                          'c.category_name',
-                         DB::raw('p.stock_qty as stock_qty'),
+                         DB::raw('pv.stock_qty as stock_qty'),
+                         'pv.variation_id',
                          'pv.variation_name',
                          DB::raw('pv.barcode as variation_barcode'),
                          DB::raw('pv.sku as variation_sku'))
@@ -83,7 +84,7 @@ class BarcodeController extends Controller
             $all = DB::table('products as p')
                 ->join('categories as c', 'p.category_id', '=', 'c.category_id')
                 ->select('p.product_id','p.sku','p.barcode','p.product_name','p.brand',
-                         'p.unit_price','p.cost_price','p.stock_qty','p.reorder_level',
+                         'p.unit_price','p.stock_qty','p.reorder_level',
                          'p.is_active','c.category_name')
                 ->where('p.is_active', true)->get();
             foreach ($all as $p) {
@@ -113,6 +114,7 @@ class BarcodeController extends Controller
         $scanCode = $product->barcode ?: $product->sku;
 
         // Include variation info if matched via variation
+        $variationId   = $product->variation_id ?? null;
         $variationName = $product->variation_name ?? null;
         $variationCode = $product->variation_barcode ?? null;
         $variationSku  = $product->variation_sku ?? null;
@@ -121,13 +123,13 @@ class BarcodeController extends Controller
             'status'  => 'found',
             'product' => [
                 'product_id'     => $product->product_id,
+                'variation_id'   => $variationId,
                 'sku'            => $variationSku ?: $product->sku,
                 'barcode'        => $variationCode ?: $scanCode,
                 'ean13'          => $variationCode ?: $scanCode,
                 'product_name'   => $product->product_name . ($variationName ? ' — ' . $variationName : ''),
                 'brand'          => $product->brand,
                 'unit_price'     => (float) $product->unit_price,
-                'cost_price'     => (float) ($product->cost_price ?? 0),
                 'stock_qty'      => (int) $product->stock_qty,
                 'reorder_level'  => (int) $product->reorder_level,
                 'category_name'  => $product->category_name,
@@ -224,8 +226,23 @@ class BarcodeController extends Controller
 
         $qty            = (int) $request->quantity;
         $action         = $request->action;
-        $before         = (int) $product->stock_qty;
         $movementReason = $request->movement_reason ?? null;
+        $variationId    = $request->variation_id ? (int)$request->variation_id : null;
+
+        // If a variation is specified, use the variation's own stock as $before
+        if ($variationId) {
+            $variation = DB::table('product_variations')
+                ->where('variation_id', $variationId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$variation) {
+                return response()->json(['status' => 'error', 'message' => 'Variation not found.'], 404);
+            }
+            $before = (int) $variation->stock_qty;
+        } else {
+            $before = (int) $product->stock_qty;
+        }
 
         if ($action === 'stock-out') {
             if ($qty > $before) {
@@ -234,29 +251,33 @@ class BarcodeController extends Controller
                     'message' => "Not enough stock. Current: {$before}, Requested: {$qty}.",
                 ], 422);
             }
-
-            if ($qty >= 4 && Auth::user()?->role !== 'admin') {
-                return response()->json([
-                    'status'  => 'requires_verify',
-                    'message' => "Large stock-out of {$qty} units requires admin verification.",
-                    'qty'     => $qty,
-                ], 200);
-            }
         }
 
         DB::beginTransaction();
         try {
             $after = $action === 'add-existing' ? $before + $qty : $before - $qty;
 
-            // 1. Update stock qty — products table always, variation table if applicable
-            DB::table('products')
-                ->where('product_id', $product->product_id)
-                ->update(['stock_qty' => $after, 'updated_at' => now()]);
-
-            if ($request->variation_id) {
+            // 1. Update stock qty
+            if ($variationId) {
+                // Update the specific variation's stock
                 DB::table('product_variations')
-                    ->where('variation_id', $request->variation_id)
+                    ->where('variation_id', $variationId)
                     ->update(['stock_qty' => $after]);
+
+                // Recalculate product stock as the sum of all active variation stocks
+                $newProductStock = (int) DB::table('product_variations')
+                    ->where('product_id', $product->product_id)
+                    ->where('is_active', true)
+                    ->sum('stock_qty');
+
+                DB::table('products')
+                    ->where('product_id', $product->product_id)
+                    ->update(['stock_qty' => $newProductStock, 'updated_at' => now()]);
+            } else {
+                // No variation — update product stock directly
+                DB::table('products')
+                    ->where('product_id', $product->product_id)
+                    ->update(['stock_qty' => $after, 'updated_at' => now()]);
             }
 
             // 2. If stock-out is a SALE -> create sales_orders + sales_order_items
@@ -269,11 +290,8 @@ class BarcodeController extends Controller
 
                 $orderId = DB::table('sales_orders')->insertGetId([
                     'order_number'   => $orderNumber,
-                    'customer_name'  => 'Walk-in',
                     'subtotal'       => $total,
-                    'discount'       => 0,
                     'total_amount'   => $total,
-                    'payment_method' => 'cash',
                     'served_by'      => Auth::id(),
                     'status'         => 'completed',
                     'order_date'     => now('Asia/Manila')->toDateString(),
@@ -300,6 +318,7 @@ class BarcodeController extends Controller
 
             DB::table('stock_movements')->insert([
                 'product_id'      => $product->product_id,
+                'variation_id'    => $variationId,
                 'movement_type'   => $action === 'add-existing' ? 'in' : 'out',
                 'movement_reason' => $action === 'add-existing' ? 'restock' : $movementReason,
                 'quantity'        => $qty,
@@ -315,6 +334,7 @@ class BarcodeController extends Controller
             // 4. Log scan
             DB::table('scan_logs')->insert([
                 'product_id'   => $product->product_id,
+                'variation_id' => $variationId,
                 'scanned_code' => $request->scanned_code ?? $product->barcode ?? $product->sku,
                 'action'       => $action,
                 'quantity'     => $qty,
@@ -429,6 +449,7 @@ class BarcodeController extends Controller
     {
         $logs = DB::table('scan_logs as sl')
             ->leftJoin('products as p', 'sl.product_id', '=', 'p.product_id')
+            ->leftJoin('product_variations as pv', 'sl.variation_id', '=', 'pv.variation_id')
             ->leftJoin('users as u', 'sl.performed_by', '=', 'u.user_id')
             ->select(
                 'sl.log_id',
@@ -437,20 +458,37 @@ class BarcodeController extends Controller
                 'sl.quantity',
                 'sl.scanned_at',
                 'p.product_name',
-                'p.sku',
-                'p.stock_qty',
+                'pv.variation_name',
+                DB::raw("COALESCE(pv.sku, p.sku) as sku"),
+                DB::raw("COALESCE(pv.stock_qty, p.stock_qty) as stock_qty"),
                 'u.username'
             )
             ->orderByDesc('sl.scanned_at')
             ->limit(50)
-            ->get();
+            ->get()
+            ->map(fn($log) => [
+                'log_id'       => $log->log_id,
+                'scanned_code' => $log->scanned_code,
+                'action'       => $log->action,
+                'quantity'     => $log->quantity,
+                'scanned_at'   => $log->scanned_at,
+                'product_name' => $log->product_name
+                    ? ($log->product_name . ($log->variation_name ? ' — ' . $log->variation_name : ''))
+                    : null,
+                'sku'          => $log->sku,
+                'stock_qty'    => $log->stock_qty,
+                'username'     => $log->username,
+            ]);
 
         return response()->json(['status' => 'success', 'logs' => $logs]);
     }
     public function clearScanLogs(Request $request)
     {
         DB::table('scan_logs')
-            ->where('performed_by', Auth::id())
+            ->where(function ($q) {
+                $q->where('performed_by', Auth::id())
+                  ->orWhereNull('performed_by');
+            })
             ->delete();
         return response()->json(['status' => 'success', 'message' => 'Scan logs cleared.']);
     }
