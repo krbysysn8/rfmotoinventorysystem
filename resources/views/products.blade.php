@@ -1123,10 +1123,11 @@ html, body {
   <div class="modal modal-lg">
     <div class="modal-header"><div class="modal-title" id="modalProductTitle">Add <span>Product</span></div><button class="modal-close" onclick="closeModal('modalProduct')">&#x2715;</button></div>
     <div class="modal-body">
-      <div class="form-row"><div class="form-ctrl"><label>SKU</label><input type="text" id="pSku" placeholder="e.g. ENG-001"></div><div class="form-ctrl"><label>Product Name</label><input type="text" id="pName" placeholder="Product name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Category</label><select id="pCategory"><option value="">Loading...</option></select></div><div class="form-ctrl"><label>Brand</label><input type="text" id="pBrand" placeholder="Brand name"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Unit Price (&#x20B1;)</label><input type="number" id="pPrice" placeholder="0.00" step="0.01"></div><div class="form-ctrl"><label>Stock Qty</label><input type="number" id="pStock" placeholder="0"></div></div>
-      <div class="form-row"><div class="form-ctrl"><label>Reorder Level</label><input type="number" id="pReorder" placeholder="5"></div><div class="form-ctrl"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>SKU *</label><input type="text" id="pSku" placeholder="e.g. ENG-001"></div><div class="form-ctrl"><label>Product Name *</label><input type="text" id="pName" placeholder="Product name"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Category *</label><select id="pCategory" onchange="onCategoryChange()"><option value="">Select category...</option></select></div><div class="form-ctrl"><label>Subcategory</label><select id="pSubcategory"><option value="">None</option></select></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Brand</label><input type="text" id="pBrand" placeholder="Brand name"></div><div class="form-ctrl"><label>Supplier</label><select id="pSupplier"><option value="">Select supplier...</option></select></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Unit Price (&#x20B1;)</label><input type="number" id="pPrice" placeholder="0.00" step="0.01" min="0"></div><div class="form-ctrl"><label>Barcode</label><input type="text" id="pBarcode" placeholder="Auto-filled from SKU"></div></div>
+      <div class="form-row"><div class="form-ctrl"><label>Stock Qty</label><input type="number" id="pStock" placeholder="0" min="0"></div><div class="form-ctrl"><label>Reorder Level</label><input type="number" id="pReorder" placeholder="5" min="0"></div></div>
       <div class="form-row full"><div class="form-ctrl"><label>Description</label><textarea id="pDesc" placeholder="Optional..."></textarea></div></div>
       <div class="form-row full"><div class="form-ctrl"><label>Product Photo <span style="color:#888;font-weight:400;font-size:0.8em;">(optional, max 2MB)</span></label><input type="file" id="pPhoto" accept="image/jpeg,image/png,image/webp" style="padding:6px;"><div id="pPhotoPreview" style="margin-top:8px;display:none;"><img id="pPhotoImg" src="" alt="Preview" style="max-height:120px;max-width:200px;border-radius:8px;border:1px solid #e2e8f0;object-fit:cover;"></div></div></div>
       <!-- Variations Section -->
@@ -1259,6 +1260,7 @@ function authHeaders() {
 let PRODUCTS    = [];
 let ALL_PRODUCTS = []; // unfiltered master copy
 let CATEGORIES  = [];
+let SUPPLIERS   = [];
 let VARIATIONS  = {};       // { productId: [{label,color,stock}, ...] }
 let currentUser = null;
 let editingProductId = null;
@@ -1309,72 +1311,59 @@ async function initFromSession() {
 
 async function loadData() {
   try {
-    // Load categories and products in parallel
-    const [catRes, prodRes] = await Promise.all([
+    // Load categories, products, and suppliers in parallel
+    const [catRes, prodRes, supRes] = await Promise.all([
       fetch(`${API_URL}/categories`, { headers: authHeaders() }),
       fetch(`${API_URL}/products`,   { headers: authHeaders() }),
+      fetch(`${API_URL}/suppliers`,  { headers: authHeaders() }),
     ]);
 
     if (!catRes.ok || !prodRes.ok) throw new Error('API error');
 
     const catData  = await catRes.json();
     const prodData = await prodRes.json();
+    const supData  = supRes.ok ? await supRes.json() : { suppliers: [] };
 
     CATEGORIES = catData.categories || [];
+    SUPPLIERS  = supData.suppliers  || [];
 
     // Normalize products — map API fields to UI fields
-    PRODUCTS = (prodData.products || []).map(p => {
-      const stockVal   = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
-      const reorderVal = parseInt(p.reorder ?? p.reorder_level ?? 0);
-      return {
-        id:          p.product_id,
-        sku:         p.sku          || '',
-        barcode:     p.barcode      || p.sku || '',
-        name:        p.product_name || '',
-        category:    p.category     || p.category_name || '',
-        category_id: p.category_id  || null,
-        supplier:    p.supplier_name || '',
-        supplier_id: p.supplier_id   || null,
-        brand:       p.brand         || '',
-        price:       parseFloat(p.unit_price  || 0),
-        cost:        parseFloat(p.cost_price  || 0),
-        stock:       stockVal,
-        reorder:     reorderVal,
-        status:      stockVal === 0 ? 'out_of_stock' : stockVal <= reorderVal ? 'low_stock' : 'in_stock',
-        image_url:   p.image_url ? fixDriveUrl(p.image_url) : null,
-        color:       p.color || '#17b8dc',
-        desc:        p.description   || '',
-        subcategory: p.subcategory_name || '',
-        subcategory_id: p.subcategory_id || null,
-        updated_at:  p.updated_at    || '',
-      };
-    });
+    PRODUCTS = (prodData.products || []).map(p => ({
+      id:            p.product_id,
+      sku:           p.sku,
+      barcode:       p.barcode,
+      name:          p.product_name,
+      category:      p.category,
+      category_id:   p.category_id   || null,
+      subcategory_id:p.subcategory_id || null,
+      supplier_id:   p.supplier_id    || null,
+      brand:         p.brand,
+      price:         parseFloat(p.unit_price),
+      cost:          parseFloat(p.cost_price),
+      stock:         parseInt(p.effective_stock ?? p.stock),
+      reorder:       p.reorder,
+      image_url:     p.image_url ? fixDriveUrl(p.image_url) : null,
+      color:         p.color || '#17b8dc',
+    }));
     ALL_PRODUCTS = [...PRODUCTS]; // keep master copy for search filtering
 
     // Build VARIATIONS lookup from embedded variations
     VARIATIONS = {};
     (prodData.products || []).forEach(p => {
       const productColor = p.color || '#17b8dc';
-      const baseStock    = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
       VARIATIONS[p.product_id] = {
         desc: p.description || 'No description available.',
         variations: (p.variations || []).map(v => ({
-          label:     v.variation_name || 'Standard',
-          color:     v.color          || productColor,
-          stock:     parseInt(v.stock_qty ?? 0),
-          barcode:   v.barcode        || null,
+          label:     v.variation_name,
+          color:     v.color || productColor,
+          stock:     v.stock_qty ?? 0,
+          barcode:   v.barcode || null,
           image_url: v.image_url ? fixDriveUrl(v.image_url) : null,
         })),
       };
       // Fallback if no variations
       if (!VARIATIONS[p.product_id].variations.length) {
-        VARIATIONS[p.product_id].variations = [{
-          label:     'Standard',
-          color:     productColor,
-          stock:     baseStock,
-          barcode:   p.barcode || null,
-          image_url: null,
-        }];
+        VARIATIONS[p.product_id].variations = [{ label: 'Standard', color: productColor, stock: p.stock ?? 0, barcode: p.barcode, image_url: null }];
       }
     });
 
@@ -1745,24 +1734,43 @@ function closePOV() { document.getElementById('modalPOV').classList.remove('open
 //  ADD / EDIT PRODUCT (Admin only)
 // ════════════════════════════════════════════
 function buildProductSelects() {
-  // Category select in Add/Edit modal
   const catSel = document.getElementById('pCategory');
-  if (catSel && CATEGORIES.length) {
-    catSel.innerHTML = CATEGORIES.map(c => `<option value="${c.category_id}">${c.category_name}</option>`).join('');
+  if (catSel) {
+    catSel.innerHTML = '<option value="">Select category...</option>' +
+      CATEGORIES.map(c => `<option value="${c.category_id}">${c.category_name}</option>`).join('');
   }
+  const supSel = document.getElementById('pSupplier');
+  if (supSel) {
+    supSel.innerHTML = '<option value="">Select supplier...</option>' +
+      SUPPLIERS.map(s => `<option value="${s.supplier_id}">${s.supplier_name}</option>`).join('');
+  }
+}
+
+function onCategoryChange() {
+  const catId  = parseInt(document.getElementById('pCategory').value);
+  const cat    = CATEGORIES.find(c => c.category_id === catId);
+  const subSel = document.getElementById('pSubcategory');
+  const subcats = cat?.subcategories || [];
+  subSel.innerHTML = '<option value="">None</option>' +
+    subcats.map(s => `<option value="${s.subcategory_id}">${s.subcategory_name}</option>`).join('');
 }
 
 function openAddProduct() {
   if (currentUser.role !== 'admin') return;
   editingProductId = null;
   document.getElementById('modalProductTitle').innerHTML = 'Add <span>Product</span>';
-  ['pSku','pName','pBrand','pPrice','pStock','pReorder','pDesc'].forEach(id => {
+  ['pSku','pName','pBrand','pBarcode','pDesc'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('pPrice').value   = '';
   document.getElementById('pStock').value   = 0;
   document.getElementById('pReorder').value = 5;
+  document.getElementById('pCategory').value = '';
+  document.getElementById('pSubcategory').innerHTML = '<option value="">None</option>';
+  document.getElementById('pSupplier').value = '';
   document.getElementById('pPhoto').value   = '';
   document.getElementById('pPhotoPreview').style.display = 'none';
+  document.getElementById('pBarcode').dataset.manuallySet = '';
   // Seed first variation row — empty label syncs with pName as user types
   document.getElementById('pVariantList').innerHTML = '';
   addPVariantRow('', '#17b8dc', 0, '');
@@ -1782,11 +1790,13 @@ function openEditProduct(id) {
   document.getElementById('modalProductTitle').innerHTML = 'Edit <span>Product</span>';
   document.getElementById('pSku').value     = p.sku;
   document.getElementById('pName').value    = p.name;
-  document.getElementById('pBrand').value   = p.brand;
+  document.getElementById('pBrand').value   = p.brand || '';
+  document.getElementById('pBarcode').value = p.barcode || p.sku;
   document.getElementById('pPrice').value   = p.price;
   document.getElementById('pStock').value   = p.stock;
   document.getElementById('pReorder').value = p.reorder;
   document.getElementById('pDesc').value    = VARIATIONS[p.id]?.desc || '';
+  document.getElementById('pBarcode').dataset.manuallySet = '1';
   // Reset photo field; show existing photo if available
   document.getElementById('pPhoto').value = '';
   const preview = document.getElementById('pPhotoPreview');
@@ -1797,10 +1807,13 @@ function openEditProduct(id) {
   } else {
     preview.style.display = 'none';
   }
-  // Set category select
+  // Set category select then trigger subcategory populate
   const catSel = document.getElementById('pCategory');
   const cat    = CATEGORIES.find(c => c.category_name === p.category);
   if (cat && catSel) catSel.value = cat.category_id;
+  onCategoryChange();
+  document.getElementById('pSubcategory').value = p.subcategory_id || '';
+  document.getElementById('pSupplier').value    = p.supplier_id    || '';
   // Populate variants — always show product itself as first row
   const vl = document.getElementById('pVariantList');
   vl.innerHTML = '';
@@ -1814,6 +1827,13 @@ function openEditProduct(id) {
 }
 
 // Live photo preview
+document.getElementById('pSku').addEventListener('input', function() {
+  const bc = document.getElementById('pBarcode');
+  if (!bc.dataset.manuallySet) bc.value = this.value;
+});
+document.getElementById('pBarcode').addEventListener('input', function() {
+  this.dataset.manuallySet = this.value ? '1' : '';
+});
 // Sync pName → first variation row label (Add mode)
 document.addEventListener('input', e => {
   if (e.target.id === 'pName') {
@@ -1905,26 +1925,29 @@ function collectPVariantFiles() {
 async function saveProduct() {
   const sku          = document.getElementById('pSku').value.trim();
   const product_name = document.getElementById('pName').value.trim();
-  const brand        = document.getElementById('pBrand').value.trim();
   const category_id  = parseInt(document.getElementById('pCategory').value);
   const photoFile    = document.getElementById('pPhoto').files[0];
 
-  if (!sku || !product_name || !brand || !category_id) {
-    return showToast('SKU, Name, Brand and Category are required.', 'danger');
+  if (!sku || !product_name || !category_id) {
+    return showToast('SKU, Name, and Category are required.', 'danger');
   }
 
   // Use FormData so we can attach the photo file
   const fd = new FormData();
-  fd.append('sku',           sku);
-  fd.append('product_name',  product_name);
-  fd.append('brand',         brand);
-  fd.append('category_id',   category_id);
-  fd.append('unit_price',    parseFloat(document.getElementById('pPrice').value)||0);
-  fd.append('cost_price',    0);
-  fd.append('stock_qty',     parseInt(document.getElementById('pStock').value)||0);
-  fd.append('reorder_level', parseInt(document.getElementById('pReorder').value)||5);
-  fd.append('description',   document.getElementById('pDesc').value.trim());
-  fd.append('barcode',       sku);
+  fd.append('sku',            sku);
+  fd.append('product_name',   product_name);
+  fd.append('category_id',    category_id);
+  fd.append('brand',          document.getElementById('pBrand').value.trim());
+  fd.append('unit_price',     parseFloat(document.getElementById('pPrice').value) || 0);
+  fd.append('cost_price',     0);
+  fd.append('stock_qty',      parseInt(document.getElementById('pStock').value)   || 0);
+  fd.append('reorder_level',  parseInt(document.getElementById('pReorder').value) || 5);
+  fd.append('description',    document.getElementById('pDesc').value.trim());
+  fd.append('barcode',        document.getElementById('pBarcode').value.trim() || sku);
+  const supId = document.getElementById('pSupplier').value;
+  if (supId) fd.append('supplier_id', supId);
+  const subId = document.getElementById('pSubcategory').value;
+  if (subId) fd.append('subcategory_id', subId);
   if (photoFile) fd.append('photo', photoFile);
   if (editingProductId) fd.append('_method', 'PUT');
 
@@ -1936,15 +1959,13 @@ async function saveProduct() {
   });
 
   try {
-    const url    = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
-    // Always POST — _method=PUT handles the update spoof
-    const res    = await fetch(url, {
+    const url  = editingProductId ? `${API_URL}/products/${editingProductId}` : `${API_URL}/products`;
+    const res  = await fetch(url, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${getToken()}`,
-                 'Accept': 'application/json' },
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`, 'Accept': 'application/json' },
       body: fd,
     });
-    const data   = await res.json();
+    const data = await res.json();
 
     if (data.status === 'success') {
       closeModal('modalProduct');
@@ -2089,7 +2110,7 @@ function assignBarcode() {
 window.addEventListener('DOMContentLoaded', initFromSession);
 </script>
 
-{{-- Product Overview Modal (appended after body) --}}
+<!-- Product Overview Modal (appended after body) -->
 <div class="modal-backdrop" id="modalPOV" onclick="if(event.target===this)closePOV()">
   <div class="pov-modal">
     <button class="pov-close" onclick="closePOV()">&#x2715;</button>
