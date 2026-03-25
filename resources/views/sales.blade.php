@@ -373,10 +373,10 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token';
 const USER_KEY='rfmoto_user';
-function getToken(){ return sessionStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY) || null; }
-function getUser(){ try { return JSON.parse(sessionStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY)); } catch(e) { return null; } }
+function getToken(){return localStorage.getItem(TOKEN_KEY);}
+function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
 function setUser(u){localStorage.setItem(USER_KEY,JSON.stringify(u));}
-function clearAuth(){ localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(USER_KEY); }
+function clearAuth(){localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(USER_KEY);}
 function el(id){return document.getElementById(id);}
 async function apiFetch(path,opts={}){
   const token=getToken();
@@ -662,18 +662,6 @@ document.addEventListener('click',function(e){const btn=document.getElementById(
 function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
 </script>
-
-// ── Global product search ─────────────────────────────────────
-function globalSearchFn(val) {
-  val = (val || '').trim();
-  if (!val) return;
-  sessionStorage.setItem('rfmoto_search', val);
-  window.location.href = '/products';
-}
-function globalSearchPreview(val) {
-  // just updates the input — actual search happens on Enter
-}
-
 
 <script>
 // ── Global product search ─────────────────────────────────────
