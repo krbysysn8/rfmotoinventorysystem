@@ -752,22 +752,7 @@ function closeUserMenu(){const dd=document.getElementById('userDropdown');if(dd)
 document.addEventListener('click',function(e){const btn=document.getElementById('topbarUserBtn'),dd=document.getElementById('userDropdown');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))dd.style.display='none';});
 function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
-</script>
 
-// ── Global product search ─────────────────────────────────────
-function globalSearchFn(val) {
-  val = (val || '').trim();
-  if (!val) return;
-  sessionStorage.setItem('rfmoto_search', val);
-  window.location.href = '/products';
-}
-function globalSearchPreview(val) {
-  // just updates the input — actual search happens on Enter
-}
-
-
-<script>
-// ── Global product search ─────────────────────────────────────
 function globalSearchFn(val) {
   val = (val || '').trim();
   if (!val) return;
@@ -779,4 +764,5 @@ function globalSearchDebounce(val) {
   window._gsTimer = setTimeout(function() { globalSearchFn(val); }, 400);
 }
 </script>
+
 </body>
