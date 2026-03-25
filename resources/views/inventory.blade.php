@@ -538,18 +538,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 //  CONFIG
 // ════════════════════════════════════════
 const API_URL = '/api';
-
-// Always check both storages — sessionStorage first, then localStorage
-function getToken() {
-  return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || '';
-}
+// TOKEN is read dynamically so it's never stale
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${getToken()}`,
+    'Authorization': `Bearer ${localStorage.getItem('rfmoto_token') || ''}`,
   };
 }
 
@@ -665,38 +661,34 @@ async function loadAll() {
     CATEGORIES = catData.categories || [];
     SUPPLIERS  = supData.suppliers  || [];
 
-    ALL_PRODUCTS = (prodData.products || []).map(p => {
-      const stockVal  = parseInt(p.effective_stock ?? p.stock ?? p.stock_qty ?? 0);
-      const reorderVal = parseInt(p.reorder ?? p.reorder_level ?? 0);
-      return {
-        id:             p.product_id,
-        sku:            p.sku         || '',
-        barcode:        p.barcode     || p.sku || '',
-        name:           p.product_name || '',
-        category:       p.category    || p.category_name || '',
-        category_id:    p.category_id  || null,
-        supplier:       p.supplier_name || '',
-        supplier_id:    p.supplier_id   || null,
-        brand:          p.brand         || '',
-        price:          parseFloat(p.unit_price  || 0),
-        cost:           parseFloat(p.cost_price  || 0),
-        stock:          stockVal,
-        reorder:        reorderVal,
-        status:         stockVal === 0 ? 'out_of_stock' : stockVal <= reorderVal ? 'low_stock' : 'in_stock',
-        image_url:      p.image_url   || null,
-        updated_at:     p.updated_at  || '',
-        color:          p.color       || '#17b8dc',
-        desc:           p.description || '',
-        subcategory:    p.subcategory_name || '',
-        subcategory_id: p.subcategory_id   || null,
-        variations:     (p.variations || []).map(v => ({
-          label:     v.variation_name || 'Standard',
-          color:     v.color          || p.color || '#17b8dc',
-          stock:     parseInt(v.stock_qty ?? 0),
-          image_url: v.image_url || null,
-        })),
-      };
-    });
+    ALL_PRODUCTS = (prodData.products || []).map(p => ({
+      id:          p.product_id,
+      sku:         p.sku,
+      barcode:     p.barcode || p.sku,
+      name:        p.product_name,
+      category:    p.category,
+      category_id: p.category_id,
+      supplier:    p.supplier_name || '',
+      supplier_id: p.supplier_id   || null,
+      brand:       p.brand,
+      price:       parseFloat(p.unit_price),
+      cost:        parseFloat(p.cost_price),
+      stock:       parseInt(p.effective_stock ?? p.stock),
+      reorder:     parseInt(p.reorder),
+      status:      parseInt(p.effective_stock ?? p.stock) === 0 ? 'out_of_stock' : parseInt(p.effective_stock ?? p.stock) <= parseInt(p.reorder) ? 'low_stock' : 'in_stock',
+      image_url:   p.image_url || null,
+      updated_at:  p.updated_at || '',
+      color:       p.color || '#17b8dc',
+      desc:        p.description || '',
+      subcategory: p.subcategory_name || '',
+      subcategory_id: p.subcategory_id || null,
+      variations:  (p.variations || []).map(v => ({
+        label:     v.variation_name,
+        color:     v.color || '#17b8dc',
+        stock:     v.stock_qty ?? 0,
+        image_url: v.image_url || null,
+      })),
+    }));
 
     populateFilterDropdowns();
     applyFilters();
@@ -761,15 +753,6 @@ function onFilterCategoryChange() {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('filterCategory').setAttribute('onchange', 'onFilterCategoryChange()');
 });
-
-// ── Global product search ─────────────────────────────────────
-function globalSearchFn(val) {
-  val = (val || '').trim();
-  if (!val) return;
-  sessionStorage.setItem('rfmoto_search', val);
-  window.location.href = '/products';
-}
-
 
 function applyFilters() {
   const search = (document.getElementById('tableSearch')?.value || '').toLowerCase().trim();
