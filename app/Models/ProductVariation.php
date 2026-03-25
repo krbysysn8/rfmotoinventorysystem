@@ -17,6 +17,8 @@ class ProductVariation extends Model
         'is_active'  => 'boolean',
         'unit_price' => 'decimal:2',
         'cost_price' => 'decimal:2',
+        'stock_qty'  => 'integer',
+        'sort_order' => 'integer',
     ];
 
     public function product()
