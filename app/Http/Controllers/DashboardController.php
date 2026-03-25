@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\SalesOrder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -12,50 +11,98 @@ class DashboardController extends Controller
 {
     public function stats(): JsonResponse
     {
-        // Cache categories and suppliers for 5 minutes (rarely change)
-        $totalCategories = Cache::remember('total_categories', 300, fn() =>
+        // ── Counters (cached 60s, busted on change) ───────────────────────────
+        $totalCategories = Cache::remember('total_categories', 60, fn() =>
             DB::table('categories')->count()
         );
-
-        $totalSuppliers = Cache::remember('total_suppliers', 300, fn() =>
+        $totalSuppliers = Cache::remember('total_suppliers', 60, fn() =>
             DB::table('suppliers')->where('status', 'active')->count()
         );
 
-        // Fetch all active products in ONE query with category eager loaded
-        // Cache for 60 seconds
-        $products = Cache::remember('active_products', 60, fn() =>
-            Product::where('is_active', true)->with('category')->get()
-        );
+        // ── Stock stats via two lean raw queries + 10s cache ──────────────────
+        // Raw DB queries (no Eloquent model loading) = much faster
+        // 10s cache = near-realtime but avoids hammering DB on every page load
+        [$totalProducts, $totalStock, $lowStock, $outOfStock, $forecast, $alerts] =
+            Cache::remember('dashboard_stock_stats', 10, function () {
 
-        // Compute everything from the in-memory collection (no extra queries)
-        $totalProducts = $products->count();
-        $totalStock    = $products->sum('stock_qty');
-        $lowStock      = $products->filter(fn($p) => $p->stock_qty <= $p->reorder_level)->count();
-        $outOfStock    = $products->filter(fn($p) => $p->stock_qty == 0)->count();
+            $products = DB::table('products as p')
+                ->join('categories as c', 'p.category_id', '=', 'c.category_id')
+                ->where('p.is_active', true)
+                ->select('p.product_id', 'p.sku', 'p.product_name', 'p.stock_qty', 'p.reorder_level', 'c.category_name')
+                ->get()
+                ->keyBy('product_id');
 
-        $forecast = $products->sortByDesc('stock_qty')
-            ->take(8)
-            ->map(fn($p) => [
-                'sku'          => $p->sku,
-                'name'         => $p->product_name,
-                'stock'        => $p->stock_qty,
-                'reorder'      => $p->reorder_level,
-                'stock_status' => $p->stock_status,
-            ])->values();
+            $variations = DB::table('product_variations')
+                ->whereIn('product_id', $products->keys())
+                ->where('is_active', true)
+                ->select('variation_id', 'product_id', 'variation_name', 'sku', 'stock_qty')
+                ->get()
+                ->groupBy('product_id');
 
-        $alerts = $products
-            ->filter(fn($p) => $p->stock_qty <= $p->reorder_level)
-            ->sortBy('stock_qty')
-            ->map(fn($p) => [
-                'id'       => $p->product_id,
-                'sku'      => $p->sku,
-                'name'     => $p->product_name,
-                'category' => $p->category?->category_name,
-                'stock'    => $p->stock_qty,
-                'reorder'  => $p->reorder_level,
-            ])->values();
+            // Flatten: each variation = its own item; product with no variations = 1 item
+            $allItems = collect();
+            foreach ($products as $p) {
+                $vars         = $variations->get($p->product_id, collect());
+                $reorderLevel = (int)$p->reorder_level > 0 ? (int)$p->reorder_level : 5;
 
-        // Sales data — cache for 30 seconds (more realtime)
+                if ($vars->isNotEmpty()) {
+                    foreach ($vars as $v) {
+                        $stock = (int)$v->stock_qty;
+                        $allItems->push((object)[
+                            'product_id'    => $p->product_id,
+                            'sku'           => $v->sku ?: $p->sku,
+                            'product_name'  => $p->product_name . ' — ' . $v->variation_name,
+                            'stock_qty'     => $stock,
+                            'reorder_level' => $reorderLevel,
+                            'stock_status'  => $stock == 0 ? 'out_of_stock' : ($stock <= $reorderLevel ? 'low_stock' : 'in_stock'),
+                            'category_name' => $p->category_name,
+                        ]);
+                    }
+                } else {
+                    $stock = (int)$p->stock_qty;
+                    $allItems->push((object)[
+                        'product_id'    => $p->product_id,
+                        'sku'           => $p->sku,
+                        'product_name'  => $p->product_name,
+                        'stock_qty'     => $stock,
+                        'reorder_level' => $reorderLevel,
+                        'stock_status'  => $stock == 0 ? 'out_of_stock' : ($stock <= $reorderLevel ? 'low_stock' : 'in_stock'),
+                        'category_name' => $p->category_name,
+                    ]);
+                }
+            }
+
+            $totalProducts = $allItems->count();
+            $totalStock    = $allItems->sum('stock_qty');
+            $lowStock      = $allItems->filter(fn($i) => $i->stock_qty > 0 && $i->stock_qty <= $i->reorder_level)->count();
+            $outOfStock    = $allItems->filter(fn($i) => $i->stock_qty == 0)->count();
+
+            $forecast = $allItems->sortByDesc('stock_qty')
+                ->take(8)
+                ->map(fn($i) => [
+                    'sku'          => $i->sku,
+                    'name'         => $i->product_name,
+                    'stock'        => $i->stock_qty,
+                    'reorder'      => $i->reorder_level,
+                    'stock_status' => $i->stock_status,
+                ])->values();
+
+            $alerts = $allItems
+                ->filter(fn($i) => $i->stock_qty > 0 && $i->stock_qty <= $i->reorder_level)
+                ->sortBy('stock_qty')
+                ->map(fn($i) => [
+                    'id'       => $i->product_id,
+                    'sku'      => $i->sku,
+                    'name'     => $i->product_name,
+                    'category' => $i->category_name,
+                    'stock'    => $i->stock_qty,
+                    'reorder'  => $i->reorder_level,
+                ])->values();
+
+            return [$totalProducts, $totalStock, $lowStock, $outOfStock, $forecast, $alerts];
+        });
+
+        // ── Sales (cached 30s) ────────────────────────────────────────────────
         $todaySales = Cache::remember('today_sales', 30, fn() =>
             SalesOrder::where('status', 'completed')
                 ->whereDate('order_date', today())
@@ -78,14 +125,15 @@ class DashboardController extends Controller
                 ])
         );
 
-        // Stock movements — cache for 30 seconds
+        // ── Recent stock movements (cached 30s) ───────────────────────────────
         $recentMovements = Cache::remember('recent_movements', 30, fn() =>
             DB::table('stock_movements as sm')
                 ->join('products as p', 'sm.product_id', '=', 'p.product_id')
+                ->leftJoin('product_variations as pv', 'sm.variation_id', '=', 'pv.variation_id')
                 ->leftJoin('users as u', 'sm.performed_by', '=', 'u.user_id')
                 ->select(
-                    'p.product_name',
-                    'p.sku',
+                    DB::raw("CASE WHEN pv.variation_name IS NOT NULL THEN p.product_name || ' - ' || pv.variation_name ELSE p.product_name END as product_name"),
+                    DB::raw("COALESCE(pv.sku, p.sku) as sku"),
                     'sm.movement_type',
                     'sm.quantity',
                     'sm.movement_date',
