@@ -1073,7 +1073,7 @@ html, body {
 //  All data fetched from Laravel API via Sanctum token auth
 // ═══════════════════════════════════════════════════════════════
 
-const API_BASE  = '{{ url('/') }}/api';
+const API_BASE  = '/api';
 const TOKEN_KEY = 'rfmoto_token';
 const USER_KEY  = 'rfmoto_user';
 
@@ -1176,7 +1176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ── Fire ALL network requests in parallel ───────────────────
-    const mePromise   = fetch('{{ url('/') }}/api/me', {
+    const mePromise   = fetch('/api/me', {
         headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` },
     }).then(r => r.json()).catch(() => null);
 
