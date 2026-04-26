@@ -737,7 +737,7 @@ async function lookupSalesOrder() {
   el('soErrorBox').style.display = 'none';
 
   try {
-    const data = await apiFetch('/returns/lookup-order', { method: 'POST', body: JSON.stringify({ order_number: soNum }) });
+    const data = await apiFetch('/returns/lookup-order?order_number=' + encodeURIComponent(soNum));
 
     if (!data || data.status === 'not_found') {
       el('soErrorBox').style.display = 'flex';
