@@ -841,6 +841,18 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
+
 <script>
 // ── Global product search ─────────────────────────────────────
 function globalSearchFn(val) {
