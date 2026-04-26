@@ -275,84 +275,141 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
       <div class="stat-card"><div class="stat-icon cyan"><i class="fa-solid fa-rotate-left"></i></div><div><div class="stat-val" id="statTotal">—</div><div class="stat-lbl">Total Returned</div></div></div>
       <div class="stat-card"><div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-val" id="statGood">—</div><div class="stat-lbl">Good Condition</div></div></div>
       <div class="stat-card"><div class="stat-icon red"><i class="fa-solid fa-circle-xmark"></i></div><div><div class="stat-val" id="statBad">—</div><div class="stat-lbl">Bad Condition</div></div></div>
-      <div class="stat-card"><div class="stat-icon warn"><i class="fa-solid fa-shop"></i></div><div><div class="stat-val" id="statPlatforms">—</div><div class="stat-lbl">Active Platforms</div></div></div>
+      <div class="stat-card"><div class="stat-icon warn"><i class="fa-solid fa-peso-sign"></i></div><div><div class="stat-val" id="statRefund" style="font-size:20px;">—</div><div class="stat-lbl">Total Refund Deducted</div></div></div>
     </div>
 
     <!-- LOG RETURN FORM -->
     <div class="form-card">
       <div class="form-card-title"><i class="fa-solid fa-file-circle-plus"></i> Log a Returned Item</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Order ID <span style="color:var(--muted);font-size:9px;">(platform order no.)</span></label>
-          <input class="form-input" type="text" id="fOrderId" placeholder="e.g. SHP-123456789">
+
+      <!-- STEP 1: SO Lookup -->
+      <div id="soLookupStep">
+        <div style="display:flex;gap:10px;align-items:flex-end;">
+          <div class="form-group" style="flex:1;margin-bottom:0;">
+            <label class="form-label">Sales Order Number <span style="color:var(--danger);font-size:10px;">*Required</span></label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;"><i class="fa-solid fa-receipt"></i></span>
+              <input class="form-input" type="text" id="fSoNumber" placeholder="e.g. SO-0001"
+                style="padding-left:32px;text-transform:uppercase;letter-spacing:.04em;"
+                oninput="this.value=this.value.toUpperCase()"
+                onkeydown="if(event.key==='Enter') lookupSalesOrder()">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="lookupSalesOrder()" id="soLookupBtn" style="padding:9px 18px;flex-shrink:0;">
+            <i class="fa-solid fa-search"></i> Look Up
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Product ID <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
-          <input class="form-input" type="number" id="fProductId" placeholder="e.g. 42" min="1" oninput="onProductIdInput()">
+        <p style="font-size:11px;color:var(--muted);margin-top:8px;"><i class="fa-solid fa-circle-info" style="margin-right:4px;"></i>Enter the internal sales order number (e.g. SO-0001) to validate and pre-fill the return.</p>
+
+        <!-- SO not found error -->
+        <div id="soErrorBox" style="display:none;margin-top:10px;padding:10px 13px;background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.2);border-radius:9px;font-size:12px;color:var(--danger);display:none;align-items:center;gap:8px;">
+          <i class="fa-solid fa-circle-xmark"></i><span id="soErrorMsg"></span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Product Name <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
-          <input class="form-input" type="text" id="fProduct" placeholder="Auto-filled or type manually" autocomplete="off">
+      </div>
+
+      <!-- STEP 2: Order confirmed + full form (hidden until SO is found) -->
+      <div id="soFormStep" style="display:none;margin-top:16px;">
+
+        <!-- Order summary banner -->
+        <div id="soSummaryBanner" style="background:rgba(23,184,220,.07);border:1px solid var(--cyan-border);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--cyan);" id="soSummaryNumber">SO-0001</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;" id="soSummaryDate">—</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:var(--muted);">Order Total</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--text);" id="soSummaryTotal">₱0.00</div>
+          </div>
+          <button onclick="resetSoLookup()" style="background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;" title="Change order">
+            <i class="fa-solid fa-pen"></i> Change
+          </button>
         </div>
-        <div class="form-group" id="variationGroup" style="display:none;">
-          <label class="form-label">Variation <span style="color:var(--muted);font-size:9px;">(if applicable)</span></label>
-          <select class="form-input" id="fVariation">
-            <option value="">Select variation…</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Online Platform *</label>
-          <select class="form-input" id="fPlatform">
-            <option value="">Select platform…</option>
-            <option value="shopee">Shopee</option>
-            <option value="tiktok">TikTok Shop</option>
-            <option value="lazada">Lazada</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Courier *</label>
-          <select class="form-input" id="fCourier">
-            <option value="">Select courier…</option>
-            <option value="jnt">J&T Express</option>
-            <option value="shopee_express">Shopee Express</option>
-            <option value="flash">Flash Express</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Item Status *</label>
-          <select class="form-input" id="fStatus" onchange="toggleBadReason()">
-            <option value="">Select status…</option>
-            <option value="good">Good</option>
-            <option value="bad">Bad</option>
-          </select>
-        </div>
-        <div class="form-group" id="badReasonGroup" style="display:none;">
-          <label class="form-label">Bad Reason *</label>
-          <select class="form-input" id="fBadReason">
-            <option value="">Select reason…</option>
-            <option value="defective">Defective</option>
-            <option value="damaged">Damaged</option>
-            <option value="no_item">No Item</option>
-            <option value="wrong_item">Wrong Item</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Quantity *</label>
-          <input class="form-input" type="number" id="fQty" placeholder="1" min="1" value="1">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Return Date *</label>
-          <input class="form-input" type="date" id="fDate">
-        </div>
-        <div class="form-group form-full">
-          <label class="form-label">Notes <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
-          <input class="form-input" type="text" id="fNotes" placeholder="Any additional details about the return…">
-        </div>
-        <div class="form-actions">
-          <button class="btn btn-outline" onclick="clearForm()"><i class="fa-solid fa-xmark"></i> Clear</button>
-          <button class="btn btn-primary" onclick="submitReturn()"><i class="fa-solid fa-paper-plane"></i> Log Return</button>
+
+        <div class="form-grid">
+          <!-- Item from order -->
+          <div class="form-group form-full">
+            <label class="form-label">Item Being Returned <span style="color:var(--danger);font-size:10px;">*Required</span></label>
+            <select class="form-input" id="fOrderItem" onchange="onOrderItemChange()">
+              <option value="">Select item from this order…</option>
+            </select>
+          </div>
+
+          <!-- Item details (shown after selection) -->
+          <div id="itemDetailsRow" style="display:none;grid-column:1/-1;">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:10px 14px;font-size:12px;color:var(--text2);display:flex;gap:20px;flex-wrap:wrap;">
+              <span><i class="fa-solid fa-barcode" style="color:var(--cyan);margin-right:4px;"></i><span id="idSku">—</span></span>
+              <span><i class="fa-solid fa-boxes-stacked" style="color:var(--cyan);margin-right:4px;"></i>Sold qty: <strong id="idQtySold">—</strong></span>
+              <span><i class="fa-solid fa-rotate-left" style="color:var(--warn);margin-right:4px;"></i>Already returned: <strong id="idQtyReturned">—</strong></span>
+              <span><i class="fa-solid fa-check-circle" style="color:var(--success);margin-right:4px;"></i>Max returnable: <strong id="idQtyMax" style="color:var(--success);">—</strong></span>
+              <span><i class="fa-solid fa-peso-sign" style="color:var(--cyan);margin-right:4px;"></i>Unit price: <strong id="idUnitPrice">—</strong></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Online Platform *</label>
+            <select class="form-input" id="fPlatform">
+              <option value="">Select platform…</option>
+              <option value="shopee">Shopee</option>
+              <option value="tiktok">TikTok Shop</option>
+              <option value="lazada">Lazada</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Courier *</label>
+            <select class="form-input" id="fCourier">
+              <option value="">Select courier…</option>
+              <option value="jnt">J&amp;T Express</option>
+              <option value="shopee_express">Shopee Express</option>
+              <option value="flash">Flash Express</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Item Status *</label>
+            <select class="form-input" id="fStatus" onchange="toggleBadReason()">
+              <option value="">Select status…</option>
+              <option value="good">Good</option>
+              <option value="bad">Bad</option>
+            </select>
+          </div>
+          <div class="form-group" id="badReasonGroup" style="display:none;">
+            <label class="form-label">Bad Reason *</label>
+            <select class="form-input" id="fBadReason">
+              <option value="">Select reason…</option>
+              <option value="defective">Defective</option>
+              <option value="damaged">Damaged</option>
+              <option value="no_item">No Item</option>
+              <option value="wrong_item">Wrong Item</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantity to Return *</label>
+            <input class="form-input" type="number" id="fQty" placeholder="1" min="1" value="1" oninput="calcRefund()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Selling Price <span style="color:var(--muted);font-size:9px;">(auto-filled from order)</span></label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;">₱</span>
+              <input class="form-input" type="number" id="fUnitPrice" placeholder="0.00" min="0" step="0.01" style="padding-left:24px;" oninput="calcRefund()">
+            </div>
+          </div>
+          <div class="form-group" id="refundPreviewGroup" style="display:none;">
+            <label class="form-label">Refund Amount <span style="color:var(--muted);font-size:9px;">(auto-computed)</span></label>
+            <div style="padding:9px 12px;border:1px solid var(--cyan-border);border-radius:9px;background:rgba(23,184,220,.06);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--cyan);" id="refundPreview">₱0.00</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Return Date *</label>
+            <input class="form-input" type="date" id="fDate">
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">Notes <span style="color:var(--muted);font-size:9px;">(optional)</span></label>
+            <input class="form-input" type="text" id="fNotes" placeholder="Any additional details about the return…">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-outline" onclick="clearForm()"><i class="fa-solid fa-xmark"></i> Clear</button>
+            <button class="btn btn-primary" onclick="submitReturn()"><i class="fa-solid fa-paper-plane"></i> Log Return</button>
+          </div>
         </div>
       </div>
     </div>
@@ -400,13 +457,14 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
               <th onclick="sortBy('courier')" id="th-courier">Courier <i class="fa-solid fa-sort si"></i></th>
               <th onclick="sortBy('item_status')" id="th-item_status">Status <i class="fa-solid fa-sort si"></i></th>
               <th onclick="sortBy('quantity')" id="th-quantity">Qty <i class="fa-solid fa-sort si"></i></th>
+              <th onclick="sortBy('refund_amount')" id="th-refund_amount">Refund <i class="fa-solid fa-sort si"></i></th>
               <th>Notes</th>
               <th>Logged By</th>
               <th style="width:70px;"></th>
             </tr>
           </thead>
           <tbody id="tbody">
-            <tr><td colspan="11" style="text-align:center;padding:60px;color:var(--muted);"><i class="fa-solid fa-spinner fa-spin" style="font-size:22px;"></i></td></tr>
+            <tr><td colspan="12" style="text-align:center;padding:60px;color:var(--muted);"><i class="fa-solid fa-spinner fa-spin" style="font-size:22px;"></i></td></tr>
           </tbody>
         </table>
       </div>
@@ -470,7 +528,7 @@ html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--bg);color
 <div class="toast" id="toast"></div>
 
 <script>
-const API_BASE = window.location.origin + '/api';
+const API_BASE='{{ config("app.url") }}/api';
 const TOKEN_KEY='rfmoto_token', USER_KEY='rfmoto_user';
 function getToken(){return localStorage.getItem(TOKEN_KEY);}
 function getUser(){try{return JSON.parse(localStorage.getItem(USER_KEY));}catch(e){return null;}}
@@ -524,7 +582,8 @@ function updateStats(){
   el('statTotal').textContent=ALL_RETURNS.length;
   el('statGood').textContent=ALL_RETURNS.filter(r=>r.item_status==='good').length;
   el('statBad').textContent=ALL_RETURNS.filter(r=>r.item_status==='bad').length;
-  el('statPlatforms').textContent=new Set(ALL_RETURNS.map(r=>r.platform).filter(Boolean)).size;
+  const totalRefund=ALL_RETURNS.reduce((sum,r)=>sum+parseFloat(r.refund_amount||0),0);
+  el('statRefund').textContent=totalRefund>0?'₱'+fmtMoney(totalRefund):'₱0.00';
 }
 
 function applyFilters(){
@@ -592,7 +651,7 @@ function statusBadge(s, badReason){
 function renderTable(){
   const tbody=el('tbody');
   const rows=FILTERED.slice((PAGE-1)*PAGE_SIZE,PAGE*PAGE_SIZE);
-  if(!rows.length){tbody.innerHTML=`<tr><td colspan="11"><div class="empty-state"><i class="fa-solid fa-rotate-left"></i><p>No returned items found.</p></div></td></tr>`;el('pagWrap').innerHTML='';return;}
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="12"><div class="empty-state"><i class="fa-solid fa-rotate-left"></i><p>No returned items found.</p></div></td></tr>`;el('pagWrap').innerHTML='';return;}
   const isAdmin=currentUser?.role==='admin';
   tbody.innerHTML=rows.map(r=>{
     const prod=r.product_name?`<span style="font-weight:500;">${esc(r.product_name)}</span>`:`<span class="no-product"><i class="fa-solid fa-minus" style="font-size:9px;"></i> None</span>`;
@@ -607,6 +666,7 @@ function renderTable(){
       <td>${courierBadge(r.courier)}</td>
       <td>${statusBadge(r.item_status, r.bad_reason)}</td>
       <td style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:15px;text-align:center;">${r.quantity||1}</td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;white-space:nowrap;${r.refund_amount>0?'color:#dc2626;':'color:var(--muted);'}">${r.refund_amount>0?'−₱'+fmtMoney(r.refund_amount):'—'}</td>
       <td style="font-size:12px;color:var(--text2);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.notes||'')}">${esc(r.notes||'—')}</td>
       <td style="font-size:12px;color:var(--muted);">${esc(r.logged_by_name||'—')}</td>
       <td>
@@ -632,6 +692,8 @@ function viewDetail(id){
         ${r.product_id?`<div style="font-size:11px;color:var(--text2);margin-top:2px;font-family:'Barlow Condensed',sans-serif;font-weight:700;">Product ID: #${r.product_id}</div>`:''}
         ${r.order_id?`<div style="font-size:11px;color:var(--cyan);margin-top:2px;font-family:'Barlow Condensed',sans-serif;font-weight:700;">Platform Order: ${esc(r.order_id)}</div>`:''}
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">Qty returned: <strong style="color:var(--text);">${r.quantity||1}</strong></div>
+        ${r.refund_amount>0?`<div style="font-size:12px;color:#dc2626;margin-top:3px;font-family:'Barlow Condensed',sans-serif;font-weight:800;">Refund: −₱${fmtMoney(r.refund_amount)}</div>`:''}
+        ${r.unit_price>0?`<div style="font-size:11px;color:var(--muted);margin-top:1px;">Unit price: ₱${fmtMoney(r.unit_price)}</div>`:''}
       </div>
       ${statusBadge(r.item_status, r.bad_reason)}
     </div>
@@ -662,85 +724,211 @@ function toggleBadReason(){
   if(s!=='bad')el('fBadReason').value='';
 }
 
-// Auto-resolve product name + variations from product ID
-let _resolveTimer=null;
-function onProductIdInput(){
-  clearTimeout(_resolveTimer);
-  const pid=el('fProductId').value.trim();
-  if(!pid){
-    el('fProduct').value='';
-    el('fVariation').innerHTML='<option value="">Select variation…</option>';
-    el('variationGroup').style.display='none';
-    return;
+// ── SO LOOKUP ────────────────────────────────────────────────
+let _currentOrder = null; // holds the looked-up sales order
+
+async function lookupSalesOrder() {
+  const soNum = el('fSoNumber').value.trim().toUpperCase();
+  if (!soNum) { showToast('Please enter a Sales Order number.', 'warn'); return; }
+
+  const btn = el('soLookupBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Looking up…';
+  el('soErrorBox').style.display = 'none';
+
+  try {
+    const data = await apiFetch('/returns/lookup-order?order_number=' + encodeURIComponent(soNum));
+
+    if (!data || data.status === 'not_found') {
+      el('soErrorBox').style.display = 'flex';
+      el('soErrorMsg').textContent = data?.message || `Order "${soNum}" not found.`;
+      return;
+    }
+
+    if (data.status !== 'success') {
+      el('soErrorBox').style.display = 'flex';
+      el('soErrorMsg').textContent = data?.message || 'Lookup failed.';
+      return;
+    }
+
+    _currentOrder = data.order;
+    showSoForm(_currentOrder);
+
+  } catch(e) {
+    el('soErrorBox').style.display = 'flex';
+    el('soErrorMsg').textContent = 'Network error. Please try again.';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-search"></i> Look Up';
   }
-  _resolveTimer=setTimeout(async()=>{
-    try{
-      const data=await apiFetch('/products/'+parseInt(pid));
-      if(data&&data.status==='success'&&data.product){
-        el('fProduct').value=data.product.product_name||'';
-        el('fProduct').style.borderColor='var(--success)';
-        setTimeout(()=>{el('fProduct').style.borderColor='';},1600);
-        // Populate variation dropdown if product has variations
-        const vars=(data.product.variations||[]).filter(v=>v.is_active!==false);
-        const varSel=el('fVariation');
-        const varGroup=el('variationGroup');
-        if(vars.length>0){
-          varSel.innerHTML='<option value="">No specific variation</option>'+
-            vars.map(v=>`<option value="${v.variation_id}">${esc(v.variation_name)} (Stock: ${v.stock_qty??0})</option>`).join('');
-          varGroup.style.display='';
-        } else {
-          varSel.innerHTML='<option value="">Select variation…</option>';
-          varGroup.style.display='none';
-        }
-      }
-    }catch(e){}
-  },500);
 }
 
-async function submitReturn(){
-  const platform=el('fPlatform').value, courier=el('fCourier').value;
-  const status=el('fStatus').value, date=el('fDate').value;
-  const badReason=el('fBadReason')?el('fBadReason').value:'';
-  if(!platform){showToast('Please select a platform.','warn');return;}
-  if(!courier){showToast('Please select a courier.','warn');return;}
-  if(!status){showToast('Please select item status.','warn');return;}
-  if(!date){showToast('Please select a return date.','warn');return;}
-  if(status==='bad'&&!badReason){showToast('Please select a reason for bad status.','warn');return;}
-  const rawPid=el('fProductId').value.trim();
-  const rawVid=el('fVariation').value;
-  const payload={
-    order_id:     el('fOrderId').value.trim()||null,
-    product_id:   rawPid?parseInt(rawPid):null,
-    variation_id: rawVid?parseInt(rawVid):null,
-    product_name: el('fProduct').value.trim()||null,
+function showSoForm(order) {
+  // Update banner
+  el('soSummaryNumber').textContent = order.order_number;
+  el('soSummaryDate').textContent   = 'Order Date: ' + fmtDate(order.order_date);
+  el('soSummaryTotal').textContent  = '₱' + fmtMoney(order.total_amount);
+
+  // Populate item dropdown
+  const sel = el('fOrderItem');
+  sel.innerHTML = '<option value="">Select item from this order…</option>' +
+    order.items.map(item =>
+      `<option value="${item.item_id}"
+         data-pid="${item.product_id}"
+         data-vid="${item.variation_id || ''}"
+         data-name="${esc(item.product_name)}"
+         data-sku="${esc(item.sku)}"
+         data-qty="${item.quantity}"
+         data-price="${item.unit_price}">
+        ${esc(item.product_name)} — ${esc(item.sku)} (Qty: ${item.quantity})
+       </option>`
+    ).join('');
+
+  el('soLookupStep').style.display = 'none';
+  el('soFormStep').style.display   = '';
+  el('itemDetailsRow').style.display = 'none';
+}
+
+function resetSoLookup() {
+  _currentOrder = null;
+  el('soLookupStep').style.display = '';
+  el('soFormStep').style.display   = 'none';
+  el('soErrorBox').style.display   = 'none';
+  el('fSoNumber').value = '';
+  el('fSoNumber').focus();
+  el('itemDetailsRow').style.display = 'none';
+}
+
+async function onOrderItemChange() {
+  const sel = el('fOrderItem');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) {
+    el('itemDetailsRow').style.display = 'none';
+    return;
+  }
+
+  const pid   = opt.dataset.pid;
+  const vid   = opt.dataset.vid || null;
+  const qty   = parseInt(opt.dataset.qty);
+  const price = parseFloat(opt.dataset.price);
+  const sku   = opt.dataset.sku;
+  const soNum = _currentOrder?.order_number;
+
+  // Auto-fill price
+  el('fUnitPrice').value = price.toFixed(2);
+  el('fQty').max         = qty;
+  el('fQty').value       = Math.min(parseInt(el('fQty').value) || 1, qty);
+
+  // Fetch already-returned count for this item in this order
+  el('idSku').textContent       = sku;
+  el('idQtySold').textContent   = qty;
+  el('idUnitPrice').textContent = '₱' + fmtMoney(price);
+  el('idQtyReturned').textContent = '…';
+  el('idQtyMax').textContent      = '…';
+  el('itemDetailsRow').style.display = '';
+
+  // Query already-returned from existing return_requests
+  try {
+    const ret = await apiFetch('/returns');
+    if (ret && ret.returns) {
+      const alreadyReturned = ret.returns
+        .filter(r =>
+          r.order_id === soNum &&
+          r.product_id == pid &&
+          (!vid || r.variation_id == vid)
+        )
+        .reduce((sum, r) => sum + (r.quantity || 0), 0);
+
+      const maxReturnable = Math.max(0, qty - alreadyReturned);
+      el('idQtyReturned').textContent = alreadyReturned;
+      el('idQtyMax').textContent      = maxReturnable;
+      el('fQty').max                  = maxReturnable;
+
+      if (maxReturnable === 0) {
+        el('idQtyMax').style.color = 'var(--danger)';
+        showToast('This item has already been fully returned.', 'warn');
+      } else {
+        el('idQtyMax').style.color = 'var(--success)';
+      }
+    }
+  } catch(e) {
+    el('idQtyReturned').textContent = '?';
+    el('idQtyMax').textContent = qty;
+  }
+
+  calcRefund();
+}
+
+async function submitReturn() {
+  if (!_currentOrder) { showToast('Please look up a sales order first.', 'warn'); return; }
+
+  const sel     = el('fOrderItem');
+  const opt     = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) { showToast('Please select an item to return.', 'warn'); return; }
+
+  const platform  = el('fPlatform').value;
+  const courier   = el('fCourier').value;
+  const status    = el('fStatus').value;
+  const date      = el('fDate').value;
+  const badReason = el('fBadReason') ? el('fBadReason').value : '';
+
+  if (!platform) { showToast('Please select a platform.', 'warn'); return; }
+  if (!courier)  { showToast('Please select a courier.', 'warn'); return; }
+  if (!status)   { showToast('Please select item status.', 'warn'); return; }
+  if (!date)     { showToast('Please select a return date.', 'warn'); return; }
+  if (status === 'bad' && !badReason) { showToast('Please select a reason for bad status.', 'warn'); return; }
+
+  const pid      = parseInt(opt.dataset.pid);
+  const vid      = opt.dataset.vid ? parseInt(opt.dataset.vid) : null;
+  const rawPrice = el('fUnitPrice').value.trim();
+  const qty      = parseInt(el('fQty').value) || 1;
+
+  const payload = {
+    order_id:     _currentOrder.order_number,
+    product_id:   pid,
+    variation_id: vid,
+    product_name: opt.dataset.name,
     platform,
     courier,
     item_status:  status,
-    bad_reason:   status==='bad'?badReason:null,
-    quantity:     parseInt(el('fQty').value)||1,
+    bad_reason:   status === 'bad' ? badReason : null,
+    quantity:     qty,
+    unit_price:   rawPrice ? parseFloat(rawPrice) : null,
     return_date:  date,
-    notes:        el('fNotes').value.trim()||null,
+    notes:        el('fNotes').value.trim() || null,
   };
-  const data=await apiFetch('/returns',{method:'POST',body:JSON.stringify(payload)});
-  if(!data)return;
-  if(data.status==='success'){
-    showToast('Return logged successfully.','success');
-    clearForm(); await loadReturns();
+
+  const data = await apiFetch('/returns', { method: 'POST', body: JSON.stringify(payload) });
+  if (!data) return;
+
+  if (data.status === 'success') {
+    showToast('Return logged successfully.', 'success');
+    clearForm();
+    await loadReturns();
   } else {
-    const msg=data.errors?Object.values(data.errors).flat().join(' '):data.message||'Failed to submit.';
-    showToast(msg,'danger');
+    const msg = data.errors ? Object.values(data.errors).flat().join(' ') : data.message || 'Failed to submit.';
+    showToast(msg, 'danger');
   }
 }
 
-function clearForm(){
-  el('fOrderId').value=''; el('fProductId').value=''; el('fProduct').value='';
-  el('fPlatform').value=''; el('fCourier').value='';
-  el('fStatus').value=''; el('fQty').value='1'; el('fNotes').value='';
-  el('fDate').value=new Date().toISOString().split('T')[0];
-  el('badReasonGroup').style.display='none';
-  if(el('fBadReason'))el('fBadReason').value='';
-  el('fVariation').innerHTML='<option value="">Select variation…</option>';
-  el('variationGroup').style.display='none';
+function clearForm() {
+  _currentOrder = null;
+  el('soLookupStep').style.display = '';
+  el('soFormStep').style.display   = 'none';
+  el('soErrorBox').style.display   = 'none';
+  el('fSoNumber').value = '';
+  el('fPlatform').value = '';
+  el('fCourier').value  = '';
+  el('fStatus').value   = '';
+  el('fQty').value      = '1';
+  el('fNotes').value    = '';
+  el('fUnitPrice').value = '';
+  el('fDate').value      = new Date().toISOString().split('T')[0];
+  el('badReasonGroup').style.display   = 'none';
+  el('refundPreviewGroup').style.display = 'none';
+  el('refundPreview').textContent = '₱0.00';
+  el('itemDetailsRow').style.display = 'none';
+  if (el('fBadReason')) el('fBadReason').value = '';
 }
 
 function renderPag(){
@@ -754,6 +942,14 @@ function renderPag(){
 function pagR(cur,total){if(total<=7)return Array.from({length:total},(_,i)=>i+1);if(cur<=4)return[1,2,3,4,5,'…',total];if(cur>=total-3)return[1,'…',total-4,total-3,total-2,total-1,total];return[1,'…',cur-1,cur,cur+1,'…',total];}
 function goPage(p){const pages=Math.ceil(FILTERED.length/PAGE_SIZE);if(p<1||p>pages)return;PAGE=p;renderTable();document.querySelector('.content-area').scrollTop=0;}
 function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');if(isNaN(dt))return String(d).substring(0,10);return dt.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
+function fmtMoney(n){return parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function calcRefund(){
+  const qty=parseFloat(el('fQty').value)||0;
+  const price=parseFloat(el('fUnitPrice').value)||0;
+  const group=el('refundPreviewGroup');
+  if(qty>0&&price>0){group.style.display='';el('refundPreview').textContent='₱'+fmtMoney(qty*price);}
+  else{group.style.display='none';el('refundPreview').textContent='₱0.00';}
+}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,type='success'){const t=el('toast');const c={success:'#16a34a',warn:'#d97706',danger:'#dc2626',info:'#17b8dc'};t.style.background=c[type]||c.info;t.style.color='#fff';t.style.opacity='1';t.style.display='block';t.textContent=msg;setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.style.display='none',400);},2800);}
 
@@ -780,6 +976,18 @@ document.addEventListener('click',function(e){const btn=document.getElementById(
 function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
 </script>
+
+// ── Global product search ─────────────────────────────────────
+function globalSearchFn(val) {
+  val = (val || '').trim();
+  if (!val) return;
+  sessionStorage.setItem('rfmoto_search', val);
+  window.location.href = '/products';
+}
+function globalSearchPreview(val) {
+  // just updates the input — actual search happens on Enter
+}
+
 
 <script>
 // ── Global product search ─────────────────────────────────────
