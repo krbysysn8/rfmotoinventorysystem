@@ -8,8 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
 <style>
 :root {
   --cyan:#17b8dc;--cyan2:#0ea5c9;--cyan3:#0284c7;
@@ -331,8 +330,8 @@ canvas{max-width:100%;}
           </div>
           <button class="btn btn-outline btn-sm" onclick="applyFilters()"><i class="fa-solid fa-rotate"></i> Apply</button>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="exportPDF()">
-          <i class="fa-solid fa-download"></i> Export PDF
+        <button class="btn btn-primary btn-sm" onclick="exportCSV()">
+          <i class="fa-solid fa-file-csv"></i> Export Full Report
         </button>
       </div>
 
@@ -342,7 +341,7 @@ canvas{max-width:100%;}
         <div class="report-tab" onclick="switchTab('stock-movement',this)"><i class="fa-solid fa-chart-bar" style="margin-right:5px;"></i>Stock Movement</div>
         <div class="report-tab" onclick="switchTab('low-stock',this)"><i class="fa-solid fa-triangle-exclamation" style="margin-right:5px;"></i>Low Stock</div>
         <div class="report-tab" onclick="switchTab('out-of-stock',this)"><i class="fa-solid fa-circle-xmark" style="margin-right:5px;"></i>Out of Stock</div>
-        <div class="report-tab" onclick="switchTab('supplier-report',this)"><i class="fa-solid fa-truck" style="margin-right:5px;"></i>Supplier Report</div>
+        <div class="report-tab" onclick="switchTab('sales-report',this)"><i class="fa-solid fa-peso-sign" style="margin-right:5px;"></i>Sales Report</div>
       </div>
 
       <!-- ══════════════════════════════════════════
@@ -469,33 +468,47 @@ canvas{max-width:100%;}
         </div>
       </div>
 
-      <!-- ══════════════════════════════════════════
-           TAB 5 — SUPPLIER REPORT
-      ══════════════════════════════════════════ -->
-      <div class="report-page" id="tab-supplier-report">
-        <div class="chart-grid-2">
-          <div class="chart-card">
-            <div class="chart-card-title">Items per Supplier</div>
-            <div class="chart-card-sub">Number of products per supplier</div>
-            <div class="chart-wrap" style="height:280px;">
-              <canvas id="supplierBarChart"></canvas>
-            </div>
+      <!-- TAB 5 — SALES REPORT -->
+      <div class="report-page" id="tab-sales-report">
+
+        <div class="stat-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(23,184,220,.12);color:var(--cyan);"><i class="fa-solid fa-receipt"></i></div><div><div class="stat-mini-val c-cyan" id="salesTotalOrders">—</div><div class="stat-mini-lbl">Total Orders</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(22,163,74,.12);color:var(--success);"><i class="fa-solid fa-peso-sign"></i></div><div><div class="stat-mini-val c-green" id="salesTotalRev">—</div><div class="stat-mini-lbl">Total Revenue <span style="font-size:9px;color:var(--muted);display:block;margin-top:1px;">after refunds</span></div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(220,38,38,.12);color:var(--danger);"><i class="fa-solid fa-rotate-left"></i></div><div><div class="stat-mini-val c-red" id="salesTotalReturns">—</div><div class="stat-mini-lbl">Total Returns</div></div></div>
+          <div class="stat-mini"><div class="stat-mini-icon" style="background:rgba(217,119,6,.12);color:var(--warn);"><i class="fa-solid fa-money-bill-wave"></i></div><div><div class="stat-mini-val c-warn" id="salesTotalRefunds">—</div><div class="stat-mini-lbl">Total Refunds</div></div></div>
+        </div>
+        <div class="chart-card" style="margin-bottom:16px;">
+          <div class="chart-card-title">Revenue Overview</div>
+          <div class="chart-card-sub">Revenue per month (already reflects returned items)</div>
+          <div class="chart-wrap" style="height:300px;"><canvas id="salesRevenueChart"></canvas></div>
+        </div>
+        <div class="table-card" style="margin-bottom:16px;">
+          <div class="table-card-header">
+            <div><div class="table-card-title">Daily Breakdown</div><div class="table-card-sub" id="salesDailySub">Sales and returns per day in the selected period</div></div>
           </div>
-          <div class="table-card" style="margin-bottom:0;">
-            <div class="table-card-header">
-              <div class="table-card-title">Supplier Overview</div>
-            </div>
-            <div class="tbl-scroll">
-              <table class="tbl">
-                <thead>
-                  <tr><th>Supplier</th><th>Items</th><th>Status</th></tr>
-                </thead>
-                <tbody id="supplierOverviewTbl"><tr><td colspan="3" style="padding:20px;text-align:center;color:var(--muted);">Loading…</td></tr></tbody>
-              </table>
-            </div>
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>Date</th><th>Orders</th><th>Revenue</th><th>Returns</th><th>Refunds</th></tr></thead>
+              <tbody id="salesDailyTbl"><tr><td colspan="6" style="padding:30px;text-align:center;color:var(--muted);">Loading…</td></tr></tbody>
+              <tfoot id="salesDailyFoot" style="display:none;">
+                <tr><td>TOTAL</td><td id="sdftOrders">—</td><td id="sdftRevenue">—</td><td id="sdftReturns">—</td><td id="sdftRefunds">—</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-card-header">
+            <div><div class="table-card-title">Top Selling Products</div><div class="table-card-sub">Ranked by units sold in the selected period</div></div>
+          </div>
+          <div class="tbl-scroll">
+            <table class="tbl">
+              <thead><tr><th>#</th><th>SKU</th><th>Product Name</th><th>Units Sold</th><th>Revenue</th></tr></thead>
+              <tbody id="salesTopTbl"><tr><td colspan="5" style="padding:30px;text-align:center;color:var(--muted);">Loading…</td></tr></tbody>
+            </table>
           </div>
         </div>
       </div>
+
 
     </div><!-- end content-area -->
   </div><!-- end main -->
@@ -515,16 +528,14 @@ canvas{max-width:100%;}
 //  CONFIG
 // ════════════════════════════════════════════
 const API_URL = '/api';
-// Always check both storages (fix: was static localStorage read at parse time)
-function getToken() { return sessionStorage.getItem('rfmoto_token') || localStorage.getItem('rfmoto_token') || ''; }
-const TOKEN = getToken(); // kept for backward compat with authHeaders below
+const TOKEN   = localStorage.getItem('rfmoto_token') || '';
 
 function authHeaders() {
   return {
     'Content-Type': 'application/json',
     'Accept':       'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-    'Authorization': `Bearer ${getToken()}`,
+    'Authorization': `Bearer ${TOKEN}`,
   };
 }
 
@@ -576,7 +587,7 @@ function destroyChart(id) {
 //  INIT
 // ════════════════════════════════════════════
 async function initFromSession() {
-  const stored = sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user');
+  const stored = localStorage.getItem('rfmoto_user');
   if (stored) { try { currentUser = JSON.parse(stored); } catch(e){} }
   if (!currentUser) currentUser = { username:'admin', fullname:'Administrator', role:'admin' };
   launchApp();
@@ -620,7 +631,7 @@ async function loadAllReports() {
     loadStockMovement(),
     loadLowStock(),
     loadOutOfStock(),
-    loadSupplierReport(),
+    loadSalesReport(),
   ]);
 }
 
@@ -686,17 +697,24 @@ function renderPieChart(rows) {
   const ctx = document.getElementById('pieChart');
   if (!ctx || !rows.length) return;
   const c = chartColors();
+  // Use total_stock (units on hand) so products with many variations/qty reflect properly
+  const total = rows.reduce((a, r) => a + (r.total_stock || 0), 0);
   _charts['pieChart'] = new Chart(ctx, {
     type: 'pie',
     data: {
       labels   : rows.map(r => r.category_name),
-      datasets : [{ data: rows.map(r => r.total_items), backgroundColor: PIE_COLORS.slice(0, rows.length), borderColor: c.surface, borderWidth: 2 }]
+      datasets : [{ data: rows.map(r => r.total_stock || 0), backgroundColor: PIE_COLORS.slice(0, rows.length), borderColor: c.surface, borderWidth: 2 }]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { position:'right', labels:{ color:c.textColor, font:{family:'Barlow',size:11}, boxWidth:10, padding:10 } },
-        tooltip: { ...sharedTooltip(), callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.parsed} items` } }
+        tooltip: { ...sharedTooltip(), callbacks:{
+          label: ctx => {
+            const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()} units (${pct}%)`;
+          }
+        }}
       }
     }
   });
@@ -832,54 +850,110 @@ async function loadOutOfStock() {
 }
 
 // ════════════════════════════════════════════
-//  TAB 5 — SUPPLIER REPORT
+//  TAB 5 — SALES REPORT
 // ════════════════════════════════════════════
-async function loadSupplierReport() {
+let _salesData = null;
+
+
+
+async function loadSalesReport() {
   try {
-    const data      = await apiFetch('supplier-report');
-    const suppliers = data.suppliers || [];
+    const from = document.getElementById('dateFrom').value;
+    const to   = document.getElementById('dateTo').value;
+    const params = new URLSearchParams();
+    if (from) params.set('from', from);
+    if (to)   params.set('to', to);
+    const qs  = params.toString() ? '?' + params.toString() : '';
+    const res = await fetch(`${API_URL}/reports/sales-summary${qs}`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    _salesData = data;
 
-    document.getElementById('supplierOverviewTbl').innerHTML = suppliers.length
-      ? suppliers.map(s => `<tr>
-          <td><strong>${s.supplier_name}</strong></td>
-          <td>${s.item_count}</td>
-          <td><span class="badge ${s.status === 'active' ? 'badge-green' : 'badge-gray'}">${s.status}</span></td>
+    const t   = data.totals || {};
+    const fmt = v => '₱' + Number(v||0).toLocaleString('en-PH', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // Stat cards — total_revenue already reflects deducted returns
+    document.getElementById('salesTotalOrders').textContent  = t.total_orders       || 0;
+    document.getElementById('salesTotalRev').textContent     = fmt(t.total_revenue);
+    document.getElementById('salesTotalReturns').textContent = t.total_returns      || 0;
+    document.getElementById('salesTotalRefunds').textContent = fmt(t.total_refunds);
+
+    // Daily breakdown table
+    const daily = data.daily || [];
+    document.getElementById('salesDailySub').textContent = `${daily.length} day${daily.length!==1?'s':''} in period`;
+    const noData = '<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--muted);">No sales data for this period.</td></tr>';
+    document.getElementById('salesDailyTbl').innerHTML = daily.length
+      ? daily.map(r => {
+          const dateStr   = new Date(r.date + 'T00:00:00').toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+          const hasReturn = r.return_count > 0;
+          return `<tr>
+            <td style="font-size:12px;">${dateStr}</td>
+            <td>${r.orders}</td>
+            <td style="font-weight:600;">₱${Number(r.revenue).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
+            <td class="${hasReturn?'c-red':'c-muted'}">${r.return_count}</td>
+            <td class="${hasReturn?'c-warn':'c-muted'}">₱${Number(r.refunds).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
+          </tr>`;
+        }).join('')
+      : noData;
+
+    // Tfoot totals
+    if (daily.length) {
+      document.getElementById('salesDailyFoot').style.display = '';
+      document.getElementById('sdftOrders').textContent  = daily.reduce((a,r)=>a+r.orders,0);
+      document.getElementById('sdftRevenue').textContent = '₱' + daily.reduce((a,r)=>a+r.revenue,0).toLocaleString('en-PH',{minimumFractionDigits:2});
+      document.getElementById('sdftReturns').textContent = daily.reduce((a,r)=>a+r.return_count,0);
+      document.getElementById('sdftRefunds').textContent = '₱' + daily.reduce((a,r)=>a+r.refunds,0).toLocaleString('en-PH',{minimumFractionDigits:2});
+    } else {
+      document.getElementById('salesDailyFoot').style.display = 'none';
+    }
+
+    // Top products
+    const top = data.top_products || [];
+    document.getElementById('salesTopTbl').innerHTML = top.length
+      ? top.map((p,i) => `<tr>
+          <td style="color:var(--muted);font-weight:700;">${i+1}</td>
+          <td style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.06em;color:var(--muted);">${p.sku||'—'}</td>
+          <td><strong>${p.product_name}</strong></td>
+          <td class="c-cyan" style="font-weight:700;">${p.total_qty}</td>
+          <td style="font-weight:700;">₱${Number(p.total_revenue||0).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
         </tr>`).join('')
-      : '<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--muted);">No suppliers found.</td></tr>';
+      : '<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--muted);">No sales data for this period.</td></tr>';
 
-    renderSupplierChart(suppliers);
+    // Revenue chart
+    renderSalesRevenueChart(data.chart || {});
   } catch(e) {
-    document.getElementById('supplierOverviewTbl').innerHTML = `<tr><td colspan="3" style="padding:20px;text-align:center;color:var(--danger);">Failed to load data.</td></tr>`;
+    console.error(e);
+    document.getElementById('salesDailyTbl').innerHTML = '<tr><td colspan="5" style="padding:30px;text-align:center;color:var(--danger);">Failed to load sales data.</td></tr>';
   }
 }
 
-function renderSupplierChart(suppliers) {
-  destroyChart('supplierBarChart');
-  const ctx = document.getElementById('supplierBarChart');
-  if (!ctx || !suppliers.length) return;
+function renderSalesRevenueChart(chart) {
+  destroyChart('salesRevenueChart');
+  const ctx = document.getElementById('salesRevenueChart');
+  if (!ctx) return;
   const c = chartColors();
-  _charts['supplierBarChart'] = new Chart(ctx, {
+  _charts['salesRevenueChart'] = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: suppliers.map(s => s.supplier_name.split(' ')[0]),
-      datasets: [{ label:'Items', data: suppliers.map(s => s.item_count), backgroundColor: PIE_COLORS.slice(0, suppliers.length), borderRadius:4, borderSkipped:false }]
+      labels: chart.labels || [],
+      datasets: [
+        { label:'Revenue', data: chart.revenue || [], backgroundColor:'rgba(23,184,220,0.82)', borderRadius:4, borderSkipped:false },
+      ]
     },
     options: {
-      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
       plugins:{
         legend:{ display:false },
-        tooltip:{ ...sharedTooltip(), callbacks:{
-          title: items => suppliers[items[0].dataIndex]?.supplier_name || '',
-          label: ctx => ` ${ctx.parsed.x} items`
-        }}
+        tooltip:{ ...sharedTooltip(), callbacks:{ label: ctx => ` Revenue: ₱${Number(ctx.parsed.y||0).toLocaleString('en-PH',{minimumFractionDigits:2})}` } }
       },
       scales:{
-        x:{ grid:{color:c.gridColor}, ticks:{color:c.textColor,font:{family:'Barlow'},stepSize:1}, border:{color:'transparent'}, beginAtZero:true },
-        y:{ grid:{color:c.gridColor,drawTicks:false}, ticks:{color:c.textColor,font:{family:'Barlow',size:11}}, border:{color:'transparent'} }
+        x:{ grid:{color:c.gridColor,drawTicks:false}, ticks:{color:c.textColor,font:{family:'Barlow'}}, border:{color:'transparent'} },
+        y:{ grid:{color:c.gridColor}, ticks:{color:c.textColor,font:{family:'Barlow'},callback:v=>'₱'+v.toLocaleString()}, border:{color:'transparent'}, beginAtZero:true }
       }
     }
   });
 }
+
 
 // ════════════════════════════════════════════
 //  TAB SWITCHING
@@ -918,7 +992,7 @@ function _reloadActiveTab() {
     'stock-movement':    loadStockMovement,
     'low-stock':         loadLowStock,
     'out-of-stock':      loadOutOfStock,
-    'supplier-report':   loadSupplierReport,
+    'sales-report':      loadSalesReport,
   };
   const fn = loaders[_activeReportTab];
   if (fn) fn();
@@ -946,159 +1020,142 @@ function toggleDarkMode() {
 }
 
 // ════════════════════════════════════════════
-//  EXPORT (stub — wire to jsPDF or server)
+//  EXPORT CSV — per active tab
 // ════════════════════════════════════════════
-async function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  if (!jsPDF) { showToast('PDF library not loaded. Try refreshing.', 'danger'); return; }
+async function exportCSV() {
+  const dateFrom  = document.getElementById('dateFrom').value || 'all';
+  const dateTo    = document.getElementById('dateTo').value   || 'all';
+  const generated = new Date().toISOString().split('T')[0];
 
-  showToast('Generating PDF…', 'cyan');
+  showToast('Preparing full report…', 'cyan');
 
-  const doc       = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const pageW     = doc.internal.pageSize.getWidth();
-  const dateFrom  = document.getElementById('dateFrom').value || '—';
-  const dateTo    = document.getElementById('dateTo').value   || '—';
-  const generated = new Date().toLocaleString('en-PH', { dateStyle:'medium', timeStyle:'short' });
+  const escape = (val) => {
+    const s = String(val ?? '').replace(/"/g, '""');
+    return /[,"\n\r]/.test(s) ? `"${s}"` : s;
+  };
+  const fmtPHP = v => Number(v||0).toFixed(2);
 
-  // Header helper
-  function addPageHeader(title) {
-    doc.setFillColor(13, 27, 38);
-    doc.rect(0, 0, pageW, 18, 'F');
-    doc.setTextColor(23, 184, 220);
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RF MOTO', 10, 11);
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Inventory System', 32, 11);
-    doc.setTextColor(150, 180, 200);
-    doc.setFontSize(8);
-    doc.text('Generated: ' + generated, pageW - 10, 11, { align: 'right' });
-    doc.setTextColor(13, 27, 38);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(title, 10, 28);
-    doc.setTextColor(100, 130, 150);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Date range: ' + dateFrom + ' to ' + dateTo, 10, 33);
-    doc.setDrawColor(23, 184, 220);
-    doc.setLineWidth(0.4);
-    doc.line(10, 35, pageW - 10, 35);
-  }
-
-  // Shared autoTable style
-  const tblStyles = {
-    headStyles          : { fillColor:[13,27,38], textColor:[23,184,220], fontStyle:'bold', fontSize:8 },
-    bodyStyles          : { fontSize:8, textColor:[30,50,65] },
-    alternateRowStyles  : { fillColor:[240,246,250] },
-    margin              : { left:10, right:10 },
+  // Helper: extract rows from a visible tbody
+  const fromTbody = (tbodyId, cols) => {
+    const rows = [];
+    document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+      const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
+      if (cells.length === cols) rows.push(cells);
+    });
+    return rows;
   };
 
-  // PAGE 1 - INVENTORY SUMMARY
-  addPageHeader('Inventory Summary Report');
+  // ── Fetch any missing data in parallel ───────────────────────
+  const missingFetches = [];
+  if (!_salesData) missingFetches.push(loadSalesReport());
+  await Promise.all(missingFetches);
 
-  const totalItems = document.getElementById('statTotalItems').textContent;
-  const inStock    = document.getElementById('statInStock').textContent;
-  const lowStock   = document.getElementById('statLowStock').textContent;
-  const outStock   = document.getElementById('statOutStock').textContent;
+  // ── Section builder ───────────────────────────────────────────
+  const section = (title, headers, rows, footer = [], extra = []) => {
+    const lines = [];
+    lines.push([`=== ${title} ===`].map(escape).join(','));
+    lines.push(headers.map(escape).join(','));
+    rows.forEach(r => lines.push(r.map(escape).join(',')));
+    if (footer.length) footer.forEach(r => lines.push(r.map(escape).join(',')));
+    if (extra.length)  extra.forEach(r  => lines.push(r.map(escape).join(',')));
+    lines.push(''); // blank separator between sections
+    return lines;
+  };
 
-  const stats  = [['Total Items', totalItems],['In Stock', inStock],['Low Stock', lowStock],['Out of Stock', outStock]];
-  const cardW  = (pageW - 20) / 4;
-  let   y      = 38;
-  stats.forEach(([label, val], i) => {
-    const x = 10 + i * cardW;
-    doc.setFillColor(240, 246, 250);
-    doc.roundedRect(x, y, cardW - 2, 16, 2, 2, 'F');
-    doc.setTextColor(23, 184, 220);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(val, x + cardW / 2 - 1, y + 8, { align: 'center' });
-    doc.setTextColor(100, 130, 150);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.text(label, x + cardW / 2 - 1, y + 13, { align: 'center' });
-  });
-  y += 22;
+  // ── 1. Inventory Summary ──────────────────────────────────────
+  const invRows    = fromTbody('summaryTbl', 6);
+  const invFooter  = (() => {
+    const t = id => document.getElementById(id)?.textContent?.trim() || '';
+    return [['TOTAL', t('ftTotal'), t('ftIn'), t('ftLow'), t('ftOut'), t('ftVal').replace('₱','')]];
+  })();
+  const invSection = section(
+    'INVENTORY SUMMARY',
+    ['Category','Total Items','In Stock','Low Stock','Out of Stock','Total Value (PHP)'],
+    invRows, invFooter
+  );
 
-  const summaryRows = [];
-  document.querySelectorAll('#summaryTbl tr').forEach(tr => {
-    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-    if (cells.length === 6) summaryRows.push(cells);
-  });
-  doc.autoTable({
-    ...tblStyles, startY: y,
-    head: [['Category','Total Items','In Stock','Low Stock','Out of Stock','Total Value']],
-    body: summaryRows.length ? summaryRows : [['No data','','','','','']],
-    foot: [[
-      'TOTAL',
-      document.getElementById('ftTotal').textContent,
-      document.getElementById('ftIn').textContent,
-      document.getElementById('ftLow').textContent,
-      document.getElementById('ftOut').textContent,
-      document.getElementById('ftVal').textContent,
-    ]],
-    footStyles: { fillColor:[13,27,38], textColor:[255,255,255], fontStyle:'bold', fontSize:8 },
-  });
+  // ── 2. Stock Movement ─────────────────────────────────────────
+  const mvChart   = _charts['movementChart'];
+  const mvLabels  = mvChart?.data.labels || [];
+  const mvIn      = mvChart?.data.datasets[0]?.data || [];
+  const mvOut     = mvChart?.data.datasets[1]?.data || [];
+  const mvRows    = mvLabels.map((lbl,i) => [lbl, mvIn[i]??0, mvOut[i]??0]);
+  const mvSection = section(
+    'STOCK MOVEMENT',
+    ['Month','Stock In','Stock Out'],
+    mvRows
+  );
 
-  // PAGE 2 - LOW STOCK
-  doc.addPage();
-  addPageHeader('Low Stock Items');
-  const lowRows = [];
-  document.querySelectorAll('#lowStockTbl tr').forEach(tr => {
-    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-    if (cells.length === 7) lowRows.push(cells);
-  });
-  doc.autoTable({
-    ...tblStyles, startY: 38,
-    head: [['Barcode / SKU','Item Name','Category','Supplier','Current Qty','Reorder Level','Shortage']],
-    body: lowRows.length ? lowRows : [['No items at low stock level','','','','','','']],
-    columnStyles: { 4:{ textColor:[217,119,6], fontStyle:'bold' }, 6:{ textColor:[220,38,38], fontStyle:'bold' } },
-  });
+  // ── 3. Low Stock ──────────────────────────────────────────────
+  const lsRows    = fromTbody('lowStockTbl', 7);
+  const lsSection = section(
+    'LOW STOCK ITEMS',
+    ['Barcode / SKU','Item Name','Category','Supplier','Current Qty','Reorder Level','Shortage'],
+    lsRows
+  );
 
-  // PAGE 3 - OUT OF STOCK
-  doc.addPage();
-  addPageHeader('Out of Stock Items');
-  const outRows = [];
-  document.querySelectorAll('#outStockTbl tr').forEach(tr => {
-    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-    if (cells.length === 7) outRows.push(cells);
-  });
-  doc.autoTable({
-    ...tblStyles, startY: 38,
-    head: [['Barcode / SKU','Item Name','Category','Supplier','Unit Price','Reorder Level','Last Updated']],
-    body: outRows.length ? outRows : [['No items out of stock','','','','','','']],
-  });
+  // ── 4. Out of Stock ───────────────────────────────────────────
+  const osRows    = fromTbody('outStockTbl', 7);
+  const osSection = section(
+    'OUT OF STOCK ITEMS',
+    ['Barcode / SKU','Item Name','Category','Supplier','Unit Price','Reorder Level','Last Updated'],
+    osRows
+  );
 
-  // PAGE 4 - SUPPLIER REPORT
-  doc.addPage();
-  addPageHeader('Supplier Report');
-  const supRows = [];
-  document.querySelectorAll('#supplierOverviewTbl tr').forEach(tr => {
-    const cells = [...tr.querySelectorAll('td')].map(td => td.textContent.trim());
-    if (cells.length === 3) supRows.push(cells);
-  });
-  doc.autoTable({
-    ...tblStyles, startY: 38,
-    head: [['Supplier Name','Total Items','Status']],
-    body: supRows.length ? supRows : [['No suppliers found','','']],
-  });
+  // ── 5. Sales Report ───────────────────────────────────────────
+  const sd        = _salesData || {};
+  const st        = sd.totals  || {};
+  const salesRows = (sd.daily || []).map(r => [
+    r.date, r.orders,
+    fmtPHP(r.revenue), r.return_count, fmtPHP(r.refunds),
+  ]);
+  const salesFoot = [['TOTAL', st.total_orders||0, fmtPHP(st.total_revenue), st.total_returns||0, fmtPHP(st.total_refunds)]];
+  const salesExtra = (() => {
+    const top = sd.top_products || [];
+    if (!top.length) return [];
+    return [
+      [],
+      ['TOP SELLING PRODUCTS'],
+      ['Rank','SKU','Product Name','Units Sold','Revenue (PHP)'],
+      ...top.map((p,i) => [i+1, p.sku||'', p.product_name, p.total_qty, fmtPHP(p.total_revenue)]),
+    ];
+  })();
+  const salesSection = section(
+    'SALES REPORT',
+    ['Date','Orders','Revenue (PHP)','Returns','Refunds (PHP)'],
+    salesRows, salesFoot, salesExtra
+  );
 
-  // Page numbers
-  const totalPages = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFontSize(7);
-    doc.setTextColor(150, 180, 200);
-    doc.text('Page ' + i + ' of ' + totalPages, pageW / 2, doc.internal.pageSize.getHeight() - 5, { align:'center' });
-  }
+  // ── Assemble full CSV ─────────────────────────────────────────
+  const meta = [
+    ['RF Moto Parts – Inventory Management System'],
+    [`Date Range: ${dateFrom} to ${dateTo}`],
+    [`Generated: ${new Date().toLocaleString('en-PH')}`],
+    [],
+  ];
 
-  const filename = 'RF-Moto-Report-' + new Date().toISOString().split('T')[0] + '.pdf';
-  doc.save(filename);
-  showToast('PDF exported successfully!', 'success');
+  const allLines = [
+    ...meta.map(r => r.map(escape).join(',')),
+    ...invSection,
+    ...mvSection,
+    ...lsSection,
+    ...osSection,
+    ...salesSection,
+  ];
+
+  const csvContent = '\uFEFF' + allLines.join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `RFMoto_Full_Report_${generated}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Full report exported!', 'success');
 }
-
 // ════════════════════════════════════════════
 //  SHARED HELPERS
 // ════════════════════════════════════════════
@@ -1156,7 +1213,7 @@ document.addEventListener('click', function(e) {
 });
 async function doLogout() {
   try { await fetch('/logout', { method:'POST', headers: authHeaders() }); } catch(e) {}
-  localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user'); sessionStorage.removeItem('rfmoto_token'); sessionStorage.removeItem('rfmoto_user');
+  localStorage.removeItem('rfmoto_token'); localStorage.removeItem('rfmoto_user');
   window.location.href = '/login';
 }
 
@@ -1177,8 +1234,8 @@ document.addEventListener('click', e => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  const _u = (() => { try { return JSON.parse(sessionStorage.getItem('rfmoto_user') || localStorage.getItem('rfmoto_user')); } catch(e){return null;} })();
-  const _t = getToken();
+  const _u = (() => { try { return JSON.parse(localStorage.getItem('rfmoto_user')); } catch(e){return null;} })();
+  const _t = localStorage.getItem('rfmoto_token');
   if (!_t || !_u) { window.location.replace('/login'); return; }
   if (_u.role !== 'admin') { window.location.replace('/dashboard'); return; }
   initFromSession();
