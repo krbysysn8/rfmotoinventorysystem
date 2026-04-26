@@ -737,7 +737,7 @@ async function lookupSalesOrder() {
   el('soErrorBox').style.display = 'none';
 
   try {
-    const data = await apiFetch('/returns/lookup-order?order_number=' + encodeURIComponent(soNum));
+    const data = await apiFetch('/returns/lookup-order', { method: 'POST', body: JSON.stringify({ order_number: soNum }) });
 
     if (!data || data.status === 'not_found') {
       el('soErrorBox').style.display = 'flex';
@@ -975,21 +975,7 @@ function closeUserMenu(){const dd=document.getElementById('userDropdown');if(dd)
 document.addEventListener('click',function(e){const btn=document.getElementById('topbarUserBtn'),dd=document.getElementById('userDropdown');if(dd&&btn&&!btn.contains(e.target)&&!dd.contains(e.target))dd.style.display='none';});
 function confirmLogout(){closeUserMenu();openModal('modalLogout');}
 async function doLogout(){try{await apiFetch('/logout',{method:'POST'});}catch(e){}clearAuth();window.location.href='/login';}
-</script>
 
-// ── Global product search ─────────────────────────────────────
-function globalSearchFn(val) {
-  val = (val || '').trim();
-  if (!val) return;
-  sessionStorage.setItem('rfmoto_search', val);
-  window.location.href = '/products';
-}
-function globalSearchPreview(val) {
-  // just updates the input — actual search happens on Enter
-}
-
-
-<script>
 // ── Global product search ─────────────────────────────────────
 function globalSearchFn(val) {
   val = (val || '').trim();
