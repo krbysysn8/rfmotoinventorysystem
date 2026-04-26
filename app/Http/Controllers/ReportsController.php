@@ -18,14 +18,12 @@ class ReportsController extends Controller
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/inventory-summary
-    //  Category breakdown: totals, in/low/out stock, value
     // ─────────────────────────────────────────────────────────
     public function inventorySummary(Request $request): JsonResponse
     {
         $from = $request->query('from');
         $to   = $request->query('to');
 
-        // Get all active products with their variations
         $query = DB::table('products as p')
             ->join('categories as c', 'p.category_id', '=', 'c.category_id')
             ->select(
@@ -42,9 +40,7 @@ class ReportsController extends Controller
         if ($from) $query->whereDate('p.updated_at', '>=', $from);
         if ($to)   $query->whereDate('p.updated_at', '<=', $to);
 
-        $products = $query->get();
-
-        // Get all active variations for these products
+        $products   = $query->get();
         $productIds = $products->pluck('product_id');
         $variations = DB::table('product_variations')
             ->whereIn('product_id', $productIds)
@@ -53,7 +49,6 @@ class ReportsController extends Controller
             ->get()
             ->groupBy('product_id');
 
-        // Build per-category rows using effective stock
         $catMap = [];
         foreach ($products as $p) {
             $catId   = $p->category_id;
@@ -64,6 +59,7 @@ class ReportsController extends Controller
                 $catMap[$catId] = [
                     'category_name' => $catName,
                     'total_items'   => 0,
+                    'total_stock'   => 0,  // total units across all variations
                     'in_stock'      => 0,
                     'low_stock'     => 0,
                     'out_of_stock'  => 0,
@@ -72,59 +68,51 @@ class ReportsController extends Controller
             }
 
             if ($vars->isNotEmpty()) {
-                // Count each variation as a separate item
                 foreach ($vars as $v) {
                     $catMap[$catId]['total_items']++;
                     $stock = (int)$v->stock_qty;
-                    if ($stock === 0)                          $catMap[$catId]['out_of_stock']++;
-                    elseif ($stock <= $p->reorder_level)      $catMap[$catId]['low_stock']++;
-                    else                                       $catMap[$catId]['in_stock']++;
+                    $catMap[$catId]['total_stock'] += $stock;
+                    if ($stock === 0)                     $catMap[$catId]['out_of_stock']++;
+                    elseif ($stock <= $p->reorder_level) $catMap[$catId]['low_stock']++;
+                    else                                  $catMap[$catId]['in_stock']++;
                     $catMap[$catId]['total_value'] += $stock * (float)$p->unit_price;
                 }
             } else {
-                // No variations — count product itself
                 $catMap[$catId]['total_items']++;
                 $stock = (int)$p->stock_qty;
-                if ($stock === 0)                          $catMap[$catId]['out_of_stock']++;
-                elseif ($stock <= $p->reorder_level)      $catMap[$catId]['low_stock']++;
-                else                                       $catMap[$catId]['in_stock']++;
+                $catMap[$catId]['total_stock'] += $stock;
+                if ($stock === 0)                     $catMap[$catId]['out_of_stock']++;
+                elseif ($stock <= $p->reorder_level) $catMap[$catId]['low_stock']++;
+                else                                  $catMap[$catId]['in_stock']++;
                 $catMap[$catId]['total_value'] += $stock * (float)$p->unit_price;
             }
         }
 
-        $rows = collect(array_values($catMap))->sortBy('category_name')->values();
-
-        // Totals row
+        $rows   = collect(array_values($catMap))->sortBy('category_name')->values();
         $totals = [
             'category_name' => 'TOTAL',
             'total_items'   => $rows->sum('total_items'),
+            'total_stock'   => $rows->sum('total_stock'),
             'in_stock'      => $rows->sum('in_stock'),
             'low_stock'     => $rows->sum('low_stock'),
             'out_of_stock'  => $rows->sum('out_of_stock'),
             'total_value'   => $rows->sum('total_value'),
         ];
 
-        return response()->json([
-            'status'  => 'success',
-            'summary' => $rows,
-            'totals'  => $totals,
-        ]);
+        return response()->json(['status' => 'success', 'summary' => $rows, 'totals' => $totals]);
     }
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/stock-movement
-    //  Monthly stock in/out for the last 6 months
     // ─────────────────────────────────────────────────────────
     public function stockMovement(Request $request): JsonResponse
     {
         $from = $request->query('from');
         $to   = $request->query('to');
 
-        // Build month list between from and to (max 12 months, default last 6)
         $dateFrom = $from ? \Carbon\Carbon::parse($from)->startOfMonth() : now()->subMonths(5)->startOfMonth();
         $dateTo   = $to   ? \Carbon\Carbon::parse($to)->startOfMonth()   : now()->startOfMonth();
 
-        // Cap at 12 months to avoid huge ranges
         if ($dateFrom->diffInMonths($dateTo) > 11) {
             $dateFrom = $dateTo->copy()->subMonths(11);
         }
@@ -140,17 +128,13 @@ class ReportsController extends Controller
             ->selectRaw("TO_CHAR(movement_date, 'YYYY-MM') as month")
             ->selectRaw('movement_type')
             ->selectRaw('SUM(quantity) as total')
-            ->whereIn(
-                DB::raw("TO_CHAR(movement_date, 'YYYY-MM')"),
-                $months->toArray()
-            )
+            ->whereIn(DB::raw("TO_CHAR(movement_date, 'YYYY-MM')"), $months->toArray())
             ->groupByRaw("TO_CHAR(movement_date, 'YYYY-MM'), movement_type")
             ->orderByRaw("TO_CHAR(movement_date, 'YYYY-MM')")
             ->get();
 
         $stockIn  = [];
         $stockOut = [];
-
         foreach ($months as $m) {
             $inRow  = $rows->where('month', $m)->where('movement_type', 'in')->first();
             $outRow = $rows->where('month', $m)->where('movement_type', 'out')->first();
@@ -168,7 +152,6 @@ class ReportsController extends Controller
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/low-stock
-    //  Items at or below reorder level — variation-aware
     // ─────────────────────────────────────────────────────────
     public function lowStock(Request $request): JsonResponse
     {
@@ -189,8 +172,7 @@ class ReportsController extends Controller
         if ($from) $query->whereDate('p.updated_at', '>=', $from);
         if ($to)   $query->whereDate('p.updated_at', '<=', $to);
 
-        $products = $query->get();
-
+        $products   = $query->get();
         $productIds = $products->pluck('product_id');
         $variations = DB::table('product_variations')
             ->whereIn('product_id', $productIds)
@@ -203,7 +185,6 @@ class ReportsController extends Controller
         foreach ($products as $p) {
             $reorderLevel = (int)$p->reorder_level > 0 ? (int)$p->reorder_level : 5;
             $vars = $variations->get($p->product_id, collect());
-
             if ($vars->isNotEmpty()) {
                 foreach ($vars as $v) {
                     $stock = (int)$v->stock_qty;
@@ -240,17 +221,11 @@ class ReportsController extends Controller
         }
 
         $sorted = $items->sortBy('stock_qty')->values();
-
-        return response()->json([
-            'status' => 'success',
-            'items'  => $sorted,
-            'count'  => $sorted->count(),
-        ]);
+        return response()->json(['status' => 'success', 'items' => $sorted, 'count' => $sorted->count()]);
     }
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/out-of-stock
-    //  Items with zero stock — variation-aware
     // ─────────────────────────────────────────────────────────
     public function outOfStock(Request $request): JsonResponse
     {
@@ -271,8 +246,7 @@ class ReportsController extends Controller
         if ($from) $query->whereDate('p.updated_at', '>=', $from);
         if ($to)   $query->whereDate('p.updated_at', '<=', $to);
 
-        $products = $query->get();
-
+        $products   = $query->get();
         $productIds = $products->pluck('product_id');
         $variations = DB::table('product_variations')
             ->whereIn('product_id', $productIds)
@@ -284,7 +258,6 @@ class ReportsController extends Controller
         $items = collect();
         foreach ($products as $p) {
             $vars = $variations->get($p->product_id, collect());
-
             if ($vars->isNotEmpty()) {
                 foreach ($vars as $v) {
                     if ((int)$v->stock_qty === 0) {
@@ -319,71 +292,166 @@ class ReportsController extends Controller
         }
 
         $sorted = $items->sortByDesc('updated_at')->values();
-
-        return response()->json([
-            'status' => 'success',
-            'items'  => $sorted,
-            'count'  => $sorted->count(),
-        ]);
+        return response()->json(['status' => 'success', 'items' => $sorted, 'count' => $sorted->count()]);
     }
 
+    // ─────────────────────────────────────────────────────────
     //  GET /api/reports/supplier-report
-    //  Items per supplier + supplier status
     // ─────────────────────────────────────────────────────────
     public function supplierReport(Request $request): JsonResponse
     {
         $suppliers = DB::table('suppliers as s')
             ->leftJoin('products as p', function ($join) {
-                $join->on('p.supplier_id', '=', 's.supplier_id')
-                     ->where('p.is_active', true);
+                $join->on('p.supplier_id', '=', 's.supplier_id')->where('p.is_active', true);
             })
-            ->select(
-                's.supplier_id',
-                's.supplier_name',
-                's.status',
-                DB::raw('COUNT(p.product_id) as item_count')
-            )
+            ->select('s.supplier_id', 's.supplier_name', 's.status', DB::raw('COUNT(p.product_id) as item_count'))
             ->groupBy('s.supplier_id', 's.supplier_name', 's.status')
             ->orderBy('item_count', 'desc')
             ->get();
 
-        return response()->json([
-            'status'    => 'success',
-            'suppliers' => $suppliers,
-        ]);
+        return response()->json(['status' => 'success', 'suppliers' => $suppliers]);
     }
 
     // ─────────────────────────────────────────────────────────
     //  GET /api/reports/sales-summary
-    //  Sales totals for the date range (for future use)
+    //  Full sales report with returns impact, filterable by month
     // ─────────────────────────────────────────────────────────
     public function salesSummary(Request $request): JsonResponse
     {
+        // Default: current month
         $from = $request->query('from', now()->startOfMonth()->toDateString());
         $to   = $request->query('to',   now()->toDateString());
 
-        $totals = DB::table('sales_orders')
+        // ── Sales totals ──────────────────────────────────────
+        // sales_orders.total_amount is ALREADY the post-return revenue
+        // because ReturnController deducts refund_amount from it on every return.
+        // So we just sum it directly — no further subtraction needed.
+        $salesTotals = DB::table('sales_orders')
             ->whereBetween('order_date', [$from, $to])
             ->where('status', 'completed')
             ->selectRaw('COUNT(*) as total_orders')
-            ->selectRaw('SUM(total_amount) as total_revenue')
-            ->selectRaw('SUM(discount) as total_discounts')
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as total_revenue')
             ->first();
 
-        $daily = DB::table('sales_orders')
+        // ── Returns totals for the same period ───────────────
+        $returnTotals = DB::table('return_requests')
+            ->whereBetween('return_date', [$from, $to])
+            ->selectRaw('COUNT(*) as total_returns')
+            ->selectRaw('COALESCE(SUM(refund_amount), 0) as total_refunds')
+            ->selectRaw('COALESCE(SUM(quantity), 0) as total_returned_qty')
+            ->first();
+
+        // ── Daily breakdown ───────────────────────────────────
+        $dailySales = DB::table('sales_orders')
             ->whereBetween('order_date', [$from, $to])
             ->where('status', 'completed')
-            ->selectRaw('order_date')
+            ->selectRaw('order_date::date as sale_date')
             ->selectRaw('COUNT(*) as orders')
-            ->selectRaw('SUM(total_amount) as revenue')
-            ->groupBy('order_date')
-            ->orderBy('order_date')
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as revenue')
+            ->groupBy(DB::raw('order_date::date'))
+            ->orderBy(DB::raw('order_date::date'))
+            ->get()
+            ->keyBy('sale_date');
+
+        $dailyReturns = DB::table('return_requests')
+            ->whereBetween('return_date', [$from, $to])
+            ->selectRaw('return_date::date as return_date')
+            ->selectRaw('COUNT(*) as return_count')
+            ->selectRaw('COALESCE(SUM(refund_amount), 0) as refunds')
+            ->selectRaw('COALESCE(SUM(quantity), 0) as returned_qty')
+            ->groupBy(DB::raw('return_date::date'))
+            ->orderBy(DB::raw('return_date::date'))
+            ->get()
+            ->keyBy('return_date');
+
+        // Include every date that had sales OR returns
+        $allDates = collect($dailySales->keys())->merge($dailyReturns->keys())->unique()->sort()->values();
+
+        $daily = $allDates->map(function ($date) use ($dailySales, $dailyReturns) {
+            $s       = $dailySales->get($date);
+            $r       = $dailyReturns->get($date);
+            $gross   = $s ? (float)$s->revenue  : 0;
+            $refunds = $r ? (float)$r->refunds  : 0;
+            return [
+                'date'         => $date,
+                'orders'       => $s ? (int)$s->orders       : 0,
+                'revenue'      => max(0, $gross - $refunds),  // actual per-day revenue after refunds
+                'return_count' => $r ? (int)$r->return_count : 0,
+                'refunds'      => $refunds,
+                'returned_qty' => $r ? (int)$r->returned_qty : 0,
+            ];
+        })->values();
+
+        // ── Top-selling products for the period ───────────────
+        $topProducts = DB::table('sales_order_items as soi')
+            ->join('sales_orders as so', 'soi.order_id', '=', 'so.order_id')
+            ->join('products as p', 'soi.product_id', '=', 'p.product_id')
+            ->whereBetween('so.order_date', [$from, $to])
+            ->where('so.status', 'completed')
+            ->selectRaw('p.product_name')
+            ->selectRaw('p.sku')
+            ->selectRaw('SUM(soi.quantity) as total_qty')
+            ->selectRaw('SUM(soi.subtotal) as total_revenue')
+            ->groupBy('p.product_id', 'p.product_name', 'p.sku')
+            ->orderByDesc('total_qty')
+            ->limit(10)
             ->get();
 
+        // ── Monthly chart — same date range as the filter ────────
+        // Group by month within the selected from/to range
+        $chartFrom = \Carbon\Carbon::parse($from)->startOfMonth();
+        $chartTo   = \Carbon\Carbon::parse($to)->endOfMonth();
+
+        $months = collect();
+        $cursor = $chartFrom->copy();
+        while ($cursor->lte($chartTo)) {
+            $months->push($cursor->format('Y-m'));
+            $cursor->addMonth();
+        }
+
+        $monthlySales = DB::table('sales_orders')
+            ->where('status', 'completed')
+            ->whereDate('order_date', '>=', $from)
+            ->whereDate('order_date', '<=', $to)
+            ->selectRaw("TO_CHAR(order_date, 'YYYY-MM') as month")
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as gross_revenue')
+            ->groupByRaw("TO_CHAR(order_date, 'YYYY-MM')")
+            ->get()->keyBy('month');
+
+        $monthlyRefunds = DB::table('return_requests')
+            ->whereDate('return_date', '>=', $from)
+            ->whereDate('return_date', '<=', $to)
+            ->selectRaw("TO_CHAR(return_date, 'YYYY-MM') as month")
+            ->selectRaw('COALESCE(SUM(refund_amount), 0) as refunds')
+            ->groupByRaw("TO_CHAR(return_date, 'YYYY-MM')")
+            ->get()->keyBy('month');
+
+        $chartRevenue = [];
+        foreach ($months as $m) {
+            $gross   = isset($monthlySales[$m])   ? (float)$monthlySales[$m]->gross_revenue : 0;
+            $refunds = isset($monthlyRefunds[$m]) ? (float)$monthlyRefunds[$m]->refunds     : 0;
+            $chartRevenue[] = max(0, $gross - $refunds);
+        }
+
+        $grossRevenue = (float)$salesTotals->total_revenue;
+        $totalRefunds = (float)$returnTotals->total_refunds;
+
         return response()->json([
-            'status' => 'success',
-            'totals' => $totals,
-            'daily'  => $daily,
+            'status'  => 'success',
+            'period'  => ['from' => $from, 'to' => $to],
+            'totals'  => [
+                'total_orders'       => (int)$salesTotals->total_orders,
+                'total_revenue'      => max(0, $grossRevenue - $totalRefunds), // actual revenue after refunds
+                'total_returns'      => (int)$returnTotals->total_returns,
+                'total_refunds'      => $totalRefunds,
+                'total_returned_qty' => (int)$returnTotals->total_returned_qty,
+            ],
+            'daily'        => $daily,
+            'top_products' => $topProducts,
+            'chart' => [
+                'labels'  => $months->map(fn($m) => \Carbon\Carbon::createFromFormat('Y-m', $m)->format('M Y'))->toArray(),
+                'revenue' => $chartRevenue,
+            ],
         ]);
     }
 }
