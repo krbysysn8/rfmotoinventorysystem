@@ -41,6 +41,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Barcode
     Route::get   ('/barcode/lookup',       [BarcodeController::class, 'lookup']);
+    Route::get   ('/barcode/search',       [BarcodeController::class, 'search']);
     Route::get   ('/barcode/products',     [BarcodeController::class, 'products']);
     Route::get   ('/barcode/scan-logs',    [BarcodeController::class, 'scanLogs']);
     Route::delete('/barcode/scan-logs',    [BarcodeController::class, 'clearScanLogs']);
@@ -53,9 +54,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/sales', [SalesController::class, 'store']);
 
     // Returns
-    Route::get   ('/returns',      [ReturnController::class, 'index']);
-    Route::post  ('/returns',      [ReturnController::class, 'store']);
-    Route::delete('/returns/{id}', [ReturnController::class, 'destroy']);
+    Route::get   ('/returns',              [ReturnController::class, 'index']);
+    Route::get   ('/returns/lookup-order', [ReturnController::class, 'lookupOrder']);
+    Route::post  ('/returns',              [ReturnController::class, 'store']);
+    Route::delete('/returns/{id}',         [ReturnController::class, 'destroy']);
 
     // Categories (write)
     Route::post  ('/categories',                    [CategoryController::class, 'store']);
